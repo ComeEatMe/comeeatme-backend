@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: comeeatme-backend
+
+#  profiles:
+#    active: local
+#
+#  config:
+#    activate:
+#      on-profile: local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/comeeatme?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: my-secret-pw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop   # validate 로 추후 변경
+    properties:
+      hibernate:
+      format_sql: true
+      use_sql_comments: true
+      default_batch_fetch_size: 100
+    open-in-view: false
+
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+
+aws:
+  paramstore:
+    name: comeeatme
+    enabled: true
+    prefix: /config
+    profile-separator: _
+
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type: trace
