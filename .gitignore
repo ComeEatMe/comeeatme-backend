@@ -38,3 +38,6 @@ out/
 
 ### Macbook ###
 .DS_Store
+
+### Private ###
+application-private.*
