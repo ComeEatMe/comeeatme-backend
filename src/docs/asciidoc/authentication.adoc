@@ -1,0 +1,17 @@
+= Authentication
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[auth-LoginResponse]]
+== LoginResponse
+
+인증 성공 시 응답
+
+operation::auth-LoginResponse[snippets='response-body,response-fields']

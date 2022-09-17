@@ -1,10 +1,13 @@
 package com.comeeatme.common;
 
+import com.comeeatme.security.SecurityConfig;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,7 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 // TODO ApiResult 문서화용 테스트 패키지 정리 고려 -> ApiResult 와 같은 패키지
 // TODO 발생 가능한 에러를 최소화하고 에러 문서화를 따로 빼는 것 고려
 @Import({RestDocsConfig.class})
-@WebMvcTest(CommonDocsController.class)
+@WebMvcTest(controllers = CommonDocsController.class, excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
 @AutoConfigureRestDocs
 class CommonDocsControllerTest {
 
