@@ -32,7 +32,7 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
         OAuth2User user = super.loadUser(userRequest);
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(userRequest, user.getAttributes());
         String username = usernameFrom(userInfo.getProvider(), userInfo.getProviderId());
-        if (accountRepository.findByUsername(username).isEmpty()) {
+        if (isAccountNotExists(username)) {
             Member member = memberRepository.save(Member.builder()
                     .nickname("맛집러" + UUID.randomUUID().toString().substring(0, 8))
                     .introduction("")
@@ -46,6 +46,10 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
                 NAME_ATTRIBUTE_KEY, username
         );
         return new DefaultOAuth2User(null, attributes, NAME_ATTRIBUTE_KEY);
+    }
+
+    private boolean isAccountNotExists(String username) {
+        return accountRepository.findByUsername(username).filter(Account::getUseYn).isEmpty();
     }
 
     private String usernameFrom(Oauth2Provider provider, String providerId) {

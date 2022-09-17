@@ -26,6 +26,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getSubject(token);
             Account account = accountRepository.findByUsername(username)
+                    .filter(Account::getUseYn)
                     .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
             account.setRefreshToken(null);
             accountRepository.saveAndFlush(account);
