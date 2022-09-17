@@ -4,26 +4,18 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
-/**
- * Author      : 문 윤지
- * Description : Jwt 생성 및 인증 정보 추출
- * History     : [2022-07-15] 문윤지 - Class Create
- */
 @Slf4j
-@Component
 public class JwtTokenProvider {
 
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -43,9 +35,9 @@ public class JwtTokenProvider {
     private final JwtParser jwtParser;
 
     public JwtTokenProvider(
-            @Value("${jwt.access-token-validity}") long accessTokenValidity,
-            @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
-            @Value("${jwt.secret}") String secret,
+            long accessTokenValidity,
+            long refreshTokenValidity,
+            String secret,
             UserDetailsService userDetailsService) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.accessTokenValidityInMillis = accessTokenValidity * 1000;

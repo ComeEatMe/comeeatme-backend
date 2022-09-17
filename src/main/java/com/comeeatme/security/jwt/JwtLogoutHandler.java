@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Component
 @RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
 
