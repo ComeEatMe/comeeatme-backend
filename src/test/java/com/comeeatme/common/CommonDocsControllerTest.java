@@ -22,8 +22,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// TODO ApiResult 문서화용 테스트 패키지 정리 고려 -> ApiResult 와 같은 패키지
-// TODO 발생 가능한 에러를 최소화하고 에러 문서화를 따로 빼는 것 고려
 @Import({RestDocsConfig.class})
 @WebMvcTest(controllers = CommonDocsController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })

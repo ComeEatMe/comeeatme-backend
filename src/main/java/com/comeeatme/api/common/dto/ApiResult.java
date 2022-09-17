@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 
-// TODO API 반환 형식 논의
-// TODO 패키지 구조
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
