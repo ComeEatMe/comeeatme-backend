@@ -9,7 +9,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "account",
-        uniqueConstraints = @UniqueConstraint(name = "UK_account_username", columnNames = "username")
+        uniqueConstraints = @UniqueConstraint(name = "UK_account_username", columnNames = "username"),
+        indexes = @Index(name = "IX_account_member_id", columnList = "member_id")
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,8 +21,8 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
     @Column(name = "username", nullable = false)
