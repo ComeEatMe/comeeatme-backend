@@ -1,6 +1,6 @@
 package com.comeeatme.domain.member;
 
-import com.comeeatme.domain.core.BaseEntity;
+import com.comeeatme.domain.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import javax.persistence.*;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseEntity {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
