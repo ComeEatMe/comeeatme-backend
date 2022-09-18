@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member;
 
+import com.comeeatme.domain.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import javax.persistence.*;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +28,18 @@ public class Member {
     @Column(name = "introduction", length = 100, nullable = false)
     private String introduction;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     @Builder
     private Member(
             @Nullable Long id,
             String nickname,
-            String introduction) {
+            String introduction,
+            @Nullable String profileImageUrl) {
         this.id = id;
         this.nickname = nickname;
         this.introduction = introduction;
+        this.profileImageUrl = profileImageUrl;
     }
 }
