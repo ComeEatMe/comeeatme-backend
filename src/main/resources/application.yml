@@ -23,9 +23,9 @@ spring:
       ddl-auto: create-drop   # validate 로 추후 변경
     properties:
       hibernate:
-      format_sql: true
-      use_sql_comments: true
-      default_batch_fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
     open-in-view: false
 
   flyway:
