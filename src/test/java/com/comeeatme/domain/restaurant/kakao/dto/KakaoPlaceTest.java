@@ -40,7 +40,7 @@ class KakaoPlaceTest {
         assertThat(kakaoPlace.getPlaceName()).isEqualTo("모노끼 야탑점");
         assertThat(kakaoPlace.getPlaceUrl()).isEqualTo("http://place.map.kakao.com/25970354");
         assertThat(kakaoPlace.getRoadAddressName()).isEqualTo("경기 성남시 분당구 야탑로69번길 24-6");
-        assertThat(kakaoPlace.getX()).isEqualTo(127.12729076428592);
-        assertThat(kakaoPlace.getY()).isEqualTo(37.41160407198509);
+        assertThat(kakaoPlace.getX()).isEqualTo("127.12729076428592");
+        assertThat(kakaoPlace.getY()).isEqualTo("37.41160407198509");
     }
 }

@@ -17,6 +17,6 @@ public class KakaoPlace {
     private String placeName;
     private String placeUrl;
     private String roadAddressName;
-    private Double x;
-    private Double y;
+    private String x;
+    private String y;
 }
