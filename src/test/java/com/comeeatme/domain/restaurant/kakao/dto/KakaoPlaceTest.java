@@ -31,7 +31,7 @@ class KakaoPlaceTest {
 
         // then
         assertThat(kakaoPlace.getAddressName()).isEqualTo("경기 성남시 분당구 야탑동 353-4");
-        assertThat(kakaoPlace.getCategoryGroupCode()).isEqualTo("FD6");
+        assertThat(kakaoPlace.getCategoryGroupCode()).isEqualTo(KakaoCategoryGroupCode.FD6);
         assertThat(kakaoPlace.getCategoryGroupName()).isEqualTo("음식점");
         assertThat(kakaoPlace.getCategoryName()).isEqualTo("음식점 > 일식 > 돈까스,우동");
         assertThat(kakaoPlace.getDistance()).isNull();

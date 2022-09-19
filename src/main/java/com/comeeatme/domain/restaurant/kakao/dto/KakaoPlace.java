@@ -8,7 +8,7 @@ import lombok.Getter;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoPlace {
     private String addressName;
-    private String categoryGroupCode;
+    private KakaoCategoryGroupCode categoryGroupCode;
     private String categoryGroupName;
     private String categoryName;
     private Double distance;
