@@ -11,12 +11,12 @@ import java.util.List;
 public class KakaoPlaceMeta {
     private Boolean isEnd;
     private Integer pageableCount;
-    private SameName sameName;
+    private RegionInfo sameName;
     private Integer totalCount;
 
     @Getter
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    public static class SameName {
+    public static class RegionInfo {
         private String keyword;
         private List<String> region;
         private String selectedRegion;
