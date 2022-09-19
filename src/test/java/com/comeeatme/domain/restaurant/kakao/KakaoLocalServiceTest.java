@@ -7,6 +7,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -40,6 +41,7 @@ class KakaoLocalServiceTest {
     }
 
     @Test
+    @DisplayName("카카오 로컬 키워드로 장소 검색")
     void queryByKeyword() throws Exception {
         // given
         String resultJson = "{\n" +
@@ -108,4 +110,70 @@ class KakaoLocalServiceTest {
         assertThat(requestUrl.queryParameter("size")).isNull();
         assertThat(requestUrl.queryParameter("sort")).isNull();
     }
+
+    @Test
+    @DisplayName("카카오 로컬 카테고리로 장소 검색")
+    void queryByCategory() throws Exception {
+        // given
+        String resultJson = "{\n" +
+                "  \"documents\": [\n" +
+                "    {\n" +
+                "      \"address_name\": \"대전 중구 은행동 145-1\",\n" +
+                "      \"category_group_code\": \"FD6\",\n" +
+                "      \"category_group_name\": \"음식점\",\n" +
+                "      \"category_name\": \"음식점 > 간식 > 제과,베이커리\",\n" +
+                "      \"distance\": \"\",\n" +
+                "      \"id\": \"17733090\",\n" +
+                "      \"phone\": \"1588-8069\",\n" +
+                "      \"place_name\": \"성심당 본점\",\n" +
+                "      \"place_url\": \"http://place.map.kakao.com/17733090\",\n" +
+                "      \"road_address_name\": \"대전 중구 대종로480번길 15\",\n" +
+                "      \"x\": \"127.42729841033072\",\n" +
+                "      \"y\": \"36.32766876762939\"\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"meta\": {\n" +
+                "    \"is_end\": false,\n" +
+                "    \"pageable_count\": 45,\n" +
+                "    \"same_name\": null,\n" +
+                "    \"total_count\": 708638\n" +
+                "  }\n" +
+                "}";
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(SC_OK)
+                .setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
+                .setBody(resultJson)
+        );
+        CategoryQueryParam mockParam = mock(CategoryQueryParam.class);
+        given(mockParam.getCategoryGroupCode()).willReturn(KakaoCategoryGroupCode.FD6);
+        given(mockParam.getX()).willReturn(null);
+        given(mockParam.getY()).willReturn(null);
+        given(mockParam.getRadius()).willReturn(null);
+        given(mockParam.getRect()).willReturn(null);
+        given(mockParam.getPage()).willReturn(null);
+        given(mockParam.getSize()).willReturn(null);
+        given(mockParam.getSortParam()).willReturn(null);
+
+        // when
+        kakaoLocalService.queryByCategory(mockParam);
+
+        // then
+        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+        assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.GET.name());
+        assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("KakaoAK " + "{REST_API_KEY}");
+        assertThat(recordedRequest.getPath()).startsWith("/v2/local/search/category.json");
+
+        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+        assertThat(requestUrl).isNotNull();
+        assertThat(requestUrl.queryParameter("category_group_code"))
+                .isEqualTo(KakaoCategoryGroupCode.FD6.name());
+        assertThat(requestUrl.queryParameter("x")).isNull();
+        assertThat(requestUrl.queryParameter("y")).isNull();
+        assertThat(requestUrl.queryParameter("radius")).isNull();
+        assertThat(requestUrl.queryParameter("rect")).isNull();
+        assertThat(requestUrl.queryParameter("page")).isNull();
+        assertThat(requestUrl.queryParameter("size")).isNull();
+        assertThat(requestUrl.queryParameter("sort")).isNull();
+    }
+
 }
