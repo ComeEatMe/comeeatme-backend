@@ -1,5 +1,6 @@
 package com.comeeatme.domain.restaurant.kakao;
 
+import com.comeeatme.domain.restaurant.kakao.dto.CategoryQueryParam;
 import com.comeeatme.domain.restaurant.kakao.dto.KakaoPlacePage;
 import com.comeeatme.domain.restaurant.kakao.dto.KeywordQueryParam;
 import org.apache.http.HttpHeaders;
@@ -61,4 +62,23 @@ public class KakaoLocalService {
                 .block();
     }
 
+    /**
+     * Ref: https://developers.kakao.com/tool/rest-api/open/get/v2-local-search-category.%7Bformat%7D
+     */
+    public KakaoPlacePage queryByCategory(CategoryQueryParam param) {
+
+        return webClient.get()
+                .uri(builder -> builder
+                        .path(categoryQueryPath)
+                        .queryParam("category_group_code", param.getCategoryGroupCode())
+                        .queryParamIfPresent("x", Optional.ofNullable(param.getX()))
+                        .queryParamIfPresent("y", Optional.ofNullable(param.getY()))
+                        .queryParamIfPresent("rect", Optional.ofNullable(param.getRect()))
+                        .queryParamIfPresent("page", Optional.ofNullable(param.getPage()))
+                        .queryParamIfPresent("sort", Optional.ofNullable(param.getSortParam()))
+                        .build())
+                .retrieve()
+                .bodyToMono(KakaoPlacePage.class)
+                .block();
+    }
 }
