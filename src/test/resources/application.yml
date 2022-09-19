@@ -24,8 +24,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: ${OAUTH2_KAKAO_CLIENT_ID}
-            client-secret: ${OAUTH2_KAKAO_CLIENT_SECRET}
+            client-id: OAUTH2_KAKAO_CLIENT_ID
+            client-secret: OAUTH2_KAKAO_CLIENT_SECRET
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: POST
@@ -48,3 +48,9 @@ jwt:
   secret: a2FrYW9jbG91ZHNjaG9vbGxvY2Fsa2FrYW9jbG91ZGMK
   access-token-validity: 3600
   refresh-token-validity: 2592000
+
+kakao:
+  local:
+    base-url: https://dapi.kakao.com
+    keyword-query-path: /v2/local/search/keyword.json
+    category-query-path: /v2/local/search/category.json

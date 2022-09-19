@@ -31,11 +31,8 @@ public class Restaurant extends BaseEntity {
     @Column(name = "name", length = 45, nullable = false)
     private String name;
 
-    @Column(name = "category_group", length = 15, nullable = false)
-    private String categoryGroup;
-
-    @Column(name = "category", length = 15, nullable = false)
-    private String category;
+    @Column(name = "category_name", length = 45, nullable = false)
+    private String categoryName;
 
     @Column(name = "phone", length = 25, nullable = false)
     private String phone;
@@ -49,16 +46,14 @@ public class Restaurant extends BaseEntity {
             Long kakaoId,
             String kakaoPlaceUrl,
             String name,
-            String categoryGroup,
-            String category,
+            String categoryName,
             String phone,
             Address address) {
         this.id = id;
         this.kakaoId = kakaoId;
         this.kakaoPlaceUrl = kakaoPlaceUrl;
         this.name = name;
-        this.categoryGroup = categoryGroup;
-        this.category = category;
+        this.categoryName = categoryName;
         this.phone = phone;
         this.address = address;
     }
