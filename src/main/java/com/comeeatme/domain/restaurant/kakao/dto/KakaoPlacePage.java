@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaoPage {
+public class KakaoPlacePage {
     private List<KakaoPlace> documents;
     private KakaoPlaceMeta meta;
 }

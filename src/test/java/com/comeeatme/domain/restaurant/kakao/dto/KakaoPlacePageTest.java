@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class KakaoPageTest {
+class KakaoPlacePageTest {
 
     @Test
     void create() throws Exception {
@@ -41,7 +41,7 @@ class KakaoPageTest {
                 "}";
 
         // when
-        KakaoPage page = objectMapper.readValue(pageJson, KakaoPage.class);
+        KakaoPlacePage page = objectMapper.readValue(pageJson, KakaoPlacePage.class);
 
         // then
         assertThat(page.getDocuments()).isNotNull();
