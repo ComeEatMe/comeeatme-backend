@@ -1,5 +1,6 @@
 package com.comeeatme.domain.restaurant;
 
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
