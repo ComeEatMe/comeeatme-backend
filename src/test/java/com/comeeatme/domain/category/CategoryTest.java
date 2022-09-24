@@ -35,12 +35,14 @@ class CategoryTest {
     @Test
     @DisplayName("RestaurantCategory depth, parent 유니크")
     void depthParentUnique() {
-        categoryRepository.save(Category.builder()
+        categoryRepository.saveAndFlush(Category.builder()
+                .parent(Category.builder().id(1L).build())
                 .name("음식점")
                 .fullName("음식점")
                 .depth(1)
                 .build());
-        assertThatThrownBy(() -> categoryRepository.save(Category.builder()
+        assertThatThrownBy(() -> categoryRepository.saveAndFlush(Category.builder()
+                .parent(Category.builder().id(1L).build())
                 .name("음식점")
                 .fullName("음식점")
                 .depth(1)
