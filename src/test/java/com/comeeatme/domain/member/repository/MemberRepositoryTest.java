@@ -44,4 +44,22 @@ class MemberRepositoryTest {
         assertThat(foundMember.getIntroduction()).isEqualTo("test-introduction");
         assertThat(foundMember.getProfileImageUrl()).isEqualTo("test-profileimageurl");
     }
+
+    @Test
+    void findByUsername_AccountDeleted() {
+        // given
+        Member member = memberRepository.saveAndFlush(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .profileImageUrl("test-profileimageurl")
+                .build());
+        Account account = accountRepository.saveAndFlush(Account.builder()
+                .username("test-username")
+                .member(member)
+                .build());
+        account.delete();
+
+        // expected
+        assertThat(memberRepository.findByUsername("test-username")).isEmpty();
+    }
 }
