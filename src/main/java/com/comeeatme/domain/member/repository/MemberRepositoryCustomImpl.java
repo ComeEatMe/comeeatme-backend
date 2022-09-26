@@ -20,7 +20,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
                 .select(member)
                 .from(account)
                 .join(account.member, member)
-                .where(account.username.eq(username))
+                .where(account.username.eq(username), account.useYn.isTrue())
                 .fetchOne()
         );
     }
