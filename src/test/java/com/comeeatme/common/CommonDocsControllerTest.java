@@ -17,8 +17,9 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,6 +88,37 @@ class CommonDocsControllerTest {
                                 fieldWithPath("error.errors[].field").description("예외가 발생한 요청 필드"),
                                 fieldWithPath("error.errors[].value").description("예외가 발생한 요청 값"),
                                 fieldWithPath("error.errors[].reason").description("예외가 발생한 원인")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    void apiResult_Slice() throws Exception {
+        mockMvc.perform(get("/docs/common/api-result/slice")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "createdAt,desc", "distance,asc", "id"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("common-ApiResult-slice",
+                        requestParameters(
+                                parameterWithName("page").description("페이지 번호. 0부터 시작. 기본값 0.").optional(),
+                                parameterWithName("size").description("페이지 사이즈. 최대 100. 기본값 10").optional(),
+                                parameterWithName("sort").description("정렬 조건. asc 는 생략 가능").optional()
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("content").description("조회된 데이터"),
+                                subsectionWithPath("pageable").description("페이지 요청 정보"),
+                                fieldWithPath("first").description("첫 페이지 인지 여부"),
+                                fieldWithPath("last").description("마지막 페이지 인지 여부"),
+                                fieldWithPath("size").description("요청한 페이지 크기"),
+                                fieldWithPath("number").description("현재 페이지 번호"),
+                                subsectionWithPath("sort").description("데이터 정렬 정보"),
+                                fieldWithPath("numberOfElements").description("현재 페이지 데이터 수"),
+                                fieldWithPath("empty").description("현재 데이티 데이터 포함 여부")
                         )
                 ));
     }
