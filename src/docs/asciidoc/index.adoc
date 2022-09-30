@@ -13,6 +13,7 @@
 == API Domain
 - xref:authentication.adoc[Authentication]
 - xref:code.adoc[Code]
+- xref:image.adoc[Image]
 
 == HTTP Method
 
