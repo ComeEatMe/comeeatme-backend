@@ -13,6 +13,7 @@
 == API Domain
 - xref:authentication.adoc[Authentication]
 - xref:code.adoc[Code]
+- xref:image.adoc[Image]
 
 == HTTP Method
 
@@ -82,6 +83,11 @@
 
 operation::common-ApiResult-success[snippets='http-request,request-headers,http-response,response-fields']
 
+
+[[ApiResult-slice]]
+=== 페이지
+
+operation::common-ApiResult-slice[snippets='http-request,request-parameters,http-response,response-fields-data']
 
 [[ApiResult-error]]
 === 에러

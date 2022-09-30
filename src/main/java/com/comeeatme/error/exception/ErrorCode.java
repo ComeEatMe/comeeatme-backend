@@ -14,6 +14,10 @@ public enum ErrorCode {
     HANDLE_ACCESS_DENIED(SC_FORBIDDEN, "접근이 허용되지 않습니다."),
     INVALID_INPUT_VALUE(SC_BAD_REQUEST, "유효하지 않은 입력 값입니다."),
     INVALID_TYPE_VALUE(SC_BAD_REQUEST,  "유효하지 않은 타입입니다."),
+    IMAGE_SIZE_EXCEEDED(SC_BAD_REQUEST, "이미지 용량이 초과되었습니다."),
+    INVALID_IMAGE(SC_BAD_REQUEST, "잘못된 이미지를 업로드하였습니다."),
+    ENTITY_NOT_FOUND(SC_NOT_FOUND, "존재하지 않는 자원입니다."),
+    ENTITY_ACCESS_DENIED(SC_FORBIDDEN, "접근이 허용되지 않는 리소스입니다."),
     ;
 
     private final int status;

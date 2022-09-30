@@ -41,3 +41,6 @@ out/
 
 ### Private ###
 application-private.*
+
+### Image test directory ###
+localimage

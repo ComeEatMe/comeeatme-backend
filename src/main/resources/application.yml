@@ -11,6 +11,17 @@ spring:
     activate:
       on-profile: local
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
+
   datasource:
     url: jdbc:mysql://localhost:3306/comeeatme?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
@@ -51,18 +62,25 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-aws:
-  paramstore:
-    name: comeeatme
-    enabled: true
-    prefix: /config
-    profile-separator: _
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    stack:
+      auto: false
 
 logging:
   level:
-    org.hibernate:
-      SQL: debug
-      type: trace
+    org:
+      hibernate:
+        SQL: debug
+        type: trace
+      apache.coyote.http11: debug
 
 jwt:
   secret: ${JWT_SECRET}

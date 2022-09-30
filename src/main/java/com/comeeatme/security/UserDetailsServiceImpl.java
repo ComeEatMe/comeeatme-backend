@@ -11,10 +11,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private static final String OAUTH2_PASSWORD = "OAUTH2-ACCOUNT";
 
     private final AccountRepository accountRepository;
 
@@ -25,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
 
         return User.withUsername(account.getUsername())
-                .password(account.getPassword())
+                .password(Optional.ofNullable(account.getPassword()).orElse(OAUTH2_PASSWORD))
                 .authorities(AuthorityUtils.NO_AUTHORITIES)
                 .build();
     }
