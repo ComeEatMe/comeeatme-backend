@@ -29,7 +29,6 @@ class MemberRepositoryTest {
         Member member = memberRepository.saveAndFlush(Member.builder()
                 .nickname("test-nickname")
                 .introduction("test-introduction")
-                .profileImageUrl("test-profileimageurl")
                 .build());
         accountRepository.saveAndFlush(Account.builder()
                 .username("test-username")
@@ -42,7 +41,6 @@ class MemberRepositoryTest {
         // then
         assertThat(foundMember.getNickname()).isEqualTo("test-nickname");
         assertThat(foundMember.getIntroduction()).isEqualTo("test-introduction");
-        assertThat(foundMember.getProfileImageUrl()).isEqualTo("test-profileimageurl");
     }
 
     @Test
@@ -51,7 +49,6 @@ class MemberRepositoryTest {
         Member member = memberRepository.saveAndFlush(Member.builder()
                 .nickname("test-nickname")
                 .introduction("test-introduction")
-                .profileImageUrl("test-profileimageurl")
                 .build());
         Account account = accountRepository.saveAndFlush(Account.builder()
                 .username("test-username")

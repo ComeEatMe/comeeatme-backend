@@ -25,7 +25,6 @@ class MemberTest {
         assertThatNoException().isThrownBy(() -> memberRepository.save(Member.builder()
                 .nickname("test-nickname")
                 .introduction("test-introduction")
-                .profileImageUrl(null)
                 .build()));
     }
 }
