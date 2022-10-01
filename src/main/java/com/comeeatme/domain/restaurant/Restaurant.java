@@ -11,9 +11,13 @@ import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "restaurant", uniqueConstraints = {
-        @UniqueConstraint(name = "UK_restaurant_open_management_num", columnNames = "open_management_num")
-})
+@Table(name = "restaurant",
+        uniqueConstraints = {
+        @UniqueConstraint(name = "UK_restaurant_open_info_id", columnNames = "open_info_id")
+        }, indexes = {
+        @Index(name = "IX_restaurant_name", columnList = "name")
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Restaurant extends BaseTimeEntity {
@@ -32,7 +36,8 @@ public class Restaurant extends BaseTimeEntity {
     @Embedded
     private Address address;
 
-    @Embedded
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "open_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private OpenInfo openInfo;
 
     @Builder
