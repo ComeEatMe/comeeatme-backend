@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: comeeatme-db
+    image: mysql:8.0.28-oracle
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asiz/Seoul
+      MYSQL_DATABASE: comeeatme
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
