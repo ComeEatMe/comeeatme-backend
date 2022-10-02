@@ -24,7 +24,7 @@ import java.nio.file.Path;
 @RequiredArgsConstructor
 public class AwsS3ImageStore implements ImageStore {
 
-    @Value("${cloud.aws.s3.bucket")
+    @Value("${cloud.aws.s3.bucket}")
     private final String bucketName;
 
     private final AmazonS3Client s3Client;
