@@ -35,7 +35,7 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public long create(PostCreate postCreate, String username) {
+    public Long create(PostCreate postCreate, String username) {
         Member member = getMemberByUsername(username);
         Restaurant restaurant = getRestaurantById(postCreate.getRestaurantId());
         Post post = postRepository.save(Post.builder()
