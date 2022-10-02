@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -62,7 +61,7 @@ class RestaurantRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        Slice<Restaurant> restaurantSlice = restaurantRepository.findAllSliceByNameStartingWith(pageRequest, "테스트");
+        Slice<Restaurant> restaurantSlice = restaurantRepository.findSliceByNameStartingWith(pageRequest, "테스트");
 
         // then
         assertThat(restaurantSlice.getContent())
