@@ -1,0 +1,15 @@
+= Post
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-posts-post]]
+== 게시물 작성 API
+
+operation::v1-posts-post[snippets='http-request,request-headers,request-fields,http-response,response-fields']
