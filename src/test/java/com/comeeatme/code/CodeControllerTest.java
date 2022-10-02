@@ -18,8 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -81,11 +80,15 @@ class CodeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("$.EnumCodeExample").isNotEmpty())  // 등록된 EnumMapperType
+                .andExpect(jsonPath("$.HashTagGroup").isNotEmpty())
+                .andExpect(jsonPath("$.HashTag").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 //subsectionWithPath("FieldCategory").description("분야 카테고리")    // RestDocs 등록
+                                subsectionWithPath("HashTagGroup").description("해쉬태그 그룹"),
+                                subsectionWithPath("HashTag").description("해쉬태그")
                         )
                 ));
     }

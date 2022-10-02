@@ -52,6 +52,7 @@ cloud:
 
 logging:
   level:
+#    root: debug
     org.hibernate:
       SQL: debug
       type: trace

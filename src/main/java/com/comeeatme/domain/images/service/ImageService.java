@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -63,9 +64,31 @@ public class ImageService {
         return originalFilename.substring(pos + 1);
     }
 
+    public boolean validateImageIds(List<Long> imageIds, String username) {
+        if (imageIds.size() != imageIds.stream().distinct().count()) {
+            return false;
+        }
+        List<Images> images = getImagesByIds(imageIds);
+        if (imageIds.size() != images.size()) {
+            return false;
+        }
+        Member member = getMemberByUsername(username);
+        return images.stream()
+                .filter(image -> !Objects.equals(image.getMember().getId(), member.getId()))
+                .findAny()
+                .isEmpty();
+    }
+
     private Member getMemberByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    }
+
+    private List<Images> getImagesByIds(List<Long> imageIds) {
+        return imagesRepository.findAllById(imageIds)
+                .stream()
+                .filter(Images::getUseYn)
+                .collect(Collectors.toList());
     }
 }

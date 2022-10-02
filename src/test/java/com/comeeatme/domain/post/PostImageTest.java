@@ -1,7 +1,8 @@
-package com.comeeatme.domain.member;
+package com.comeeatme.domain.post;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +15,19 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 @DataJpaTest
 @Transactional
 @Import(TestJpaConfig.class)
-class MemberTest {
+class PostImageTest {
 
     @Autowired
-    private MemberRepository memberRepository;
+    private PostImageRepository postImageRepository;
 
     @Test
-    @DisplayName("Member 생성 및 저장")
+    @DisplayName("PostImage 생성 및 저장")
     void save() {
-        assertThatNoException().isThrownBy(() -> memberRepository.save(Member.builder()
-                .nickname("test-nickname")
-                .introduction("test-introduction")
-                .build()));
+        assertThatNoException().isThrownBy(() -> postImageRepository.saveAndFlush(PostImage.builder()
+                .post(Post.builder().id(1L).build())
+                .image(Images.builder().id(2L).build())
+                .build()
+        ));
     }
+
 }

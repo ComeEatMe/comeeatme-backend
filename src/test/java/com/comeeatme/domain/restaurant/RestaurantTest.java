@@ -10,9 +10,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @DataJpaTest
@@ -36,12 +33,7 @@ class RestaurantTest {
                         .y(434395.793544651)
                         .build())
                 .openInfo(OpenInfo.builder()
-                        .id("07_24_04_P")
-                        .name("일반음식점")
-                        .category("경양식")
-                        .managementNum("3810000-101-2002-00170")
-                        .permissionDate(LocalDate.of(2012, 12, 13))
-                        .lastModifiedAt(LocalDateTime.of(2022, 8, 31, 13, 13, 1))
+                        .id(2L)
                         .build())
                 .build()));
     }
