@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
-    Slice<Restaurant> findAllSliceByNameStartingWith(Pageable pageable, String name);
+    Slice<Restaurant> findSliceByNameStartingWith(Pageable pageable, String name);
 }
