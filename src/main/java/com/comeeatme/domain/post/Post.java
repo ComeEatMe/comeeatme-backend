@@ -46,8 +46,7 @@ public class Post extends BaseTimeEntity {
     @OneToMany(mappedBy = "image")
     private List<PostImage> postImages;
 
-    @Lob
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", length = 2000, nullable = false)
     private String content;
 
     @Builder

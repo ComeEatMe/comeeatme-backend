@@ -1,0 +1,15 @@
+= Comment
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-comments-post]]
+== 댓글 및 대댓글 작성
+
+operation::v1-comments-post[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields']

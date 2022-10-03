@@ -16,7 +16,7 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     public Slice<RestaurantSimpleDto> getSimpleList(Pageable pageable, String name) {
-        return restaurantRepository.findSliceByNameStartingWith(pageable, name)
+        return restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(pageable, name)
                 .map(restaurant -> RestaurantSimpleDto.builder()
                         .id(restaurant.getId())
                         .name(restaurant.getName())

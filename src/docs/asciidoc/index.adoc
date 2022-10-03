@@ -16,6 +16,7 @@
 - xref:image.adoc[Image]
 - xref:post.adoc[Post]
 - xref:restaurant.adoc[Restaurant]
+- xref:comment.adoc[Comment]
 
 == HTTP Method
 
@@ -28,7 +29,7 @@
 | `POST`
 | 새 리소스를 생성할 때 사용
 
-| `PUT`
+| `PATCH`
 | 기존 리소스를 수정할 때 사용
 
 | `DELETE`

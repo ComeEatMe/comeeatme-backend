@@ -28,6 +28,6 @@ public class PostCreate {
     private List<Long> imageIds;
 
     @NotBlank
-    @Size(max = 1000)
+    @Size(max = 2000)
     private String content;
 }
