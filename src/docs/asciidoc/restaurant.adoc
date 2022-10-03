@@ -1,0 +1,15 @@
+= Restaurant
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-restaurants-get-simple]]
+== 음식점 제목 및 주소 리스트 조회 API
+
+operation::v1-restaurants-get-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
