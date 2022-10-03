@@ -1,11 +1,8 @@
-package com.comeeatme.api.v1.posts;
+package com.comeeatme.api.v1.posts.comments;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.images.service.ImageService;
-import com.comeeatme.domain.post.HashTag;
-import com.comeeatme.domain.post.request.PostCreate;
-import com.comeeatme.domain.post.service.PostService;
-import com.comeeatme.error.exception.ErrorCode;
+import com.comeeatme.domain.comment.request.CommentCreate;
+import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-import java.util.Set;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -32,16 +26,20 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(RestDocsConfig.class)
 @AutoConfigureRestDocs
-@WebMvcTest(controllers = PostController.class, excludeFilters = {
+@WebMvcTest(controllers = CommentController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
-class PostControllerTest {
+class CommentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,75 +48,47 @@ class PostControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private PostService postService;
-
-    @MockBean
-    private ImageService imageService;
+    private CommentService commentService;
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 작성 API")
+    @DisplayName("댓글 작성 API")
     void post_Docs() throws Exception {
         // given
-        PostCreate postCreate = PostCreate.builder()
-                .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
-                .imageIds(List.of(2L, 3L, 4L))
+        CommentCreate commentCreate = CommentCreate.builder()
+                .parentId(null)
                 .content("test-content")
                 .build();
-        given(imageService.validateImageIds(anyList(), anyString())).willReturn(true);
-        given(postService.create(any(PostCreate.class), anyString())).willReturn(10L);
+        given(commentService.create(eq(commentCreate), anyString(), anyLong())).willReturn(1L);
 
         // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
+        mockMvc.perform(post("/v1/posts/{postId}/comments", 2L).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .content(objectMapper.writeValueAsString(postCreate)))
+                        .content(objectMapper.writeValueAsString(commentCreate)))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isNumber())
-                .andDo(document("v1-posts-post",
+                .andDo(document("v1-comments-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
+                        pathParameters(
+                                parameterWithName("postId").description("댓글의 게시물 ID")
+                        ),
                         requestFields(
-                                fieldWithPath("restaurantId").description("음식점 ID"),
-                                fieldWithPath("hashTags").description("게시물 해시태그 리스트"),
-                                fieldWithPath("imageIds").description("이미지 ID 리스트")
-                                        .attributes(key("constraint").value("중복된 ID X. 본인의 이미지가 아닌 ID X.")),
-                                fieldWithPath("content").description("게시물 내용")
-                                        .attributes(key("constraint").value("최대 2000."))
+                                fieldWithPath("parentId").description("부모 댓글 ID. 대댓글이 아닐 경우 null")
+                                        .optional(),
+                                fieldWithPath("content").description("댓글 내용")
+                                        .attributes(key("constraint").value("최대 1000."))
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
                                 fieldWithPath("data").description("생성된 게시글 ID")
                         )
-                ));
+                ))
+        ;
     }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 작성 API - 유효하지 않은 이미지 ID")
-    void post_InvalidImageIds() throws Exception {
-        // given
-        PostCreate postCreate = PostCreate.builder()
-                .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
-                .imageIds(List.of(2L, 3L, 3L))
-                .content("test-content")
-                .build();
-        given(imageService.validateImageIds(anyList(), anyString())).willReturn(false);
-
-        // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .content(objectMapper.writeValueAsString(postCreate)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.error.code").value(ErrorCode.INVALID_IMAGE_ID.name()));
-    }
-
 }
