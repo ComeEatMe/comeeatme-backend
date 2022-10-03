@@ -1,4 +1,4 @@
-package com.comeeatme.api.v1.post;
+package com.comeeatme.api.v1.posts;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.images.service.ImageService;

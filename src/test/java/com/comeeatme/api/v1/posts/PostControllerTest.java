@@ -1,4 +1,4 @@
-package com.comeeatme.api.v1.post;
+package com.comeeatme.api.v1.posts;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
