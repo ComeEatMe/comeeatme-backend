@@ -24,7 +24,7 @@ class RestaurantRepositoryTest {
     private RestaurantRepository restaurantRepository;
 
     @Test
-    void findAllSliceByNameStartingWith() {
+    void findSliceByNameStartingWithAndUseYnIsTrue() {
         // given
         restaurantRepository.saveAllAndFlush(List.of(
                 Restaurant.builder()
@@ -61,7 +61,7 @@ class RestaurantRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        Slice<Restaurant> restaurantSlice = restaurantRepository.findSliceByNameStartingWith(pageRequest, "테스트");
+        Slice<Restaurant> restaurantSlice = restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(pageRequest, "테스트");
 
         // then
         assertThat(restaurantSlice.getContent())

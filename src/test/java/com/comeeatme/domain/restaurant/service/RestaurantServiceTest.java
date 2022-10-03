@@ -51,7 +51,7 @@ class RestaurantServiceTest {
         given(restaurant2.getAddress()).willReturn(address2);
 
         SliceImpl<Restaurant> slice = new SliceImpl<>(List.of(restaurant1, restaurant2), pageRequest, false);
-        given(restaurantRepository.findSliceByNameStartingWith(any(Pageable.class), anyString())).willReturn(slice);
+        given(restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(any(Pageable.class), anyString())).willReturn(slice);
 
         // when
         Slice<RestaurantSimpleDto> simpleDtos = restaurantService.getSimpleList(pageRequest, "음식점");
