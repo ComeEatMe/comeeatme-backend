@@ -39,9 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Import(RestDocsConfig.class)
 @AutoConfigureRestDocs
-@WebMvcTest(controllers = RestaurantsController.class, excludeFilters = {
+@WebMvcTest(controllers = RestaurantController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
-class RestaurantsControllerTest {
+class RestaurantControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
