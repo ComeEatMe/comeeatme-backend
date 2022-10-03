@@ -15,6 +15,7 @@
 - xref:code.adoc[Code]
 - xref:image.adoc[Image]
 - xref:post.adoc[Post]
+- xref:restaurant.adoc[Restaurant]
 
 == HTTP Method
 
