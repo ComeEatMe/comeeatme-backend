@@ -1,16 +1,19 @@
 package com.comeeatme.domain.restaurant.response;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RestaurantSimpleDto {
 
-    private final Long id;
+    private Long id;
 
-    private final String name;
+    private String name;
 
-    private final String addressName;
+    private String addressName;
 
     @Builder
     private RestaurantSimpleDto(Long id, String name, String addressName) {
