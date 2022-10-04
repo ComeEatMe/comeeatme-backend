@@ -113,4 +113,20 @@ class CommentServiceTest {
         Post postCaptorValue = postCaptor.getValue();
         assertThat(postCaptorValue.getId()).isEqualTo(2L);
     }
+
+    @Test
+    void delete() {
+        // given
+        Comment comment = Comment.builder()
+                .id(1L)
+                .build();
+        given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
+
+        // when
+        Long deletedId = commentService.delete(1L);
+
+        // then
+        assertThat(deletedId).isEqualTo(1L);
+        assertThat(comment.getUseYn()).isFalse();
+    }
 }

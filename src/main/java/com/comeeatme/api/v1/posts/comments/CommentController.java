@@ -43,4 +43,18 @@ public class CommentController {
         ApiResult<Long> result = ApiResult.success(editedCommentId);
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<ApiResult<Long>> delete(
+            @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
+        if (commentService.isNotOwnedByMember(commentId, username)) {
+            throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
+        }
+        if (commentService.isNotBelongToPost(commentId, postId)) {
+            throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
+        }
+        Long deletedCommentId = commentService.delete(commentId);
+        ApiResult<Long> result = ApiResult.success(deletedCommentId);
+        return ResponseEntity.ok(result);
+    }
 }

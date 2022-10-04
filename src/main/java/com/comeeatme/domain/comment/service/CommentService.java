@@ -61,6 +61,13 @@ public class CommentService {
         return !commentRepository.existsByIdAndPostAndUseYnIsTrue(commentId, Post.builder().id(postId).build());
     }
 
+    @Transactional
+    public Long delete(Long commentId) {
+        Comment comment = getCommentById(commentId);
+        comment.delete();
+        return commentId;
+    }
+
     private Member getMemberByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)

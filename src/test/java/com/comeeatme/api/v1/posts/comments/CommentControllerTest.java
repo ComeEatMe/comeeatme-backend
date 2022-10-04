@@ -26,8 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -130,7 +129,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 게시글 ID")
+                                fieldWithPath("data").description("수정된 게시글 ID")
                         )
                 ))
         ;
@@ -180,6 +179,81 @@ class CommentControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .content(objectMapper.writeValueAsString(commentEdit)))
+                .andExpect(status().isNotFound())
+                .andDo(print())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_NOT_FOUND.name()))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("댓글 삭제 API - 문서")
+    void delete_Docs() throws Exception {
+        // given
+        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
+        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(false);
+        given(commentService.delete(1L)).willReturn(1L);
+
+        // expected
+        mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isNumber())
+                .andDo(document("v1-comments-delete",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("댓글의 게시물 ID"),
+                                parameterWithName("commentId").description("댓글 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부"),
+                                fieldWithPath("data").description("삭제된 게시글 ID")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("댓글 삭제 API - 소유하지 않은 댓글")
+    void delete_NotOwned() throws Exception {
+        // given
+        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+
+        // expected
+        mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isForbidden())
+                .andDo(print())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("댓글 삭제 API - 잘못된 게시글 ID")
+    void delete_BadPostId() throws Exception {
+        // given
+        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
+        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(true);
+
+        // expected
+        mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isNotFound())
                 .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
