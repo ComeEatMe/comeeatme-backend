@@ -14,7 +14,14 @@
 
 operation::v1-comments-post[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields']
 
+
 [[v1-comments-patch]]
 == 댓글 수정
 
 operation::v1-comments-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields']
+
+
+[[v1-comments-delete]]
+== 댓글 삭제
+
+operation::v1-comments-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
