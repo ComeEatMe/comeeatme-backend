@@ -56,4 +56,13 @@ public class Comment extends BaseTimeEntity {
         this.parent = parent;
         this.content = content;
     }
+
+    public CommentEditor.CommentEditorBuilder toEditor() {
+        return CommentEditor.builder()
+                .content(content);
+    }
+
+    public void edit(CommentEditor editor) {
+        content = editor.getContent();
+    }
 }

@@ -1,8 +1,10 @@
 package com.comeeatme.domain.comment.service;
 
 import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.CommentEditor;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
+import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -39,6 +41,24 @@ public class CommentService {
                         .content(commentCreate.getContent())
                 .build());
         return comment.getId();
+    }
+
+    @Transactional
+    public Long edit(CommentEdit commentEdit, Long commentId) {
+        Comment comment = getCommentById(commentId);
+        CommentEditor editor = comment.toEditor()
+                .content(commentEdit.getContent())
+                .build();
+        comment.edit(editor);
+        return comment.getId();
+    }
+
+    public boolean isNotOwnedByMember(Long commentId, String username) {
+        return !commentRepository.existsByIdAndUsernameAndUseYnIsTrue(commentId, username);
+    }
+
+    public boolean isNotBelongToPost(Long commentId, Long postId) {
+        return !commentRepository.existsByIdAndPostAndUseYnIsTrue(commentId, Post.builder().id(postId).build());
     }
 
     private Member getMemberByUsername(String username) {
