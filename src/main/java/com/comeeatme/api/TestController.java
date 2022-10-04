@@ -8,6 +8,6 @@ public class TestController {
 
     @GetMapping("/")
     public String home() {
-        return "comeeatme api server";
+        return "comeeatme api server pipeline test";
     }
 }
