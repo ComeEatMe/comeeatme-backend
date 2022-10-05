@@ -3,6 +3,7 @@ package com.comeeatme.api.v1.posts.comments;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
+import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
@@ -16,10 +17,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -39,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(RestDocsConfig.class)
 @AutoConfigureRestDocs
 @WebMvcTest(controllers = CommentController.class, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class) })
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class)})
 class CommentControllerTest {
 
     @Autowired
@@ -258,6 +266,63 @@ class CommentControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_NOT_FOUND.name()))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("댓글 리스트 조회 API - 문서")
+    void get_Docs() throws Exception {
+        // given
+        List<CommentDto> content = List.of(
+                CommentDto.builder()
+                        .id(1L)
+                        .parentId(2L)
+                        .content("comment content 1")
+                        .createdAt(LocalDateTime.of(2022, 3, 1, 12, 30))
+                        .memberId(3L)
+                        .memberNickname("nickname1")
+                        .memberImageUrl("member-image-url")
+                        .build(),
+                CommentDto.builder()
+                        .id(4L)
+                        .parentId(null)
+                        .content("comment content 2")
+                        .createdAt(LocalDateTime.of(2022, 4, 1, 13, 0))
+                        .memberId(6L)
+                        .memberNickname("nickname2")
+                        .memberImageUrl(null)
+                        .build()
+        );
+        Slice<CommentDto> slice = new SliceImpl<>(content, PageRequest.of(0, 10), true);
+        given(commentService.getListOfPost(any(Pageable.class), anyLong())).willReturn(slice);
+
+        // expected
+        mockMvc.perform(get("/v1/posts/{postId}/comments", 7L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-comments-get",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("댓글의 게시물 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").description("댓글 ID"),
+                                fieldWithPath("parentId").description("부모 댓글 ID").optional(),
+                                fieldWithPath("content").description("댓글 내용"),
+                                fieldWithPath("createdAt").description("댓글 생성 시점"),
+                                fieldWithPath("member.id").description("댓글 작성자 회원 ID"),
+                                fieldWithPath("member.nickname").description("댓글 작성자 회원 닉네임"),
+                                fieldWithPath("member.imageUrl")
+                                        .description("댓글 작성자 회원 프로필 이미지 URL").optional()
+                        )
+                ))
         ;
     }
 
