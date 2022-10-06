@@ -1,5 +1,6 @@
-package com.comeeatme.api.v1.posts;
+package com.comeeatme.api.v1;
 
+import com.comeeatme.api.v1.PostController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.post.HashTag;

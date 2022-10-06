@@ -1,5 +1,6 @@
-package com.comeeatme.api.v1.posts.comments;
+package com.comeeatme.api.v1;
 
+import com.comeeatme.api.v1.CommentController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;

@@ -1,5 +1,6 @@
-package com.comeeatme.api.v1.images;
+package com.comeeatme.api.v1;
 
+import com.comeeatme.api.v1.ImageController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.security.SecurityConfig;
