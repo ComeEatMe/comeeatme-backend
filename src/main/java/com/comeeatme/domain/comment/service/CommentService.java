@@ -5,12 +5,16 @@ import com.comeeatme.domain.comment.CommentEditor;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
+import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +70,22 @@ public class CommentService {
         Comment comment = getCommentById(commentId);
         comment.delete();
         return commentId;
+    }
+
+    public Slice<CommentDto> getListOfPost(Pageable pageable, Long postId) {
+        Post post = getPostById(postId);
+        return commentRepository.findSliceByPostWithMemberAndImage(pageable, post)
+                .map(comment -> CommentDto.builder()
+                        .id(comment.getId())
+                        .parentId(Optional.ofNullable(comment.getParent())
+                                .map(Comment::getId).orElse(null))
+                        .content(comment.getContent())
+                        .createdAt(comment.getCreatedAt())
+                        .memberId(comment.getMember().getId())
+                        .memberNickname(comment.getMember().getNickname())
+                        .memberImageUrl(Optional.ofNullable(comment.getMember().getImage())
+                                .map(Images::getUrl).orElse(null))
+                        .build());
     }
 
     private Member getMemberByUsername(String username) {

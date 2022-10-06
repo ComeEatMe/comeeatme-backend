@@ -25,3 +25,14 @@ operation::v1-comments-patch[snippets='http-request,request-headers,path-paramet
 == 댓글 삭제
 
 operation::v1-comments-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
+
+
+[[v1-comments-get]]
+== 댓글 리스트 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-comments-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']

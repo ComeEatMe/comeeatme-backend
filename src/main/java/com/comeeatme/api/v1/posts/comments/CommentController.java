@@ -3,11 +3,14 @@ package com.comeeatme.api.v1.posts.comments;
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
+import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +58,13 @@ public class CommentController {
         }
         Long deletedCommentId = commentService.delete(commentId);
         ApiResult<Long> result = ApiResult.success(deletedCommentId);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResult<Slice<CommentDto>>> get(@PathVariable Long postId, Pageable pageable) {
+        Slice<CommentDto> commentDtos = commentService.getListOfPost(pageable, postId);
+        ApiResult<Slice<CommentDto>> result = ApiResult.success(commentDtos);
         return ResponseEntity.ok(result);
     }
 }

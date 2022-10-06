@@ -12,4 +12,7 @@
 [[v1-restaurants-get-simple]]
 == 음식점 제목 및 주소 리스트 조회 API
 
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
 operation::v1-restaurants-get-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']

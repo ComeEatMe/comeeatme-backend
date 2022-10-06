@@ -4,6 +4,8 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
+import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -14,7 +16,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,5 +135,59 @@ class CommentServiceTest {
         // then
         assertThat(deletedId).isEqualTo(1L);
         assertThat(comment.getUseYn()).isFalse();
+    }
+
+    @Test
+    void  getListOfPost() {
+        // given
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        Comment parent1 = mock(Comment.class);
+        given(parent1.getId()).willReturn(2L);
+        Images image1 = mock(Images.class);
+        given(image1.getUrl()).willReturn("image-url-1");
+        Member member1 = mock(Member.class);
+        given(member1.getId()).willReturn(3L);
+        given(member1.getNickname()).willReturn("nickname-1");
+        given(member1.getImage()).willReturn(image1);
+        Comment comment1 = mock(Comment.class);
+        given(comment1.getId()).willReturn(4L);
+        given(comment1.getParent()).willReturn(parent1);
+        given(comment1.getContent()).willReturn("content-1");
+        given(comment1.getCreatedAt()).willReturn(LocalDateTime.of(2022, 3, 1, 12, 30));
+        given(comment1.getMember()).willReturn(member1);
+
+        Member member2 = mock(Member.class);
+        given(member2.getId()).willReturn(5L);
+        given(member2.getNickname()).willReturn("nickname-2");
+        given(member2.getImage()).willReturn(null);
+        Comment comment2 = mock(Comment.class);
+        given(comment2.getId()).willReturn(6L);
+        given(comment2.getParent()).willReturn(null);
+        given(comment2.getContent()).willReturn("content-2");
+        given(comment2.getCreatedAt()).willReturn(LocalDateTime.of(2022, 4, 1, 13, 30));
+        given(comment2.getMember()).willReturn(member2);
+
+        SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2));
+        given(commentRepository.findSliceByPostWithMemberAndImage(any(PageRequest.class), eq(post)))
+                .willReturn(commentSlice);
+
+        // when
+        Slice<CommentDto> commentDtoSlice = commentService.getListOfPost(PageRequest.of(0, 10), 1L);
+
+        // then
+
+        List<CommentDto> content = commentDtoSlice.getContent();
+        assertThat(content).hasSize(2);
+        assertThat(content).extracting("id").containsExactly(4L, 6L);
+        assertThat(content).extracting("parentId").containsExactly(2L, null);
+        assertThat(content).extracting("createdAt").containsExactly(
+                LocalDateTime.of(2022, 3, 1, 12, 30), LocalDateTime.of(2022, 4, 1, 13, 30));
+        assertThat(content).extracting("member").extracting("id").containsExactly(3L, 5L);
+        assertThat(content).extracting("member").extracting("nickname")
+                .containsExactly("nickname-1", "nickname-2");
+        assertThat(content).extracting("member").extracting("imageUrl").containsExactly("image-url-1", null);
     }
 }
