@@ -3,15 +3,14 @@ package com.comeeatme.api.v1;
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.post.request.PostCreate;
+import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.service.PostService;
+import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.InvalidImageIdception;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -32,6 +31,17 @@ public class PostController {
         }
         long postId = postService.create(postCreate, username);
         ApiResult<Long> result = ApiResult.success(postId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<ApiResult<Long>> patch(
+            @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
+        if (postService.isNotOwnedByMember(postId, username)) {
+            throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
+        }
+        Long editedPostId = postService.edit(postEdit, postId);
+        ApiResult<Long> result = ApiResult.success(editedPostId);
         return ResponseEntity.ok(result);
     }
 }
