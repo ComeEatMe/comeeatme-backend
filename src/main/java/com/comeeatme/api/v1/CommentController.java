@@ -1,4 +1,4 @@
-package com.comeeatme.api.v1.posts.comments;
+package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.comment.request.CommentCreate;

@@ -64,4 +64,17 @@ public class Post extends BaseTimeEntity {
         this.postImages = Optional.ofNullable(postImages).orElse(new ArrayList<>());
         this.content = content;
     }
+
+    public PostEditor.PostEditorBuilder toEditor() {
+        return PostEditor.builder()
+                .restaurant(restaurant)
+                .hashTags(hashTags)
+                .content(content);
+    }
+
+    public void edit(PostEditor editor) {
+        restaurant = editor.getRestaurant();
+        hashTags = editor.getHashTags();
+        content = editor.getContent();
+    }
 }

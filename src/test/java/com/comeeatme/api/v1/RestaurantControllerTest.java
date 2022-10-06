@@ -1,4 +1,4 @@
-package com.comeeatme.api.v1.restaurants;
+package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
