@@ -1,10 +1,10 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.v1.PostController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.post.HashTag;
 import com.comeeatme.domain.post.request.PostCreate;
+import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
@@ -31,8 +31,11 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -93,7 +96,7 @@ class PostControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 게시글 ID")
+                                fieldWithPath("data").description("생성된 게시물 ID")
                         )
                 ));
     }
@@ -120,6 +123,77 @@ class PostControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.INVALID_IMAGE_ID.name()));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 수정 API - 문서")
+    void patch_Docs() throws Exception {
+        // given
+        PostEdit postEdit = PostEdit.builder()
+                .restaurantId(1L)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.EATING_ALON))
+                .content("edited-content")
+                .build();
+
+        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
+        given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(2L);
+
+        // expected
+        mockMvc.perform(patch("/v1/posts/{postId}", 2L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isNumber())
+                .andDo(document("v1-posts-patch",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 ID")
+                        ),
+                        requestFields(
+                                fieldWithPath("restaurantId").description("게시물 음식점 ID"),
+                                fieldWithPath("hashTags").description("게시물 해시태그 리스트"),
+                                fieldWithPath("content").description("게시물 내용")
+                                        .attributes(key("constraint").value("최대 2000."))
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부"),
+                                fieldWithPath("data").description("수정된 게시물 ID")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 수정 API - 소유하지 않은 게시물")
+    void patch_NotOwned() throws Exception {
+        // given
+        PostEdit postEdit = PostEdit.builder()
+                .restaurantId(1L)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.EATING_ALON))
+                .content("edited-content")
+                .build();
+
+        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+
+        // expected
+        mockMvc.perform(patch("/v1/posts/{postId}", 2L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
+        ;
     }
 
 }

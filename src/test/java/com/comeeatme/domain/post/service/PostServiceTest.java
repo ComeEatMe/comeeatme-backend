@@ -10,6 +10,7 @@ import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
+import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -24,10 +25,12 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -36,19 +39,19 @@ class PostServiceTest {
     private PostService postService;
 
     @Mock
-    private PostRepository mockPostRepository;
+    private PostRepository postRepository;
 
     @Mock
-    private PostImageRepository mockPostImageRepository;
+    private PostImageRepository postImageRepository;
 
     @Mock
-    private ImagesRepository mockImagesRepository;
+    private ImagesRepository imagesRepository;
 
     @Mock
-    private RestaurantRepository mockRestaurantRepository;
+    private RestaurantRepository restaurantRepository;
 
     @Mock
-    private MemberRepository mockMemberRepository;
+    private MemberRepository memberRepository;
 
     @Test
     void create() {
@@ -62,17 +65,17 @@ class PostServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(mockMemberRepository.findByUsername(anyString()))
+        given(memberRepository.findByUsername(anyString()))
                 .willReturn(Optional.of(member));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);
-        given(mockRestaurantRepository.findById(postCreate.getRestaurantId()))
+        given(restaurantRepository.findById(postCreate.getRestaurantId()))
                 .willReturn(Optional.of(restaurant));
 
         Post post = mock(Post.class);
         ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
-        given(mockPostRepository.save(postCaptor.capture())).willReturn(post);
+        given(postRepository.save(postCaptor.capture())).willReturn(post);
 
         Images image1 = mock(Images.class);
         Images image2 = mock(Images.class);
@@ -80,7 +83,7 @@ class PostServiceTest {
         given(image1.getUseYn()).willReturn(true);
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
-        given(mockImagesRepository.findAllById(postCreate.getImageIds()))
+        given(imagesRepository.findAllById(postCreate.getImageIds()))
                 .willReturn(List.of(image1, image2, image3));
 
         given(post.getId()).willReturn(5L);
@@ -96,7 +99,7 @@ class PostServiceTest {
         assertThat(capturedPost.getContent()).isEqualTo(postCreate.getContent());
 
         ArgumentCaptor<List<PostImage>> postImagesCaptor = ArgumentCaptor.forClass(List.class);
-        then(mockPostImageRepository).should().saveAll(postImagesCaptor.capture());
+        then(postImageRepository).should().saveAll(postImagesCaptor.capture());
         List<PostImage> capturedPostImages = postImagesCaptor.getValue();
         assertThat(capturedPostImages).hasSize(3);
         assertThat(capturedPostImages).extracting("post")
@@ -106,4 +109,91 @@ class PostServiceTest {
 
         assertThat(postId).isEqualTo(5L);
     }
+
+    @Test
+    void edit() {
+        // given
+        Restaurant postRestaurant = mock(Restaurant.class);
+        given(postRestaurant.getId()).willReturn(2L);
+
+        Post post = Post.builder()
+                .id(1L)
+                .restaurant(postRestaurant)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
+                .content("post-content")
+                .build();
+
+        PostEdit postEdit = PostEdit.builder()
+                .restaurantId(3L)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.CLEANLINESS))
+                .content("edited-content")
+                .build();
+
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        Restaurant editedRestaurant = mock(Restaurant.class);
+        given(editedRestaurant.getId()).willReturn(3L);
+        given(editedRestaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(3L)).willReturn(Optional.of(editedRestaurant));
+
+        // when
+        Long editedPostId = postService.edit(postEdit, 1L);
+
+        // then
+        assertThat(post.getRestaurant().getId()).isEqualTo(3L);
+        assertThat(post.getHashTags()).containsOnly(HashTag.STRONG_TASTE, HashTag.CLEANLINESS);
+        assertThat(post.getContent()).isEqualTo("edited-content");
+        assertThat(editedPostId).isEqualTo(1L);
+    }
+
+    @Test
+    void edit_EqualsRestaurantId() {
+        // given
+        Restaurant postRestaurant = mock(Restaurant.class);
+        given(postRestaurant.getId()).willReturn(2L);
+
+        Post post = Post.builder()
+                .id(1L)
+                .restaurant(postRestaurant)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
+                .content("post-content")
+                .build();
+
+        PostEdit postEdit = PostEdit.builder()
+                .restaurantId(2L)
+                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.CLEANLINESS))
+                .content("edited-content")
+                .build();
+
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        // when
+        Long editedPostId = postService.edit(postEdit, 1L);
+
+        // then
+        assertThat(post.getRestaurant().getId()).isEqualTo(2L);
+        assertThat(post.getHashTags()).containsOnly(HashTag.STRONG_TASTE, HashTag.CLEANLINESS);
+        assertThat(post.getContent()).isEqualTo("edited-content");
+        assertThat(editedPostId).isEqualTo(1L);
+        then(restaurantRepository).should(never()).findById(any());
+    }
+
+    @Test
+    void isNotOwnedByMember_False() {
+        // given
+        given(postRepository.existsByIdAndUsernameAndUseYnIsTrue(1L, "test-username")).willReturn(true);
+
+        // then
+        assertThat(postService.isNotOwnedByMember(1L, "test-username")).isFalse();
+    }
+
+    @Test
+    void isNotOwnedByMember_True() {
+        // given
+        given(postRepository.existsByIdAndUsernameAndUseYnIsTrue(1L, "test-username")).willReturn(false);
+
+        // then
+        assertThat(postService.isNotOwnedByMember(1L, "test-username")).isTrue();
+    }
+
 }

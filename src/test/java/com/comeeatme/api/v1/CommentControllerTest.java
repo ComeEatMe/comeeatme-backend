@@ -1,6 +1,5 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.v1.CommentController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
@@ -41,7 +40,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -95,7 +93,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 게시글 ID")
+                                fieldWithPath("data").description("생성된 댓글 ID")
                         )
                 ))
         ;
@@ -138,7 +136,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("수정된 게시글 ID")
+                                fieldWithPath("data").description("수정된 댓글 ID")
                         )
                 ))
         ;
@@ -163,7 +161,6 @@ class CommentControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .content(objectMapper.writeValueAsString(commentEdit)))
                 .andExpect(status().isForbidden())
-                .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
         ;
@@ -189,7 +186,6 @@ class CommentControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .content(objectMapper.writeValueAsString(commentEdit)))
                 .andExpect(status().isNotFound())
-                .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_NOT_FOUND.name()))
         ;
@@ -223,7 +219,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("삭제된 게시글 ID")
+                                fieldWithPath("data").description("삭제된 댓글 ID")
                         )
                 ))
         ;
@@ -243,7 +239,6 @@ class CommentControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isForbidden())
-                .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
         ;
@@ -264,7 +259,6 @@ class CommentControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isNotFound())
-                .andDo(print())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_NOT_FOUND.name()))
         ;
