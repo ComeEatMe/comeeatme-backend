@@ -17,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -203,5 +205,37 @@ class CommentRepositoryTest {
                 .hasSize(3)
                 .extracting("id").containsExactly(comment1.getId(), comment3.getId(), comment2.getId())
         ;
+    }
+
+    @Test
+    void findAllByPostAndUseYnIsTrue() {
+        // given
+        List<Comment> comments = commentRepository.saveAllAndFlush(List.of(
+                Comment.builder()
+                        .member(Member.builder().id(1L).build())
+                        .post(Post.builder().id(10L).build())
+                        .content("content1")
+                        .build(),
+                Comment.builder()
+                        .member(Member.builder().id(1L).build())
+                        .post(Post.builder().id(20L).build())
+                        .content("content2")
+                        .build(),
+                Comment.builder()
+                        .member(Member.builder().id(1L).build())
+                        .post(Post.builder().id(10L).build())
+                        .content("content3")
+                        .build()
+        ));
+        comments.get(2).delete();
+
+        // when
+        List<Comment> result = commentRepository.findAllByPostAndUseYnIsTrue(
+                Post.builder().id(10L).build());
+
+        // then
+        assertThat(result)
+                .hasSize(1)
+                .extracting("id").containsExactly(comments.get(0).getId());
     }
 }
