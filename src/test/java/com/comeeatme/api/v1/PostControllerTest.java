@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
+import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.HashTag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
@@ -57,6 +58,9 @@ class PostControllerTest {
 
     @MockBean
     private ImageService imageService;
+
+    @MockBean
+    private LikeService likeService;
 
     @Test
     @WithMockUser
@@ -246,4 +250,34 @@ class PostControllerTest {
         ;
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("좋아요 API - 문서")
+    void like_Docs() throws Exception {
+        // given
+        given(likeService.pushLike(eq(1L), anyString())).willReturn(true);
+
+        // expected
+        mockMvc.perform(put("/v1/posts/{postId}/like", 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isBoolean())
+                .andDo(document("v1-posts-put-like",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부"),
+                                fieldWithPath("data").description("좋아요 생성(true), 제거(false)")
+                        )
+                ))
+        ;
+    }
 }
