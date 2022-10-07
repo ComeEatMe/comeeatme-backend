@@ -158,6 +158,7 @@ class CommentServiceTest {
         given(comment1.getContent()).willReturn("content-1");
         given(comment1.getCreatedAt()).willReturn(LocalDateTime.of(2022, 3, 1, 12, 30));
         given(comment1.getMember()).willReturn(member1);
+        given(comment1.getUseYn()).willReturn(true);
 
         Member member2 = mock(Member.class);
         given(member2.getId()).willReturn(5L);
@@ -169,8 +170,15 @@ class CommentServiceTest {
         given(comment2.getContent()).willReturn("content-2");
         given(comment2.getCreatedAt()).willReturn(LocalDateTime.of(2022, 4, 1, 13, 30));
         given(comment2.getMember()).willReturn(member2);
+        given(comment2.getUseYn()).willReturn(true);
 
-        SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2));
+        Comment parent3 = mock(Comment.class);
+        given(parent3.getId()).willReturn(7L);
+        Comment comment3 = mock(Comment.class);
+        given(comment3.getId()).willReturn(9L);
+        given(comment3.getParent()).willReturn(parent3);
+
+        SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2, comment3));
         given(commentRepository.findSliceByPostWithMemberAndImage(any(PageRequest.class), eq(post)))
                 .willReturn(commentSlice);
 
@@ -180,14 +188,14 @@ class CommentServiceTest {
         // then
 
         List<CommentDto> content = commentDtoSlice.getContent();
-        assertThat(content).hasSize(2);
-        assertThat(content).extracting("id").containsExactly(4L, 6L);
-        assertThat(content).extracting("parentId").containsExactly(2L, null);
+        assertThat(content).hasSize(3);
+        assertThat(content).extracting("id").containsExactly(4L, 6L, 9L);
+        assertThat(content).extracting("parentId").containsExactly(2L, null, 7L);
         assertThat(content).extracting("createdAt").containsExactly(
-                LocalDateTime.of(2022, 3, 1, 12, 30), LocalDateTime.of(2022, 4, 1, 13, 30));
-        assertThat(content).extracting("member").extracting("id").containsExactly(3L, 5L);
+                LocalDateTime.of(2022, 3, 1, 12, 30), LocalDateTime.of(2022, 4, 1, 13, 30), null);
+        assertThat(content).extracting("member").extracting("id").containsExactly(3L, 5L, null);
         assertThat(content).extracting("member").extracting("nickname")
-                .containsExactly("nickname-1", "nickname-2");
-        assertThat(content).extracting("member").extracting("imageUrl").containsExactly("image-url-1", null);
+                .containsExactly("nickname-1", "nickname-2", null);
+        assertThat(content).extracting("member").extracting("imageUrl").containsExactly("image-url-1", null, null);
     }
 }

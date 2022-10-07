@@ -273,6 +273,7 @@ class CommentControllerTest {
                 CommentDto.builder()
                         .id(1L)
                         .parentId(2L)
+                        .deleted(false)
                         .content("comment content 1")
                         .createdAt(LocalDateTime.of(2022, 3, 1, 12, 30))
                         .memberId(3L)
@@ -282,11 +283,17 @@ class CommentControllerTest {
                 CommentDto.builder()
                         .id(4L)
                         .parentId(null)
+                        .deleted(false)
                         .content("comment content 2")
                         .createdAt(LocalDateTime.of(2022, 4, 1, 13, 0))
                         .memberId(6L)
                         .memberNickname("nickname2")
                         .memberImageUrl(null)
+                        .build(),
+                CommentDto.builder()
+                        .id(7L)
+                        .parentId(8L)
+                        .deleted(true)
                         .build()
         );
         Slice<CommentDto> slice = new SliceImpl<>(content, PageRequest.of(0, 10), true);
@@ -309,13 +316,15 @@ class CommentControllerTest {
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
                                 fieldWithPath("id").description("댓글 ID"),
-                                fieldWithPath("parentId").description("부모 댓글 ID").optional(),
-                                fieldWithPath("content").description("댓글 내용"),
-                                fieldWithPath("createdAt").description("댓글 생성 시점"),
-                                fieldWithPath("member.id").description("댓글 작성자 회원 ID"),
-                                fieldWithPath("member.nickname").description("댓글 작성자 회원 닉네임"),
+                                fieldWithPath("parentId").description("부모 댓글 ID. 최상위 댓글(대댓글 X)인 경우 null.").optional(),
+                                fieldWithPath("deleted").description("삭제 여부"),
+                                fieldWithPath("content").description("댓글 내용. 삭제된 경우 null.").optional(),
+                                fieldWithPath("createdAt").description("댓글 생성 시점. 삭제된 경우 null.").optional(),
+                                fieldWithPath("member.id").description("댓글 작성자 회원 ID. 삭제된 경우 null.").optional(),
+                                fieldWithPath("member.nickname").description("댓글 작성자 회원 닉네임. 삭제된 경우 null.").optional(),
                                 fieldWithPath("member.imageUrl")
-                                        .description("댓글 작성자 회원 프로필 이미지 URL").optional()
+                                        .description("댓글 작성자 회원 프로필 이미지 URL. " +
+                                                "프로필 이미지가 없는 경우 혹은 댓글이 삭제된 경우 null").optional()
                         )
                 ))
         ;

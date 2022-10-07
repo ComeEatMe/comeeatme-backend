@@ -6,7 +6,6 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
-import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -75,17 +74,7 @@ public class CommentService {
     public Slice<CommentDto> getListOfPost(Pageable pageable, Long postId) {
         Post post = getPostById(postId);
         return commentRepository.findSliceByPostWithMemberAndImage(pageable, post)
-                .map(comment -> CommentDto.builder()
-                        .id(comment.getId())
-                        .parentId(Optional.ofNullable(comment.getParent())
-                                .map(Comment::getId).orElse(null))
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .memberId(comment.getMember().getId())
-                        .memberNickname(comment.getMember().getNickname())
-                        .memberImageUrl(Optional.ofNullable(comment.getMember().getImage())
-                                .map(Images::getUrl).orElse(null))
-                        .build());
+                .map(CommentDto::of);
     }
 
     private Member getMemberByUsername(String username) {

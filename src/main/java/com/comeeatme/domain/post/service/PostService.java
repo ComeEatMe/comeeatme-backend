@@ -1,5 +1,7 @@
 package com.comeeatme.domain.post.service;
 
+import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -37,6 +39,8 @@ public class PostService {
 
     private final MemberRepository memberRepository;
 
+    private final CommentRepository commentRepository;
+
     @Transactional
     public Long create(PostCreate postCreate, String username) {
         Member member = getMemberByUsername(username);
@@ -65,6 +69,15 @@ public class PostService {
 
         PostEditor editor = editorBuilder.build();
         post.edit(editor);
+        return post.getId();
+    }
+
+    @Transactional
+    public Long delete(Long postId) {
+        Post post = getPostById(postId);
+        commentRepository.findAllByPostAndUseYnIsTrue(post)
+                .forEach(Comment::delete);
+        post.delete();
         return post.getId();
     }
 

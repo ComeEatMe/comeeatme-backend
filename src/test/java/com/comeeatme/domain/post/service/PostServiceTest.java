@@ -1,5 +1,7 @@
 package com.comeeatme.domain.post.service;
 
+import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -52,6 +54,9 @@ class PostServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private CommentRepository commentRepository;
 
     @Test
     void create() {
@@ -194,6 +199,27 @@ class PostServiceTest {
 
         // then
         assertThat(postService.isNotOwnedByMember(1L, "test-username")).isTrue();
+    }
+
+    @Test
+    void delete() {
+        // given
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        List<Comment> comments = List.of(
+                mock(Comment.class), mock(Comment.class), mock(Comment.class));
+        given(commentRepository.findAllByPostAndUseYnIsTrue(post)).willReturn(comments);
+
+        // when
+        Long deletedId = postService.delete(1L);
+
+        // then
+        comments.forEach(comment -> then(comment).should().delete());
+        then(post).should().delete();
+        assertThat(deletedId).isEqualTo(1L);
     }
 
 }

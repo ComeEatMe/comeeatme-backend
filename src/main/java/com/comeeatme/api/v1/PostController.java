@@ -44,4 +44,14 @@ public class PostController {
         ApiResult<Long> result = ApiResult.success(editedPostId);
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResult<Long>> delete(@PathVariable Long postId, @CurrentUsername String username) {
+        if (postService.isNotOwnedByMember(postId, username)) {
+            throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
+        }
+        Long deletedId = postService.delete(postId);
+        ApiResult<Long> result = ApiResult.success(deletedId);
+        return ResponseEntity.ok(result);
+    }
 }
