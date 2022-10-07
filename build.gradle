@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.3'
     id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'com.google.cloud.tools.jib' version '3.1.2'
     id 'java'
 }
 
@@ -93,6 +94,8 @@ bootJar {
         into 'static/docs'
     }
 }
+
+jib.containerizingMode = "packaged"
 
 //Querydsl 추가, 자동 생성된 Q클래스 gradle clean으로 제거
 clean {
