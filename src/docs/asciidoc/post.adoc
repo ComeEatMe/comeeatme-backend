@@ -19,3 +19,9 @@ operation::v1-posts-post[snippets='http-request,request-headers,request-fields,h
 == 게시물 수정
 
 operation::v1-posts-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields']
+
+
+[[v1-posts-delete]]
+== 게시물 삭제
+
+operation::v1-posts-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
