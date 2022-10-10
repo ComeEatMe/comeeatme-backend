@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -68,5 +69,11 @@ public class MemberService {
         return imagesRepository.findById(imageId)
                 .filter(Images::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Images id=" + imageId));
+    }
+
+    public DuplicateResult checkNicknameDuplicate(String nickname) {
+        return DuplicateResult.builder()
+                .duplicate(memberRepository.existsByNickname(nickname))
+                .build();
     }
 }
