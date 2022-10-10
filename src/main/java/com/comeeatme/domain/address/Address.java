@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.geo.Point;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -14,19 +15,19 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
 
-    @Column(name = "address_name", nullable = false)
+    @Column(name = "address_name", updatable = false)
     private String name;
 
-    @Column(name = "road_address_name", nullable = false)
+    @Column(name = "road_address_name", updatable = false)
     private String roadName;
 
-    @Column(name = "point", nullable = false)
+    @Column(name = "point", updatable = false)
     private Point point;
 
     @Builder
     private Address(
-            String name,
-            String roadName,
+            @Nullable String name,
+            @Nullable String roadName,
             Double x,
             Double y) {
         this.name = name;
