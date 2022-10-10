@@ -1,4 +1,4 @@
-package com.comeeatme.domain.config;
+package com.comeeatme.domain.common.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.comeeatme.domain.post;
 
-import com.comeeatme.domain.core.BaseTimeEntity;
+import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.images.Images;
 import lombok.AccessLevel;
 import lombok.Builder;

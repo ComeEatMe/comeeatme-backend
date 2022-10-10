@@ -1,7 +1,7 @@
 package com.comeeatme.code.config;
 
 import com.comeeatme.code.dto.EnumMapperValue;
-import com.comeeatme.domain.core.EnumMapperType;
+import com.comeeatme.domain.common.core.EnumMapperType;
 
 import java.util.*;
 import java.util.function.Function;

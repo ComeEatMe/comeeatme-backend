@@ -1,6 +1,6 @@
 package com.comeeatme.domain.post;
 
-import com.comeeatme.domain.core.EnumMapperType;
+import com.comeeatme.domain.common.core.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 
 import static com.comeeatme.domain.post.HashTagGroup.*;

@@ -1,6 +1,6 @@
 package com.comeeatme.domain.likes;
 
-import com.comeeatme.domain.core.BaseCreatedAtEntity;
+import com.comeeatme.domain.common.core.BaseCreatedAtEntity;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import lombok.AccessLevel;

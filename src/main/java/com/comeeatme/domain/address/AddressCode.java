@@ -1,6 +1,6 @@
 package com.comeeatme.domain.address;
 
-import com.comeeatme.domain.core.BaseUseYnEntity;
+import com.comeeatme.domain.common.core.BaseUseYnEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
