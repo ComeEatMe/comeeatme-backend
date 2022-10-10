@@ -45,4 +45,17 @@ public class Member extends BaseTimeEntity {
         this.introduction = introduction;
         this.image = image;
     }
+
+    public MemberEditor.MemberEditorBuilder toEditor() {
+        return MemberEditor.builder()
+                .nickname(nickname)
+                .introduction(introduction)
+                .image(image);
+    }
+
+    public void edit(MemberEditor editor) {
+        nickname = editor.getNickname();
+        introduction = editor.getIntroduction();
+        image = editor.getImage();
+    }
 }
