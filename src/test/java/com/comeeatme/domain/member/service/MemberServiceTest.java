@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -127,5 +128,17 @@ class MemberServiceTest {
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
         assertThat(member.getImage()).isEqualTo(editedImage);
+    }
+
+    @Test
+    void checkNicknameDuplicate() {
+        // given
+        given(memberRepository.existsByNickname("username")).willReturn(true);
+
+        // when
+        DuplicateResult result = memberService.checkNicknameDuplicate("username");
+
+        // then
+        assertThat(result.isDuplicate()).isTrue();
     }
 }

@@ -59,4 +59,28 @@ class MemberRepositoryTest {
         // expected
         assertThat(memberRepository.findByUsername("test-username")).isEmpty();
     }
+
+    @Test
+    void existsByNickname_True() {
+        // given
+        memberRepository.saveAndFlush(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+
+        // expected
+        assertThat(memberRepository.existsByNickname("test-nickname")).isTrue();
+    }
+
+    @Test
+    void existsByNickname_False() {
+        // given
+        memberRepository.saveAndFlush(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+
+        // expected
+        assertThat(memberRepository.existsByNickname("not-duplicate")).isFalse();
+    }
 }

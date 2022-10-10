@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.security.SecurityConfig;
@@ -25,9 +26,12 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -51,7 +55,41 @@ class MemberControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 수정 API - 문서")
+    @DisplayName("회원 닉네임 중복 확인 - 문서")
+    void getNicknameDuplicate_Docs() throws Exception {
+        // given
+        DuplicateResult duplicateResult = DuplicateResult.builder()
+                .duplicate(false)
+                .build();
+        given(memberService.checkNicknameDuplicate("테스트닉네임")).willReturn(duplicateResult);
+
+        // expected
+        mockMvc.perform(get("/v1/members/duplicate/nickname")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .param("nickname", "테스트닉네임"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-members-get-nickname-duplicate",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("nickname").description("중복 확인 하려는 닉네임. 최대 15.")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("duplicate").description("중복 여부. 중복이면 true.")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 수정 - 문서")
     void patch_Docs() throws Exception {
         // given
         MemberEdit memberEdit = MemberEdit.builder()
