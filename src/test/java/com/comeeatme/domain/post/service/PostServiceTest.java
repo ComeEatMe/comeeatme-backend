@@ -13,6 +13,8 @@ import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
+import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -220,6 +226,48 @@ class PostServiceTest {
         comments.forEach(comment -> then(comment).should().delete());
         then(post).should().delete();
         assertThat(deletedId).isEqualTo(1L);
+    }
+
+    @Test
+    void getList() {
+        // given
+        Member member = mock(Member.class);
+        Restaurant restaurant = mock(Restaurant.class);
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getMember()).willReturn(member);
+        given(post.getRestaurant()).willReturn(restaurant);
+        SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
+        given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
+                .willReturn(postSlice);
+
+        Images image1 = mock(Images.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getUseYn()).willReturn(true);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Images image2 = mock(Images.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getUseYn()).willReturn(true);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(postSlice.getContent()))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
+
+        // then
+        List<PostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
     }
 
 }

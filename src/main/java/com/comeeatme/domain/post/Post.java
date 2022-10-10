@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Entity
 @Table(name = "post",
@@ -43,9 +45,6 @@ public class Post extends BaseTimeEntity {
     @Column(name = "hashtag", length = 25, nullable = false)
     private Set<HashTag> hashTags;
 
-    @OneToMany(mappedBy = "image")
-    private List<PostImage> postImages;
-
     @Column(name = "content", length = 2000, nullable = false)
     private String content;
 
@@ -55,13 +54,11 @@ public class Post extends BaseTimeEntity {
             Member member,
             Restaurant restaurant,
             @Nullable Set<HashTag> hashTags,
-            @Nullable List<PostImage> postImages,
             String content) {
         this.id = id;
         this.member = member;
         this.restaurant = restaurant;
         this.hashTags = Optional.ofNullable(hashTags).orElse(new HashSet<>());
-        this.postImages = Optional.ofNullable(postImages).orElse(new ArrayList<>());
         this.content = content;
     }
 

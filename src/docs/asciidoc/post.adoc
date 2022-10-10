@@ -9,6 +9,12 @@
 :operation-http-response-title: Example response
 
 
+[[v1-posts-get-list]]
+== 게시물 리스트 조회
+
+operation::v1-posts-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
 [[v1-posts-post]]
 == 게시물 작성
 

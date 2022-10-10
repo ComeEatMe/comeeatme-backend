@@ -6,6 +6,8 @@ import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.HashTag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
+import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
@@ -19,11 +21,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -34,10 +40,10 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -276,6 +282,60 @@ class PostControllerTest {
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
                                 fieldWithPath("data").description("좋아요 생성(true), 제거(false)")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 리스트 조회 - 문서")
+    void getList_Docs() throws Exception {
+        // given
+        PostDto postDto = PostDto.builder()
+                .id(1L)
+                .imageUrls(List.of("image-url-1", "image-url-2"))
+                .content("post-content")
+                .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .memberId(2L)
+                .memberNickname("nickname")
+                .memberImageUrl("member-image-url")
+                .restaurantId(3L)
+                .restaurantName("restaurant-name")
+                .build();
+        given(postService.getList(any(Pageable.class), any(PostSearch.class)))
+                .willReturn(new SliceImpl<>(List.of(postDto), PageRequest.of(0, 10), false));
+
+        // expected
+        mockMvc.perform(get("/v1/posts")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("restaurantId", "3")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-posts-get-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("restaurantId")
+                                        .description("게시물의 음식점 ID. null 이면 전체.").optional()
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("member.id").description("게시물 작성자 회원 ID"),
+                                fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
+                                fieldWithPath("member.imageUrl")
+                                        .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
+                                fieldWithPath("restaurant.id").description("게시물 음식점 ID"),
+                                fieldWithPath("restaurant.name").description("게시물 음식점 이름")
                         )
                 ))
         ;
