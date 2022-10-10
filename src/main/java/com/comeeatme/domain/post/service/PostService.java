@@ -13,14 +13,20 @@ import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
+import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -79,6 +85,15 @@ public class PostService {
                 .forEach(Comment::delete);
         post.delete();
         return post.getId();
+    }
+
+    public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {
+        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+        List<PostImage> postImages = postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(posts.getContent());
+        Map<Long, List<PostImage>> postIdToPostImages = postImages.stream()
+                .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
+        return posts.map(post -> PostDto.of(
+                post, postIdToPostImages.getOrDefault(post.getId(), Collections.emptyList())));
     }
 
     public boolean isNotOwnedByMember(Long postId, String username) {

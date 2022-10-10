@@ -5,11 +5,15 @@ import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
+import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.InvalidImageIdception;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +29,14 @@ public class PostController {
     private final ImageService imageService;
 
     private final LikeService likeService;
+
+    @GetMapping
+    public ResponseEntity<ApiResult<Slice<PostDto>>> getList(
+            Pageable pageable, @ModelAttribute PostSearch postSearch) {
+        Slice<PostDto> posts = postService.getList(pageable, postSearch);
+        ApiResult<Slice<PostDto>> result = ApiResult.success(posts);
+        return ResponseEntity.ok(result);
+    }
 
     @PostMapping
     public ResponseEntity<ApiResult<Long>> post(
@@ -64,4 +76,5 @@ public class PostController {
         ApiResult<Boolean> result = ApiResult.success(created);
         return ResponseEntity.ok(result);
     }
+
 }
