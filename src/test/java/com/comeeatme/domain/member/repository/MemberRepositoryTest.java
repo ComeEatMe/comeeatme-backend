@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -116,7 +117,8 @@ class MemberRepositoryTest {
                 .build());
 
         // when
-        Slice<Member> result = memberRepository.findSliceWithImagesByNicknameStartingWith("nick");
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<Member> result = memberRepository.findSliceWithImagesByNicknameStartingWith(pageRequest, "nick");
 
         // then
         List<Member> content = result.getContent();

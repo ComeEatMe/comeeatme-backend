@@ -21,7 +21,13 @@ operation::v1-members-get-nickname-duplicate[snippets='http-request,request-head
 operation::v1-members-patch[snippets='http-request,request-headers,request-fields,http-response,response-fields']
 
 
-[[v1-members-get]]
-== 회원 리스트 조회 - 문서
+[[v1-members-get-list]]
+== 회원 리스트 조회
 
-operation::v1-members-get[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+operation::v1-members-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
+[[v1-members-get]]
+== 회원 상세 조회
+
+operation::v1-members-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

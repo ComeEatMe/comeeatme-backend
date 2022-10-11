@@ -7,12 +7,14 @@ import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
@@ -150,16 +152,43 @@ class MemberServiceTest {
     @Test
     void search() {
         // given
-        given(memberRepository.findSliceWithImagesByNicknameStartingWith("nickname"))
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        given(memberRepository.findSliceWithImagesByNicknameStartingWith(pageRequest, "nickname"))
                 .willReturn(new SliceImpl<>(List.of(mock(Member.class), mock(Member.class))));
 
         // when
         MemberSearch memberSearch = MemberSearch.builder()
                 .nickname("nickname")
                 .build();
-        Slice<MemberSimpleDto> result = memberService.search(memberSearch);
+        Slice<MemberSimpleDto> result = memberService.search(pageRequest, memberSearch);
 
         // then
         assertThat(result.getContent()).hasSize(2);
+    }
+
+    @Test
+    void get() {
+        // given
+        Images image = mock(Images.class);
+        given(image.getUseYn()).willReturn(true);
+        given(image.getUrl()).willReturn("image-url");
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+        given(member.getUseYn()).willReturn(true);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getIntroduction()).willReturn("introduction");
+        given(member.getImage()).willReturn(image);
+
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+
+        // when
+        MemberDetailDto dto = memberService.get(1L);
+
+        // then
+        assertThat(dto.getId()).isEqualTo(1L);
+        assertThat(dto.getNickname()).isEqualTo("nickname");
+        assertThat(dto.getIntroduction()).isEqualTo("introduction");
+        assertThat(dto.getImageUrl()).isEqualTo("image-url");
     }
 }

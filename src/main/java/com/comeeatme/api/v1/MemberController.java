@@ -4,10 +4,12 @@ import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +42,17 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResult<Slice<MemberSimpleDto>>> get(@ModelAttribute MemberSearch memberSearch) {
-        Slice<MemberSimpleDto> simpleDtos = memberService.search(memberSearch);
+    public ResponseEntity<ApiResult<Slice<MemberSimpleDto>>> getList(
+            Pageable pageable, @ModelAttribute MemberSearch memberSearch) {
+        Slice<MemberSimpleDto> simpleDtos = memberService.search(pageable, memberSearch);
         ApiResult<Slice<MemberSimpleDto>> result = ApiResult.success(simpleDtos);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiResult<MemberDetailDto>> get(@PathVariable Long memberId) {
+        MemberDetailDto memberDetailDto = memberService.get(memberId);
+        ApiResult<MemberDetailDto> result = ApiResult.success(memberDetailDto);
         return ResponseEntity.ok(result);
     }
 }

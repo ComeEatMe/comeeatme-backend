@@ -9,4 +9,6 @@ import lombok.*;
 public class PostSearch {
 
     private Long restaurantId;
+
+    private Long memberId;
 }

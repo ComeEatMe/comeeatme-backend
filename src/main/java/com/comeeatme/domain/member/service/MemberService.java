@@ -8,10 +8,12 @@ import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +44,14 @@ public class MemberService {
         return member.getId();
     }
 
-    public Slice<MemberSimpleDto> search(MemberSearch memberSearch) {
-        return memberRepository.findSliceWithImagesByNicknameStartingWith(memberSearch.getNickname())
+    public Slice<MemberSimpleDto> search(Pageable pageable, MemberSearch memberSearch) {
+        return memberRepository.findSliceWithImagesByNicknameStartingWith(pageable, memberSearch.getNickname())
                 .map(MemberSimpleDto::of);
+    }
+
+    public MemberDetailDto get(Long id) {
+        Member member = getMemberById(id);
+        return MemberDetailDto.of(member);
     }
 
     private void editMemberImage(MemberEdit memberEdit, Member member, MemberEditor.MemberEditorBuilder editorBuilder) {
@@ -58,12 +65,16 @@ public class MemberService {
             }
             if (nonNull(memberEdit.getImageId())) {
                 Images image = getImageById(memberEdit.getImageId());
-                if (!Objects.equals(image.getMember().getId(), member.getId())) {
-                    throw new EntityAccessDeniedException(String.format(
-                            "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
-                }
+                validateImageOwner(member, image);
                 editorBuilder.image(image);
             }
+        }
+    }
+
+    private void validateImageOwner(Member member, Images image) {
+        if (!Objects.equals(image.getMember().getId(), member.getId())) {
+            throw new EntityAccessDeniedException(String.format(
+                    "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
         }
     }
 
@@ -71,6 +82,12 @@ public class MemberService {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member id=" + id));
     }
 
     private Images getImageById(Long imageId) {

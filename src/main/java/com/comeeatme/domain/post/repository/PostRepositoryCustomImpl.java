@@ -50,12 +50,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     public Slice<Post> findAllWithMemberAndRestaurant(Pageable pageable, PostSearch postSearch) {
         List<Post> content = query
                 .selectFrom(post)
-                .join(post.member).fetchJoin()
+                .join(post.member, member).fetchJoin()
                 .join(post.restaurant, restaurant).fetchJoin()
                 .where(
-                        post.useYn.isTrue(),
-                        restaurantIdEq(postSearch.getRestaurantId()
-                        ))
+                        memberIdEq(postSearch.getMemberId()),
+                        restaurantIdEq(postSearch.getRestaurantId()),
+                        post.useYn.isTrue()
+                )
                 .orderBy(post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1L)
@@ -68,6 +69,12 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         }
 
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    private BooleanExpression memberIdEq(Long memberId) {
+        return Optional.ofNullable(memberId)
+                .map(member.id::eq)
+                .orElse(null);
     }
 
     private BooleanExpression restaurantIdEq(Long restaurantId) {
