@@ -59,12 +59,16 @@ public class MemberService {
             }
             if (nonNull(memberEdit.getImageId())) {
                 Images image = getImageById(memberEdit.getImageId());
-                if (!Objects.equals(image.getMember().getId(), member.getId())) {
-                    throw new EntityAccessDeniedException(String.format(
-                            "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
-                }
+                validateImageOwner(member, image);
                 editorBuilder.image(image);
             }
+        }
+    }
+
+    private void validateImageOwner(Member member, Images image) {
+        if (!Objects.equals(image.getMember().getId(), member.getId())) {
+            throw new EntityAccessDeniedException(String.format(
+                    "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
         }
     }
 
