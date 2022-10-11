@@ -4,6 +4,7 @@ import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,8 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
 
+    private final MemberNicknameCreator nicknameCreator;
+
     private static final String NAME_ATTRIBUTE_KEY = "username";
 
     @Override
@@ -32,9 +34,13 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
         OAuth2User user = super.loadUser(userRequest);
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(userRequest, user.getAttributes());
         String username = usernameFrom(userInfo.getProvider(), userInfo.getProviderId());
-        if (isAccountNotExists(username)) {
+        if (isNotAccountExists(username)) {
+            String nickname = nicknameCreator.create();
+            while (memberRepository.existsByNickname(nickname)) {
+                nickname = nicknameCreator.create();
+            }
             Member member = memberRepository.save(Member.builder()
-                    .nickname("맛집러" + UUID.randomUUID().toString().substring(0, 8))
+                    .nickname(nickname)
                     .introduction("")
                     .build());
             accountRepository.save(Account.builder()
@@ -48,7 +54,7 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
         return new DefaultOAuth2User(null, attributes, NAME_ATTRIBUTE_KEY);
     }
 
-    private boolean isAccountNotExists(String username) {
+    private boolean isNotAccountExists(String username) {
         return accountRepository.findByUsername(username).filter(Account::getUseYn).isEmpty();
     }
 
