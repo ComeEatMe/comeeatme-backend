@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,7 +35,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.restdocs.snippet.Attributes.key;
@@ -144,7 +144,7 @@ class MemberControllerTest {
                 .nickname("member-nickname")
                 .imageUrl("member-image-url")
                 .build();
-        given(memberService.search(any(MemberSearch.class)))
+        given(memberService.search(any(Pageable.class), any(MemberSearch.class)))
                 .willReturn(new SliceImpl<>(List.of(memberSimpleDto)));
 
         // expected

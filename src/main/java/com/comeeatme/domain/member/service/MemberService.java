@@ -12,6 +12,7 @@ import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,8 @@ public class MemberService {
         return member.getId();
     }
 
-    public Slice<MemberSimpleDto> search(MemberSearch memberSearch) {
-        return memberRepository.findSliceWithImagesByNicknameStartingWith(memberSearch.getNickname())
+    public Slice<MemberSimpleDto> search(Pageable pageable, MemberSearch memberSearch) {
+        return memberRepository.findSliceWithImagesByNicknameStartingWith(pageable, memberSearch.getNickname())
                 .map(MemberSimpleDto::of);
     }
 

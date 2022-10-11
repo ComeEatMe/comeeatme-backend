@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
@@ -150,14 +151,15 @@ class MemberServiceTest {
     @Test
     void search() {
         // given
-        given(memberRepository.findSliceWithImagesByNicknameStartingWith("nickname"))
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        given(memberRepository.findSliceWithImagesByNicknameStartingWith(pageRequest, "nickname"))
                 .willReturn(new SliceImpl<>(List.of(mock(Member.class), mock(Member.class))));
 
         // when
         MemberSearch memberSearch = MemberSearch.builder()
                 .nickname("nickname")
                 .build();
-        Slice<MemberSimpleDto> result = memberService.search(memberSearch);
+        Slice<MemberSimpleDto> result = memberService.search(pageRequest, memberSearch);
 
         // then
         assertThat(result.getContent()).hasSize(2);
