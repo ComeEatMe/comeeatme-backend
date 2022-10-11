@@ -8,6 +8,7 @@ import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
@@ -48,6 +49,11 @@ public class MemberService {
                 .map(MemberSimpleDto::of);
     }
 
+    public MemberDetailDto get(Long id) {
+        Member member = getMemberById(id);
+        return MemberDetailDto.of(member);
+    }
+
     private void editMemberImage(MemberEdit memberEdit, Member member, MemberEditor.MemberEditorBuilder editorBuilder) {
         Long memberImageId = Optional.ofNullable(member.getImage())
                 .filter(Images::getUseYn)
@@ -76,6 +82,12 @@ public class MemberService {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member id=" + id));
     }
 
     private Images getImageById(Long imageId) {
