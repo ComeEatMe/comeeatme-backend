@@ -7,6 +7,7 @@ import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -163,5 +164,31 @@ class MemberServiceTest {
 
         // then
         assertThat(result.getContent()).hasSize(2);
+    }
+
+    @Test
+    void get() {
+        // given
+        Images image = mock(Images.class);
+        given(image.getUseYn()).willReturn(true);
+        given(image.getUrl()).willReturn("image-url");
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+        given(member.getUseYn()).willReturn(true);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getIntroduction()).willReturn("introduction");
+        given(member.getImage()).willReturn(image);
+
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+
+        // when
+        MemberDetailDto dto = memberService.get(1L);
+
+        // then
+        assertThat(dto.getId()).isEqualTo(1L);
+        assertThat(dto.getNickname()).isEqualTo("nickname");
+        assertThat(dto.getIntroduction()).isEqualTo("introduction");
+        assertThat(dto.getImageUrl()).isEqualTo("image-url");
     }
 }

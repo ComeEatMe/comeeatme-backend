@@ -4,6 +4,7 @@ import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.security.SecurityConfig;
@@ -35,8 +36,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -137,7 +137,7 @@ class MemberControllerTest {
     @Test
     @WithMockUser
     @DisplayName("회원 리스트 조회 - 문서")
-    void get_Docs() throws Exception {
+    void getList_Docs() throws Exception {
         // given
         MemberSimpleDto memberSimpleDto = MemberSimpleDto.builder()
                 .id(1L)
@@ -156,7 +156,7 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-get",
+                .andDo(document("v1-members-get-list",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -167,6 +167,45 @@ class MemberControllerTest {
                                 beneathPath("data.content[]").withSubsectionId("content"),
                                 fieldWithPath("id").description("회원 아이디"),
                                 fieldWithPath("nickname").description("회원 닉네임"),
+                                fieldWithPath("imageUrl").description("회원 이미지 URL. 없을 경우 null").optional()
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 상세 조회 - 문서")
+    void get_Docs() throws Exception {
+        // given
+        MemberDetailDto dto = MemberDetailDto.builder()
+                .id(1L)
+                .nickname("맛집러")
+                .introduction("자기소개")
+                .imageUrl("image-url")
+                .build();
+        given(memberService.get(1L)).willReturn(dto);
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-members-get",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("회원 아이디"),
+                                fieldWithPath("nickname").description("회원 닉네임"),
+                                fieldWithPath("introduction").description("회원 소개"),
                                 fieldWithPath("imageUrl").description("회원 이미지 URL. 없을 경우 null").optional()
                         )
                 ))
