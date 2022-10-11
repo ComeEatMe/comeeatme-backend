@@ -1,7 +1,7 @@
 package com.comeeatme.domain.restaurant;
 
 import com.comeeatme.domain.address.Address;
-import com.comeeatme.domain.core.BaseTimeEntity;
+import com.comeeatme.domain.common.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,24 +27,24 @@ public class Restaurant extends BaseTimeEntity {
     @Column(name = "restaurant_id")
     private Long id;
 
-    @Column(name = "name", length = 45, nullable = false)
+    @Column(name = "name", length = 45, nullable = false, updatable = false)
     private String name;
 
-    @Column(name = "phone", length = 25, nullable = false)
+    @Column(name = "phone", length = 25, updatable = false)
     private String phone;
 
     @Embedded
     private Address address;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "open_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "open_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), updatable = false)
     private OpenInfo openInfo;
 
     @Builder
     private Restaurant(
             @Nullable Long id,
             String name,
-            String phone,
+            @Nullable String phone,
             Address address,
             @Nullable OpenInfo openInfo) {
         this.id = id;

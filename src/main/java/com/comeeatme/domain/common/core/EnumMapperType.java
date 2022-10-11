@@ -1,4 +1,4 @@
-package com.comeeatme.domain.core;
+package com.comeeatme.domain.common.core;
 
 public interface EnumMapperType {
 

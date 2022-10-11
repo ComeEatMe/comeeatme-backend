@@ -1,4 +1,4 @@
-package com.comeeatme.domain.core;
+package com.comeeatme.domain.common.core;
 
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;

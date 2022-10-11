@@ -1,6 +1,6 @@
 package com.comeeatme.domain.comment;
 
-import com.comeeatme.domain.core.BaseTimeEntity;
+import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import lombok.AccessLevel;

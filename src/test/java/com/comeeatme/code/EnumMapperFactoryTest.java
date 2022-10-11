@@ -2,7 +2,7 @@ package com.comeeatme.code;
 
 import com.comeeatme.code.config.EnumMapperFactory;
 import com.comeeatme.code.dto.EnumMapperValue;
-import com.comeeatme.domain.core.EnumMapperType;
+import com.comeeatme.domain.common.core.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

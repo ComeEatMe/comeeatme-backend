@@ -14,6 +14,7 @@
 - xref:authentication.adoc[Authentication]
 - xref:code.adoc[Code]
 - xref:image.adoc[Image]
+- xref:member.adoc[Member]
 - xref:post.adoc[Post]
 - xref:restaurant.adoc[Restaurant]
 - xref:comment.adoc[Comment]

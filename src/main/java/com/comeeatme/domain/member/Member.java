@@ -1,6 +1,6 @@
 package com.comeeatme.domain.member;
 
-import com.comeeatme.domain.core.BaseTimeEntity;
+import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.images.Images;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,5 +44,18 @@ public class Member extends BaseTimeEntity {
         this.nickname = nickname;
         this.introduction = introduction;
         this.image = image;
+    }
+
+    public MemberEditor.MemberEditorBuilder toEditor() {
+        return MemberEditor.builder()
+                .nickname(nickname)
+                .introduction(introduction)
+                .image(image);
+    }
+
+    public void edit(MemberEditor editor) {
+        nickname = editor.getNickname();
+        introduction = editor.getIntroduction();
+        image = editor.getImage();
     }
 }

@@ -1,7 +1,7 @@
 package com.comeeatme.code.dto;
 
 
-import com.comeeatme.domain.core.EnumMapperType;
+import com.comeeatme.domain.common.core.EnumMapperType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;

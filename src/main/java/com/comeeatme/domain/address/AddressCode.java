@@ -1,6 +1,6 @@
 package com.comeeatme.domain.address;
 
-import com.comeeatme.domain.core.BaseUseYnEntity;
+import com.comeeatme.domain.common.core.BaseUseYnEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,22 +34,22 @@ public class AddressCode extends BaseUseYnEntity {
     @Column(name = "address_code_id")
     private Long id;
 
-    @Column(name = "code", length = 15, nullable = false)
+    @Column(name = "code", length = 15, nullable = false, updatable = false)
     private String code;
 
-    @Column(name = "si_do", length = 15, nullable = false)
+    @Column(name = "si_do", length = 15, nullable = false, updatable = false)
     private String siDo;
 
-    @Column(name = "si_gun_gu", length = 15)
+    @Column(name = "si_gun_gu", length = 15, updatable = false)
     private String siGunGu;
 
-    @Column(name = "eup_myeon_dong", length = 15)
+    @Column(name = "eup_myeon_dong", length = 15, updatable = false)
     private String eupMyeonDong;
 
-    @Column(name = "ri", length = 15)
+    @Column(name = "ri", length = 15, updatable = false)
     private String ri;
 
-    @Column(name = "full_name", length = 45, nullable = false)
+    @Column(name = "full_name", length = 45, nullable = false, updatable = false)
     private String fullName;
 
     @Builder
