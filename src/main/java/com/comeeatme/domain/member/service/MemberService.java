@@ -7,9 +7,12 @@ import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
+import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,11 @@ public class MemberService {
         MemberEditor editor = editorBuilder.build();
         member.edit(editor);
         return member.getId();
+    }
+
+    public Slice<MemberSimpleDto> search(MemberSearch memberSearch) {
+        return memberRepository.findSliceWithImagesByNicknameStartingWith(memberSearch.getNickname())
+                .map(MemberSimpleDto::of);
     }
 
     private void editMemberImage(MemberEdit memberEdit, Member member, MemberEditor.MemberEditorBuilder editorBuilder) {
