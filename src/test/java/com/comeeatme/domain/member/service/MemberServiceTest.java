@@ -6,12 +6,17 @@ import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
+import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,5 +145,21 @@ class MemberServiceTest {
 
         // then
         assertThat(result.isDuplicate()).isTrue();
+    }
+
+    @Test
+    void search() {
+        // given
+        given(memberRepository.findSliceWithImagesByNicknameStartingWith("nickname"))
+                .willReturn(new SliceImpl<>(List.of(mock(Member.class), mock(Member.class))));
+
+        // when
+        MemberSearch memberSearch = MemberSearch.builder()
+                .nickname("nickname")
+                .build();
+        Slice<MemberSimpleDto> result = memberService.search(memberSearch);
+
+        // then
+        assertThat(result.getContent()).hasSize(2);
     }
 }

@@ -3,6 +3,8 @@ package com.comeeatme.api.v1;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
+import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +17,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -124,6 +129,45 @@ class MemberControllerTest {
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부"),
                                 fieldWithPath("data").description("수정된 회원 ID")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 리스트 조회 - 문서")
+    void get_Docs() throws Exception {
+        // given
+        MemberSimpleDto memberSimpleDto = MemberSimpleDto.builder()
+                .id(1L)
+                .nickname("member-nickname")
+                .imageUrl("member-image-url")
+                .build();
+        given(memberService.search(any(MemberSearch.class)))
+                .willReturn(new SliceImpl<>(List.of(memberSimpleDto)));
+
+        // expected
+        mockMvc.perform(get("/v1/members")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .param("nickname", "search-nickname"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-members-get",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("nickname").description("검색할 닉네임. 최대 15. 최소 1.")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").description("회원 아이디"),
+                                fieldWithPath("nickname").description("회원 닉네임"),
+                                fieldWithPath("imageUrl").description("회원 이미지 URL. 없을 경우 null").optional()
                         )
                 ))
         ;
