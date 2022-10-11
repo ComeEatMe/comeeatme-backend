@@ -19,3 +19,9 @@ operation::v1-members-get-nickname-duplicate[snippets='http-request,request-head
 == 회원 수정
 
 operation::v1-members-patch[snippets='http-request,request-headers,request-fields,http-response,response-fields']
+
+
+[[v1-members-get]]
+== 회원 리스트 조회 - 문서
+
+operation::v1-members-get[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
