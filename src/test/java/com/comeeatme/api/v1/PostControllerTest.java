@@ -312,6 +312,7 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .param("restaurantId", "3")
+                        .param("memberId", "2")
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -322,7 +323,9 @@ class PostControllerTest {
                         ),
                         requestParameters(
                                 parameterWithName("restaurantId")
-                                        .description("게시물의 음식점 ID. null 이면 전체.").optional()
+                                        .description("게시물의 음식점 ID. null 이면 전체.").optional(),
+                                parameterWithName("memberId")
+                                        .description("게시물의 작성자 회원 ID. null 이면 전체.").optional()
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),

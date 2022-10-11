@@ -193,4 +193,50 @@ class PostRepositoryTest {
         assertThat(content).extracting("id").containsExactly(post1.getId());
     }
 
+    @Test
+    void findAllWithMemberAndRestaurant_MemberId() {
+        // given
+        Member member1 = memberRepository.save(Member.builder()
+                .nickname("nickname-1")
+                .introduction("test-introduction")
+                .build());
+        Member member2 = memberRepository.save(Member.builder()
+                .nickname("nickname-2")
+                .introduction("test-introduction")
+                .build());
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .name("모노끼 야탑점")
+                .phone("031-702-2929")
+                .address(Address.builder()
+                        .name("경기 성남시 분당구 야탑동 353-4")
+                        .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .x(211199.96154825)
+                        .y(434395.793544651)
+                        .build())
+                .build());
+        Post post1 = postRepository.save(Post.builder()
+                .member(member1)
+                .restaurant(restaurant)
+                .content("test-content")
+                .build());
+        Post post2 = postRepository.save(Post.builder()
+                .member(member2)
+                .restaurant(restaurant)
+                .content("test-content")
+                .build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        PostSearch postSearch = PostSearch.builder().memberId(member1.getId()).build();
+        PageRequest pageable = PageRequest.of(0, 10);
+        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+
+        // then
+        List<Post> content = posts.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(post1.getId());
+    }
+
 }
