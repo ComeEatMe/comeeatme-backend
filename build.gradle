@@ -96,9 +96,10 @@ bootJar {
     }
 }
 
-//jibBuildTar.dependsOn bootJar
-tasks.jib.dependsOn tasks.bootJar
-jib.containerizingMode = "packaged"
+jib {
+    extraDirectories.paths = ['static/']
+    containerizingMode = 'packaged'
+}
 
 //Querydsl 추가, 자동 생성된 Q클래스 gradle clean으로 제거
 clean {
