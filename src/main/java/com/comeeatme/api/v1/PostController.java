@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.images.service.ImageService;
+import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
@@ -71,9 +72,9 @@ public class PostController {
     }
 
     @PutMapping("/{postId}/like")
-    public ResponseEntity<ApiResult<Boolean>> like(@PathVariable Long postId, @CurrentUsername String username) {
-        boolean created = likeService.pushLike(postId, username);
-        ApiResult<Boolean> result = ApiResult.success(created);
+    public ResponseEntity<ApiResult<LikeResult>> like(@PathVariable Long postId, @CurrentUsername String username) {
+        LikeResult likeResult = likeService.pushLike(postId, username);
+        ApiResult<LikeResult> result = ApiResult.success(likeResult);
         return ResponseEntity.ok(result);
     }
 

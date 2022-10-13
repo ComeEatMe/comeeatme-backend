@@ -2,6 +2,7 @@ package com.comeeatme.domain.likes.service;
 
 import com.comeeatme.domain.likes.Likes;
 import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -27,21 +28,32 @@ public class LikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public boolean pushLike(Long postId, String username) {
+    public LikeResult pushLike(Long postId, String username) {
         Post post = getPostById(postId);
         Member member = getMemberByUsername(username);
         Likes like = likesRepository.findByPostAndMember(post, member)
                 .orElse(null);
+        Integer count = likesRepository.countByPost(post);
 
         if (isNull(like)) {
             likesRepository.save(Likes.builder()
                     .post(post)
                     .member(member)
                     .build());
-            return true;
+            count += 1;
+            return LikeResult.builder()
+                    .postId(post.getId())
+                    .liked(true)
+                    .count(count)
+                    .build();
         } else {
             likesRepository.delete(like);
-            return false;
+            count -= 1;
+            return LikeResult.builder()
+                    .postId(post.getId())
+                    .liked(false)
+                    .count(count)
+                    .build();
         }
     }
 
