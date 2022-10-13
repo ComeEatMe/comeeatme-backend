@@ -51,7 +51,7 @@ class LikeServiceTest {
 
         given(likesRepository.findByPostAndMember(post, member)).willReturn(Optional.empty());
 
-        given(likesRepository.countByPost(post)).willReturn(10);
+        given(likesRepository.countByPost(post)).willReturn(10L);
 
         // when
         LikeResult result = likeService.pushLike(1L, "username");
@@ -83,7 +83,7 @@ class LikeServiceTest {
         Likes like = mock(Likes.class);
         given(likesRepository.findByPostAndMember(post, member)).willReturn(Optional.of(like));
 
-        given(likesRepository.countByPost(post)).willReturn(10);
+        given(likesRepository.countByPost(post)).willReturn(10L);
 
         // when
         LikeResult result = likeService.pushLike(1L, "username");

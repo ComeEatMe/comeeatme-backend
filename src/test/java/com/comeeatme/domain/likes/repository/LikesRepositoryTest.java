@@ -81,7 +81,7 @@ class LikesRepositoryTest {
         ));
 
         // when
-        Integer count = likesRepository.countByPost(Post.builder().id(2L).build());
+        Long count = likesRepository.countByPost(Post.builder().id(2L).build());
 
         // then
         assertThat(count).isEqualTo(2);

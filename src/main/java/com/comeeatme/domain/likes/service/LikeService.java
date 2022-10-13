@@ -33,7 +33,7 @@ public class LikeService {
         Member member = getMemberByUsername(username);
         Likes like = likesRepository.findByPostAndMember(post, member)
                 .orElse(null);
-        Integer count = likesRepository.countByPost(post);
+        Long count = likesRepository.countByPost(post);
 
         if (isNull(like)) {
             likesRepository.save(Likes.builder()

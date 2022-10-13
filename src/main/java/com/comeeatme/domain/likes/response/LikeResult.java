@@ -13,10 +13,10 @@ public class LikeResult {
 
     private Boolean liked;
 
-    private Integer count;
+    private Long count;
 
     @Builder
-    private LikeResult(Long postId, Boolean liked, Integer count) {
+    private LikeResult(Long postId, Boolean liked, Long count) {
         this.postId = postId;
         this.liked = liked;
         this.count = count;

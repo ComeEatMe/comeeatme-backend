@@ -265,7 +265,7 @@ class PostControllerTest {
         LikeResult likeResult = LikeResult.builder()
                 .postId(1L)
                 .liked(true)
-                .count(10)
+                .count(10L)
                 .build();
         given(likeService.pushLike(eq(1L), anyString())).willReturn(likeResult);
 
