@@ -61,4 +61,29 @@ class LikesRepositoryTest {
         // then
         assertThat(foundLike).isEmpty();
     }
+
+    @Test
+    void countByPost() {
+        // given
+        likesRepository.saveAllAndFlush(List.of(
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(2L).build())
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(3L).build())
+                        .build(),
+                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(3L).build())
+                        .build()
+        ));
+
+        // when
+        Integer count = likesRepository.countByPost(Post.builder().id(2L).build());
+
+        // then
+        assertThat(count).isEqualTo(2);
+    }
 }
