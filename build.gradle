@@ -89,16 +89,19 @@ asciidoctor {
     dependsOn test
 }
 
-bootJar {
+tasks.named('jib') {
     dependsOn asciidoctor
-    from ("${asciidoctor.outputDir}") {
-        into 'static/docs'
-    }
 }
 
 jib {
-    extraDirectories.paths = ['static/']
-    containerizingMode = 'packaged'
+    extraDirectories {
+        paths {
+            path {
+                from = "${asciidoctor.outputDir}"
+                into = "/app/resources/static/docs"
+            }
+        }
+    }
 }
 
 //Querydsl 추가, 자동 생성된 Q클래스 gradle clean으로 제거
