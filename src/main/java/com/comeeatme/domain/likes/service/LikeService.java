@@ -33,28 +33,33 @@ public class LikeService {
         Member member = getMemberByUsername(username);
         Likes like = likesRepository.findByPostAndMember(post, member)
                 .orElse(null);
-        Long count = likesRepository.countByPost(post);
 
         if (isNull(like)) {
-            likesRepository.save(Likes.builder()
-                    .post(post)
-                    .member(member)
-                    .build());
-            count += 1;
-            return LikeResult.builder()
-                    .postId(post.getId())
-                    .liked(true)
-                    .count(count)
-                    .build();
+            return like(post, member);
         } else {
-            likesRepository.delete(like);
-            count -= 1;
-            return LikeResult.builder()
-                    .postId(post.getId())
-                    .liked(false)
-                    .count(count)
-                    .build();
+            return unlike(post, like);
         }
+    }
+
+    private LikeResult like(Post post, Member member) {
+        likesRepository.save(Likes.builder()
+                .post(post)
+                .member(member)
+                .build());
+        return LikeResult.builder()
+                .postId(post.getId())
+                .liked(true)
+                .count(likesRepository.countByPost(post))
+                .build();
+    }
+
+    private LikeResult unlike(Post post, Likes like) {
+        likesRepository.delete(like);
+        return LikeResult.builder()
+                .postId(post.getId())
+                .liked(false)
+                .count(likesRepository.countByPost(post))
+                .build();
     }
 
     private Post getPostById(Long postId) {

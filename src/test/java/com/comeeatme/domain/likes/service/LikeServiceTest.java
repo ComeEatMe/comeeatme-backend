@@ -65,7 +65,7 @@ class LikeServiceTest {
 
         assertThat(result.getPostId()).isEqualTo(1L);
         assertThat(result.getLiked()).isTrue();
-        assertThat(result.getCount()).isEqualTo(11);
+        assertThat(result.getCount()).isEqualTo(10L);
     }
 
     @Test
@@ -93,6 +93,6 @@ class LikeServiceTest {
 
         assertThat(result.getPostId()).isEqualTo(1L);
         assertThat(result.getLiked()).isFalse();
-        assertThat(result.getCount()).isEqualTo(9);
+        assertThat(result.getCount()).isEqualTo(10L);
     }
 }
