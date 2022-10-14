@@ -3,6 +3,7 @@ package com.comeeatme.api.v1;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
+import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.HashTag;
 import com.comeeatme.domain.post.request.PostCreate;
@@ -259,7 +260,7 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("좋아요 API - 문서")
+    @DisplayName("게시물 좋아요 API - 문서")
     void like_Docs() throws Exception {
         // given
         LikeResult likeResult = LikeResult.builder()
@@ -352,4 +353,49 @@ class PostControllerTest {
                 ))
         ;
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 좋아요 여부 조회 - 문서")
+    void getLiked_Docs() throws Exception {
+        // given
+        given(likeService.isLiked(eq(List.of(1L, 2L)), anyString()))
+                .willReturn(List.of(
+                        LikedResult.builder()
+                                .postId(1L)
+                                .liked(true)
+                                .build(),
+                        LikedResult.builder()
+                                .postId(2L)
+                                .liked(false)
+                                .build()
+                ));
+
+        // expected
+        mockMvc.perform(get("/v1/posts/liked")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("postIds", "1", "2")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-posts-get-liked",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("postIds")
+                                        .description("조회하려는 게시물 ID 리스트. 최대 100")
+                        ),
+                        responseFields(
+                                beneathPath("data[]").withSubsectionId("data"),
+                                fieldWithPath("postId").description("게시물 ID"),
+                                fieldWithPath("liked").description("좋아요 여부")
+                        )
+                ))
+        ;
+    }
+
 }

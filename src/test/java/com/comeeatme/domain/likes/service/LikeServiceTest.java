@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,5 +95,14 @@ class LikeServiceTest {
         assertThat(result.getPostId()).isEqualTo(1L);
         assertThat(result.getLiked()).isFalse();
         assertThat(result.getCount()).isEqualTo(10L);
+    }
+
+    @Test
+    void isLiked() {
+        // when
+        likeService.isLiked(List.of(1L, 2L), "username");
+
+        // then
+        then(likesRepository).should().existsByPostIdsAndUsername(List.of(1L, 2L), "username");
     }
 }
