@@ -2,6 +2,7 @@ package com.comeeatme.domain.likes.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.likes.Likes;
+import com.comeeatme.domain.likes.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import org.junit.jupiter.api.Test;
@@ -85,5 +86,47 @@ class LikesRepositoryTest {
 
         // then
         assertThat(count).isEqualTo(2);
+    }
+
+    @Test
+    void countsGroupByPosts() {
+        // given
+        likesRepository.saveAll(List.of(
+                Likes.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(1L).build())
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(2L).build())
+                        .build(),
+                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(3L).build())
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(1L).build())
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(2L).build())
+                        .build(),
+                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                        .post(Post.builder().id(3L).build())
+                        .member(Member.builder().id(1L).build())
+                        .build()
+        ));
+
+        // when
+        List<LikeCount> counts = likesRepository.countsGroupByPosts(List.of(
+                Post.builder().id(1L).build(),
+                Post.builder().id(2L).build()
+        ));
+
+        // then
+        counts.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
+        assertThat(counts).extracting("postId").containsExactly(1L, 2L);
+        assertThat(counts).extracting("count").containsExactly(3L, 2L);
     }
 }

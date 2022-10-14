@@ -340,6 +340,8 @@ class PostControllerTest {
                                 fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("commentCount").description("게시물 댓글 개수"),
+                                fieldWithPath("likeCount").description("게시물 좋아요 개수"),
                                 fieldWithPath("member.id").description("게시물 작성자 회원 ID"),
                                 fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
                                 fieldWithPath("member.imageUrl")
