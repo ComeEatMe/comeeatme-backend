@@ -2,6 +2,7 @@ package com.comeeatme.domain.likes.service;
 
 import com.comeeatme.domain.likes.Likes;
 import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -13,10 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -42,7 +43,8 @@ class LikeServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(post.getId()).willReturn(1L);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -50,8 +52,10 @@ class LikeServiceTest {
 
         given(likesRepository.findByPostAndMember(post, member)).willReturn(Optional.empty());
 
+        given(likesRepository.countByPost(post)).willReturn(10L);
+
         // when
-        boolean result = likeService.pushLike(1L, "username");
+        LikeResult result = likeService.pushLike(1L, "username");
 
         // then
         ArgumentCaptor<Likes> likesCaptor = ArgumentCaptor.forClass(Likes.class);
@@ -60,7 +64,9 @@ class LikeServiceTest {
         assertThat(likesCaptorValue.getPost()).isEqualTo(post);
         assertThat(likesCaptorValue.getMember()).isEqualTo(member);
 
-        assertThat(result).isTrue();
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getLiked()).isTrue();
+        assertThat(result.getCount()).isEqualTo(10L);
     }
 
     @Test
@@ -68,7 +74,8 @@ class LikeServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(post.getId()).willReturn(1L);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -77,12 +84,25 @@ class LikeServiceTest {
         Likes like = mock(Likes.class);
         given(likesRepository.findByPostAndMember(post, member)).willReturn(Optional.of(like));
 
+        given(likesRepository.countByPost(post)).willReturn(10L);
+
         // when
-        boolean result = likeService.pushLike(1L, "username");
+        LikeResult result = likeService.pushLike(1L, "username");
 
         // then
         then(likesRepository).should().delete(like);
 
-        assertThat(result).isFalse();
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getLiked()).isFalse();
+        assertThat(result.getCount()).isEqualTo(10L);
+    }
+
+    @Test
+    void isLiked() {
+        // when
+        likeService.isLiked(List.of(1L, 2L), "username");
+
+        // then
+        then(likesRepository).should().existsByPostIdsAndUsername(List.of(1L, 2L), "username");
     }
 }

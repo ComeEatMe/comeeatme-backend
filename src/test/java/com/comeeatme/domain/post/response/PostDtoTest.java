@@ -1,6 +1,8 @@
 package com.comeeatme.domain.post.response;
 
+import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.likes.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
@@ -47,14 +49,22 @@ class PostDtoTest {
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
 
+        CommentCount commentCount = mock(CommentCount.class);
+        given(commentCount.getCount()).willReturn(10L);
+
+        LikeCount likeCount = mock(LikeCount.class);
+        given(likeCount.getCount()).willReturn(20L);
+
         // when
-        PostDto postDto = PostDto.of(post, List.of(postImage));
+        PostDto postDto = PostDto.of(post, List.of(postImage), commentCount, likeCount);
 
         // then
         assertThat(postDto.getId()).isEqualTo(1L);
         assertThat(postDto.getImageUrls()).containsExactly("image-url");
         assertThat(postDto.getContent()).isEqualTo("content");
         assertThat(postDto.getCreatedAt()).isEqualTo(LocalDateTime.of(2022, 10, 9, 15, 50));
+        assertThat(postDto.getCommentCount()).isEqualTo(10L);
+        assertThat(postDto.getLikeCount()).isEqualTo(20L);
         assertThat(postDto.getMember().getId()).isEqualTo(2L);
         assertThat(postDto.getMember().getNickname()).isEqualTo("nickname");
         assertThat(postDto.getMember().getImageUrl()).isEqualTo("member-image-url");

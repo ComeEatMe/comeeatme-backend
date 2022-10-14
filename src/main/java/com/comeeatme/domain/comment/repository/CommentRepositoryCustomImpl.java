@@ -1,6 +1,8 @@
 package com.comeeatme.domain.comment.repository;
 
 import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.response.CommentCount;
+import com.comeeatme.domain.comment.response.QCommentCount;
 import com.comeeatme.domain.post.Post;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPAExpressions;
@@ -65,5 +67,18 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         }
 
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    @Override
+    public List<CommentCount> countsGroupByPosts(List<Post> posts) {
+        return query
+                .select(new QCommentCount(comment.post.id, comment.id.count()))
+                .from(comment)
+                .where(
+                        comment.post.in(posts),
+                        comment.useYn.isTrue()
+                )
+                .groupBy(comment.post)
+                .fetch();
     }
 }

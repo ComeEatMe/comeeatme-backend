@@ -4,6 +4,7 @@ import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -237,5 +238,59 @@ class CommentRepositoryTest {
         assertThat(result)
                 .hasSize(1)
                 .extracting("id").containsExactly(comments.get(0).getId());
+    }
+
+    @Test
+    void countsGroupByPosts() {
+        // given
+        List<Comment> comments = commentRepository.saveAll(List.of(
+                Comment.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(1L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(2L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(3L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(1L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(2L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(3L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(3L).build())
+                        .member(Member.builder().id(1L).build())
+                        .content("content")
+                        .build()
+        ));
+        comments.get(0).delete();
+
+        // when
+        List<CommentCount> counts = commentRepository.countsGroupByPosts(List.of(
+                Post.builder().id(1L).build(),
+                Post.builder().id(2L).build()
+        ));
+
+        // then
+        counts.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
+        assertThat(counts).extracting("postId").containsExactly(1L, 2L);
+        assertThat(counts).extracting("count").containsExactly(2L, 3L);
     }
 }

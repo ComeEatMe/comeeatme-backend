@@ -1,6 +1,8 @@
 package com.comeeatme.domain.post.response;
 
+import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.likes.response.LikeCount;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import lombok.AccessLevel;
@@ -26,21 +28,25 @@ public class PostDto {
 
     private LocalDateTime createdAt;
 
+    private Long commentCount;
+
+    private Long likeCount;
+
     private MemberDto member;
 
     private RestaurantDto restaurant;
 
-    public static PostDto of(Post post, List<PostImage> postImages) {
+    public static PostDto of(Post post, List<PostImage> postImages, CommentCount commentCount, LikeCount likeCount) {
         return PostDto.builder()
                 .id(post.getId())
                 .imageUrls(postImages.stream()
-                        .filter(PostImage::getUseYn)
                         .map(PostImage::getImage)
-                        .filter(Images::getUseYn)
                         .map(Images::getUrl)
                         .collect(Collectors.toList()))
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
+                .commentCount(commentCount.getCount())
+                .likeCount(likeCount.getCount())
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
                 .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
@@ -58,6 +64,8 @@ public class PostDto {
             List<String> imageUrls,
             String content,
             LocalDateTime createdAt,
+            Long commentCount,
+            Long likeCount,
             Long memberId,
             String memberNickname,
             @Nullable String memberImageUrl,
@@ -67,6 +75,8 @@ public class PostDto {
         this.imageUrls = imageUrls;
         this.content = content;
         this.createdAt = createdAt;
+        this.commentCount = commentCount;
+        this.likeCount = likeCount;
         this.member = MemberDto.builder()
                 .id(memberId)
                 .nickname(memberNickname)

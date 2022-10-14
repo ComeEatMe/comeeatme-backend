@@ -2,8 +2,11 @@ package com.comeeatme.domain.post.service;
 
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
+import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.likes.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.HashTag;
@@ -63,6 +66,9 @@ class PostServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private LikesRepository likesRepository;
 
     @Test
     void create() {
@@ -242,23 +248,23 @@ class PostServiceTest {
                 .willReturn(postSlice);
 
         Images image1 = mock(Images.class);
-        given(image1.getUseYn()).willReturn(true);
         given(image1.getUrl()).willReturn("image-url-1");
         PostImage postImage1 = mock(PostImage.class);
-        given(postImage1.getUseYn()).willReturn(true);
         given(postImage1.getPost()).willReturn(post);
         given(postImage1.getImage()).willReturn(image1);
 
         Images image2 = mock(Images.class);
-        given(image2.getUseYn()).willReturn(true);
         given(image2.getUrl()).willReturn("image-url-2");
         PostImage postImage2 = mock(PostImage.class);
-        given(postImage2.getUseYn()).willReturn(true);
         given(postImage2.getPost()).willReturn(post);
         given(postImage2.getImage()).willReturn(image2);
 
         given(postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(postSlice.getContent()))
                 .willReturn(List.of(postImage1, postImage2));
+        given(commentRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new CommentCount(1L, 10L)));
+        given(likesRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());

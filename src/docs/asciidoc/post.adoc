@@ -34,6 +34,12 @@ operation::v1-posts-delete[snippets='http-request,request-headers,path-parameter
 
 
 [[v1-posts-put-like]]
-== 좋아요
+== 게시물 좋아요
 
-operation::v1-posts-put-like[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
+operation::v1-posts-put-like[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-posts-get-liked]]
+== 게시물 좋아요 여부 조회
+
+operation::v1-posts-get-liked[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']
