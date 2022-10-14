@@ -2,8 +2,11 @@ package com.comeeatme.domain.post.service;
 
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
+import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.likes.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -24,10 +27,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +49,8 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     private final CommentRepository commentRepository;
+
+    private final LikesRepository likesRepository;
 
     @Transactional
     public Long create(PostCreate postCreate, String username) {
@@ -92,8 +97,17 @@ public class PostService {
         List<PostImage> postImages = postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(posts.getContent());
         Map<Long, List<PostImage>> postIdToPostImages = postImages.stream()
                 .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
-        return posts.map(post -> PostDto.of(
-                post, postIdToPostImages.getOrDefault(post.getId(), Collections.emptyList())));
+        Map<Long, CommentCount> postIdToCommentCount = commentRepository.countsGroupByPosts(posts.getContent())
+                .stream()
+                .collect(Collectors.toMap(CommentCount::getPostId, Function.identity()));
+        Map<Long, LikeCount> postIdToLikeCount = likesRepository.countsGroupByPosts(posts.getContent())
+                .stream()
+                .collect(Collectors.toMap(LikeCount::getPostId, Function.identity()));
+        return posts.map(post -> PostDto.of(post,
+                postIdToPostImages.get(post.getId()),
+                postIdToCommentCount.get(post.getId()),
+                postIdToLikeCount.get(post.getId())
+        ));
     }
 
     public boolean isNotOwnedByMember(Long postId, String username) {
