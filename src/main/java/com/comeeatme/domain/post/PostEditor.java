@@ -11,14 +11,14 @@ public class PostEditor {
 
     private Restaurant restaurant;
 
-    private Set<Hashtag> hashtags;
+    private Set<PostHashtag> postHashtags;
 
     private String content;
 
     @Builder
-    private PostEditor(Restaurant restaurant, Set<Hashtag> hashtags, String content) {
+    private PostEditor(Restaurant restaurant, Set<PostHashtag> postHashtags, String content) {
         this.restaurant = restaurant;
-        this.hashtags = hashtags;
+        this.postHashtags = postHashtags;
         this.content = content;
     }
 }

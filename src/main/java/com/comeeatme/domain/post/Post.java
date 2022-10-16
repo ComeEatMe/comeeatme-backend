@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "post",
@@ -38,12 +39,8 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "restaurant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Restaurant restaurant;
 
-    @ElementCollection
-    @CollectionTable(name = "post_hashtag",
-            joinColumns = @JoinColumn(name = "post_id", foreignKey = @ForeignKey(name = "FK_post_hashtag_post_id")))
-    @Enumerated(EnumType.STRING)
-    @Column(name = "hashtag", length = 25, nullable = false)
-    private Set<Hashtag> hashtags;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PostHashtag> postHashtags;
 
     @Column(name = "content", length = 2000, nullable = false)
     private String content;
@@ -53,25 +50,39 @@ public class Post extends BaseTimeEntity {
             @Nullable Long id,
             Member member,
             Restaurant restaurant,
-            @Nullable Set<Hashtag> hashtags,
+            @Nullable Set<PostHashtag> postHashtags,
             String content) {
         this.id = id;
         this.member = member;
         this.restaurant = restaurant;
-        this.hashtags = Optional.ofNullable(hashtags).orElse(new HashSet<>());
+        this.postHashtags = Optional.ofNullable(postHashtags).orElse(new HashSet<>());
         this.content = content;
     }
 
     public PostEditor.PostEditorBuilder toEditor() {
         return PostEditor.builder()
                 .restaurant(restaurant)
-                .hashtags(hashtags)
+                .postHashtags(postHashtags)
                 .content(content);
     }
 
     public void edit(PostEditor editor) {
         restaurant = editor.getRestaurant();
-        hashtags = editor.getHashtags();
+        postHashtags = editor.getPostHashtags();
         content = editor.getContent();
+    }
+
+    public void addHashtag(Hashtag hashtag) {
+        PostHashtag postHashtag = PostHashtag.builder()
+                .post(this)
+                .hashtag(hashtag)
+                .build();
+        postHashtags.add(postHashtag);
+    }
+
+    public Set<Hashtag> getHashtags() {
+        return postHashtags.stream()
+                .map(PostHashtag::getHashtag)
+                .collect(Collectors.toSet());
     }
 }

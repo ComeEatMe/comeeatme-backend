@@ -40,8 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PostServiceTest {
@@ -112,8 +111,11 @@ class PostServiceTest {
         Post capturedPost = postCaptor.getValue();
         assertThat(capturedPost.getMember()).isEqualTo(member);
         assertThat(capturedPost.getRestaurant()).isEqualTo(restaurant);
-        assertThat(capturedPost.getHashtags()).isEqualTo(postCreate.getHashtags());
         assertThat(capturedPost.getContent()).isEqualTo(postCreate.getContent());
+
+        ArgumentCaptor<Hashtag> hashtagCaptor = ArgumentCaptor.forClass(Hashtag.class);
+        then(post).should(times(postCreate.getHashtags().size())).addHashtag(hashtagCaptor.capture());
+        assertThat(hashtagCaptor.getAllValues()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
 
         ArgumentCaptor<List<PostImage>> postImagesCaptor = ArgumentCaptor.forClass(List.class);
         then(postImageRepository).should().saveAll(postImagesCaptor.capture());
@@ -136,9 +138,10 @@ class PostServiceTest {
         Post post = Post.builder()
                 .id(1L)
                 .restaurant(postRestaurant)
-                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.DATE))
                 .content("post-content")
                 .build();
+        post.addHashtag(Hashtag.STRONG_TASTE);
+        post.addHashtag(Hashtag.DATE);
 
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(3L)
@@ -172,9 +175,10 @@ class PostServiceTest {
         Post post = Post.builder()
                 .id(1L)
                 .restaurant(postRestaurant)
-                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.DATE))
                 .content("post-content")
                 .build();
+        post.addHashtag(Hashtag.STRONG_TASTE);
+        post.addHashtag(Hashtag.DATE);
 
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(2L)
