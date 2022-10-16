@@ -5,7 +5,7 @@ import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
-import com.comeeatme.domain.post.HashTag;
+import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
@@ -77,7 +77,7 @@ class PostControllerTest {
         // given
         PostCreate postCreate = PostCreate.builder()
                 .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
+                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.DATE))
                 .imageIds(List.of(2L, 3L, 4L))
                 .content("test-content")
                 .build();
@@ -99,7 +99,7 @@ class PostControllerTest {
                         ),
                         requestFields(
                                 fieldWithPath("restaurantId").description("음식점 ID"),
-                                fieldWithPath("hashTags").description("게시물 해시태그 리스트"),
+                                fieldWithPath("hashtags").description("게시물 해시태그 리스트"),
                                 fieldWithPath("imageIds").description("이미지 ID 리스트")
                                         .attributes(key("constraint").value("중복된 ID X. 본인의 이미지가 아닌 ID X.")),
                                 fieldWithPath("content").description("게시물 내용")
@@ -119,7 +119,7 @@ class PostControllerTest {
         // given
         PostCreate postCreate = PostCreate.builder()
                 .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.DATE))
+                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.DATE))
                 .imageIds(List.of(2L, 3L, 3L))
                 .content("test-content")
                 .build();
@@ -143,7 +143,7 @@ class PostControllerTest {
         // given
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.EATING_ALON))
+                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.EATING_ALON))
                 .content("edited-content")
                 .build();
 
@@ -169,7 +169,7 @@ class PostControllerTest {
                         ),
                         requestFields(
                                 fieldWithPath("restaurantId").description("게시물 음식점 ID"),
-                                fieldWithPath("hashTags").description("게시물 해시태그 리스트"),
+                                fieldWithPath("hashtags").description("게시물 해시태그 리스트"),
                                 fieldWithPath("content").description("게시물 내용")
                                         .attributes(key("constraint").value("최대 2000."))
                         ),
@@ -188,7 +188,7 @@ class PostControllerTest {
         // given
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(1L)
-                .hashTags(Set.of(HashTag.STRONG_TASTE, HashTag.EATING_ALON))
+                .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.EATING_ALON))
                 .content("edited-content")
                 .build();
 

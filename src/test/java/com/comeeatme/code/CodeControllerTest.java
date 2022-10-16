@@ -80,15 +80,15 @@ class CodeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("$.EnumCodeExample").isNotEmpty())  // 등록된 EnumMapperType
-                .andExpect(jsonPath("$.HashTagGroup").isNotEmpty())
-                .andExpect(jsonPath("$.HashTag").isNotEmpty())
+                .andExpect(jsonPath("$.HashtagGroup").isNotEmpty())
+                .andExpect(jsonPath("$.Hashtag").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 //subsectionWithPath("FieldCategory").description("분야 카테고리")    // RestDocs 등록
-                                subsectionWithPath("HashTagGroup").description("해쉬태그 그룹"),
-                                subsectionWithPath("HashTag").description("해쉬태그")
+                                subsectionWithPath("HashtagGroup").description("해쉬태그 그룹"),
+                                subsectionWithPath("Hashtag").description("해쉬태그")
                         )
                 ));
     }

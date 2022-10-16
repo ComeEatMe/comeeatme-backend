@@ -1,7 +1,7 @@
 package com.comeeatme.code.config;
 
-import com.comeeatme.domain.post.HashTag;
-import com.comeeatme.domain.post.HashTagGroup;
+import com.comeeatme.domain.post.Hashtag;
+import com.comeeatme.domain.post.HashtagGroup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +15,8 @@ public class EnumMapperConfig {
     @Bean
     public EnumMapperFactory enumMapperFactory() {
         EnumMapperFactory enumMapperFactory = new EnumMapperFactory();
-        enumMapperFactory.put("HashTagGroup", HashTagGroup.class);
-        enumMapperFactory.put("HashTag", HashTag.class);
+        enumMapperFactory.put("HashtagGroup", HashtagGroup.class);
+        enumMapperFactory.put("Hashtag", Hashtag.class);
         return enumMapperFactory;
     }
 }

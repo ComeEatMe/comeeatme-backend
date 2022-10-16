@@ -59,7 +59,7 @@ public class PostService {
         Post post = postRepository.save(Post.builder()
                 .member(member)
                 .restaurant(restaurant)
-                .hashTags(postCreate.getHashTags())
+                .hashtags(postCreate.getHashtags())
                 .content(postCreate.getContent())
                 .build());
         savePostImages(post, postCreate.getImageIds());
@@ -70,7 +70,7 @@ public class PostService {
     public Long edit(PostEdit postEdit, Long postId) {
         Post post = getPostById(postId);
         PostEditor.PostEditorBuilder editorBuilder = post.toEditor()
-                .hashTags(postEdit.getHashTags())
+                .hashtags(postEdit.getHashtags())
                 .content(postEdit.getContent());
 
         if (!Objects.equals(post.getRestaurant().getId(), postEdit.getRestaurantId())) {

@@ -4,7 +4,7 @@ import com.comeeatme.domain.common.core.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum HashTagGroup implements EnumMapperType {
+public enum HashtagGroup implements EnumMapperType {
 
     MOOD("분위기"),
     FOOD_PRICE("음식/가격"),

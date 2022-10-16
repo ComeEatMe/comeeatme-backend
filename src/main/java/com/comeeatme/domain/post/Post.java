@@ -43,7 +43,7 @@ public class Post extends BaseTimeEntity {
             joinColumns = @JoinColumn(name = "post_id", foreignKey = @ForeignKey(name = "FK_post_hashtag_post_id")))
     @Enumerated(EnumType.STRING)
     @Column(name = "hashtag", length = 25, nullable = false)
-    private Set<HashTag> hashTags;
+    private Set<Hashtag> hashtags;
 
     @Column(name = "content", length = 2000, nullable = false)
     private String content;
@@ -53,25 +53,25 @@ public class Post extends BaseTimeEntity {
             @Nullable Long id,
             Member member,
             Restaurant restaurant,
-            @Nullable Set<HashTag> hashTags,
+            @Nullable Set<Hashtag> hashtags,
             String content) {
         this.id = id;
         this.member = member;
         this.restaurant = restaurant;
-        this.hashTags = Optional.ofNullable(hashTags).orElse(new HashSet<>());
+        this.hashtags = Optional.ofNullable(hashtags).orElse(new HashSet<>());
         this.content = content;
     }
 
     public PostEditor.PostEditorBuilder toEditor() {
         return PostEditor.builder()
                 .restaurant(restaurant)
-                .hashTags(hashTags)
+                .hashtags(hashtags)
                 .content(content);
     }
 
     public void edit(PostEditor editor) {
         restaurant = editor.getRestaurant();
-        hashTags = editor.getHashTags();
+        hashtags = editor.getHashtags();
         content = editor.getContent();
     }
 }
