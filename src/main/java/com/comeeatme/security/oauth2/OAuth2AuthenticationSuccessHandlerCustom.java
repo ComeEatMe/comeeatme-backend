@@ -2,6 +2,9 @@ package com.comeeatme.security.oauth2;
 
 import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.security.LoginResponse;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +16,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,12 +34,21 @@ public class OAuth2AuthenticationSuccessHandlerCustom implements AuthenticationS
 
     private final AccountRepository accountRepository;
 
+    private final MemberRepository memberRepository;
+
+    private final MemberNicknameCreator nicknameCreator;
+
     @Override
+    @Transactional
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         OAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
         String username = oAuth2User.getName();
+
+        if (isNotAccountExists(username)) {
+            createMemberOf(username);
+        }
 
         String accessToken = jwtTokenProvider.createAccessToken(username);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
@@ -43,7 +56,7 @@ public class OAuth2AuthenticationSuccessHandlerCustom implements AuthenticationS
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
         account.setRefreshToken(refreshToken);
-        accountRepository.saveAndFlush(account);
+        accountRepository.save(account);
 
         LoginResponse loginResponse = LoginResponse.builder()
                 .accessToken(accessToken)
@@ -56,4 +69,24 @@ public class OAuth2AuthenticationSuccessHandlerCustom implements AuthenticationS
 
         objectMapper.writeValue(response.getWriter(), loginResponse);
     }
+
+    private boolean isNotAccountExists(String username) {
+        return accountRepository.findByUsername(username).filter(Account::getUseYn).isEmpty();
+    }
+
+    private void createMemberOf(String username) {
+        String nickname = nicknameCreator.create();
+        while (memberRepository.existsByNickname(nickname)) {
+            nickname = nicknameCreator.create();
+        }
+        Member member = memberRepository.save(Member.builder()
+                .nickname(nickname)
+                .introduction("")
+                .build());
+        accountRepository.save(Account.builder()
+                .member(member)
+                .username(username)
+                .build());
+    }
+
 }
