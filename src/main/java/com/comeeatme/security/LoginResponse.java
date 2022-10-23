@@ -1,13 +1,21 @@
 package com.comeeatme.security;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginResponse {
 
-    private final String accessToken;
+    private Long memberId;
 
-    private final String refreshToken;
+    private String accessToken;
+
+    private String refreshToken;
+
+    @Builder
+    private LoginResponse(Long memberId, String accessToken, String refreshToken) {
+        this.memberId = memberId;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
 }

@@ -39,13 +39,17 @@ public class OAuth2AuthenticationSuccessHandlerCustom implements AuthenticationS
 
         String accessToken = jwtTokenProvider.createAccessToken(username);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
-        LoginResponse loginResponse = new LoginResponse(accessToken, refreshToken);
 
         Account account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
         account.setRefreshToken(refreshToken);
         accountRepository.saveAndFlush(account);
 
+        LoginResponse loginResponse = LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .memberId(account.getMember().getId())
+                .build();
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
