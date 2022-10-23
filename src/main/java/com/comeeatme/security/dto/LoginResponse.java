@@ -1,4 +1,4 @@
-package com.comeeatme.security;
+package com.comeeatme.security.dto;
 
 import lombok.*;
 

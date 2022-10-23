@@ -1,5 +1,6 @@
 package com.comeeatme.security;
 
+import com.comeeatme.security.dto.LoginResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
