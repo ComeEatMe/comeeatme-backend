@@ -10,14 +10,27 @@ public interface OAuth2UserInfo {
 
     String getProviderId();
 
+    String ofUsername();
+
     static OAuth2UserInfo of(OAuth2UserRequest userRequest, Map<String, Object> attributes) {
-        String clientId = userRequest.getClientRegistration().getRegistrationId();
-        if ("kakao".equals(clientId)) {
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        if ("kakao".equals(registrationId)) {
             return KakaoUserInfo.builder()
                     .providerId(attributes.get("id").toString())
                     .build();
         } else {
-            throw new IllegalArgumentException("지원하지 않는 OAuth2 Provider 입니다. provider = " + clientId);
+            throw new IllegalArgumentException("지원하지 않는 OAuth2 Provider 입니다. provider = " + registrationId);
         }
     }
+
+    static OAuth2UserInfo of(String registrationId, String providerId) {
+        if ("kakao".equals(registrationId)) {
+            return KakaoUserInfo.builder()
+                    .providerId(providerId)
+                    .build();
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 OAuth2 Provider 입니다. provider = " + registrationId);
+        }
+    }
+
 }

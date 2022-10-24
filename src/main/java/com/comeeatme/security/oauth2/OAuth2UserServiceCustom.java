@@ -20,15 +20,11 @@ public class OAuth2UserServiceCustom extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User user = super.loadUser(userRequest);
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(userRequest, user.getAttributes());
-        String username = usernameOf(userInfo);
+        String username = userInfo.ofUsername();
         Map<String, Object> attributes = Map.of(
                 NAME_ATTRIBUTE_KEY, username
         );
         return new DefaultOAuth2User(null, attributes, NAME_ATTRIBUTE_KEY);
-    }
-
-    private String usernameOf(OAuth2UserInfo userInfo) {
-        return userInfo.getProvider() + "-" + userInfo.getProviderId();
     }
 
 }

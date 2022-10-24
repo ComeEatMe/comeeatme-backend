@@ -15,3 +15,12 @@
 인증 성공 시 응답
 
 operation::auth-LoginResponse[snippets='response-body,response-fields']
+
+[[auth-login-oauthtoken]]
+
+- method: POST
+- path: /login/oauth2/token/+{registrationId}+
+- registrationId: kakao
+- requestParameter: accessToken(OAuth AccessToken)
+- ex) http://localhost:8080/login/oauth2/token/kakao?accessToken=+{AccessToken}+
+
