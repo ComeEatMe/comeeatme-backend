@@ -11,6 +11,7 @@ import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostEditor;
+import com.comeeatme.domain.post.PostHashtag;
 import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,9 +61,9 @@ public class PostService {
         Post post = postRepository.save(Post.builder()
                 .member(member)
                 .restaurant(restaurant)
-                .hashTags(postCreate.getHashTags())
                 .content(postCreate.getContent())
                 .build());
+        postCreate.getHashtags().forEach(post::addHashtag);
         savePostImages(post, postCreate.getImageIds());
         return post.getId();
     }
@@ -69,8 +71,15 @@ public class PostService {
     @Transactional
     public Long edit(PostEdit postEdit, Long postId) {
         Post post = getPostById(postId);
+        Set<PostHashtag> editedPostHashtags = postEdit.getHashtags()
+                .stream()
+                .map(hashtag -> PostHashtag.builder()
+                        .post(post)
+                        .hashtag(hashtag)
+                        .build())
+                .collect(Collectors.toSet());
         PostEditor.PostEditorBuilder editorBuilder = post.toEditor()
-                .hashTags(postEdit.getHashTags())
+                .postHashtags(editedPostHashtags)
                 .content(postEdit.getContent());
 
         if (!Objects.equals(post.getRestaurant().getId(), postEdit.getRestaurantId())) {

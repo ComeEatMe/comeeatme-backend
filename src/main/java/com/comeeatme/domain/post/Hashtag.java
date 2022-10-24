@@ -3,10 +3,10 @@ package com.comeeatme.domain.post;
 import com.comeeatme.domain.common.core.EnumMapperType;
 import lombok.RequiredArgsConstructor;
 
-import static com.comeeatme.domain.post.HashTagGroup.*;
+import static com.comeeatme.domain.post.HashtagGroup.*;
 
 @RequiredArgsConstructor
-public enum HashTag implements EnumMapperType {
+public enum Hashtag implements EnumMapperType {
 
     MOODY(MOOD, "감성있는"),
     EATING_ALON(MOOD, "혼밥"),
@@ -28,7 +28,7 @@ public enum HashTag implements EnumMapperType {
     AROUND_CLOCK(CONVENIENCE_ETC, "24시간"),
     ;
 
-    private final HashTagGroup group;
+    private final HashtagGroup group;
 
     private final String title;
 

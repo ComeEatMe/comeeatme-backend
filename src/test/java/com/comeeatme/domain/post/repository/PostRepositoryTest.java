@@ -6,6 +6,7 @@ import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -18,8 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,9 +40,6 @@ class PostRepositoryTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
-
-    @Autowired
-    private EntityManager em;
 
     @Test
     void existsByIdAndUsernameAndUseYnIsTrue_True() {
@@ -100,9 +98,6 @@ class PostRepositoryTest {
                 .content("test-content")
                 .build());
 
-        em.flush();
-        em.clear();
-
         // when
         PostSearch postSearch = PostSearch.builder().build();
         PageRequest pageable = PageRequest.of(0, 10);
@@ -137,9 +132,6 @@ class PostRepositoryTest {
                 .content("test-content")
                 .build());
         post.delete();
-
-        em.flush();
-        em.clear();
 
         // when
         PostSearch postSearch = PostSearch.builder().build();
@@ -178,9 +170,6 @@ class PostRepositoryTest {
                 .restaurant(Restaurant.builder().id(restaurant.getId() + 1L).build())
                 .content("test-content")
                 .build());
-
-        em.flush();
-        em.clear();
 
         // when
         PostSearch postSearch = PostSearch.builder().restaurantId(restaurant.getId()).build();
@@ -225,11 +214,51 @@ class PostRepositoryTest {
                 .content("test-content")
                 .build());
 
-        em.flush();
-        em.clear();
-
         // when
         PostSearch postSearch = PostSearch.builder().memberId(member1.getId()).build();
+        PageRequest pageable = PageRequest.of(0, 10);
+        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+
+        // then
+        List<Post> content = posts.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(post1.getId());
+    }
+
+    @Test
+    void findAllWithMemberAndRestaurant_Hashtag() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
+                .name("모노끼 야탑점")
+                .phone("031-702-2929")
+                .address(Address.builder()
+                        .name("경기 성남시 분당구 야탑동 353-4")
+                        .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .x(211199.96154825)
+                        .y(434395.793544651)
+                        .build())
+                .build());
+        Post post1 = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .content("test-content")
+                .build());
+        post1.addHashtag(Hashtag.EATING_ALON);
+        post1.addHashtag(Hashtag.COST_EFFECTIVENESS);
+        Post post2 = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(restaurant)
+                .content("test-content")
+                .build());
+        post1.addHashtag(Hashtag.EATING_ALON);
+
+        // when
+        PostSearch postSearch = PostSearch.builder()
+                .hashtags(Set.of(Hashtag.EATING_ALON, Hashtag.COST_EFFECTIVENESS)).build();
         PageRequest pageable = PageRequest.of(0, 10);
         Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
 

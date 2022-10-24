@@ -1,6 +1,6 @@
 package com.comeeatme.domain.post.request;
 
-import com.comeeatme.domain.post.HashTag;
+import com.comeeatme.domain.post.Hashtag;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -18,7 +18,7 @@ public class PostEdit {
     private Long restaurantId;
 
     @NotNull
-    private Set<HashTag> hashTags;
+    private Set<Hashtag> hashtags;
 
     @NotBlank
     @Size(max = 2000)
