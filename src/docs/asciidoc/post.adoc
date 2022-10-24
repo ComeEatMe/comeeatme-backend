@@ -12,6 +12,11 @@
 [[v1-posts-get-list]]
 == 게시물 리스트 조회
 
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
 operation::v1-posts-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 
