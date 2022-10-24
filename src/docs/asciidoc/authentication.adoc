@@ -17,6 +17,7 @@
 operation::auth-LoginResponse[snippets='response-body,response-fields']
 
 [[auth-login-oauthtoken]]
+== OAuth AccessToken 을 통한 로그인
 
 - method: POST
 - path: /login/oauth2/token/+{registrationId}+
