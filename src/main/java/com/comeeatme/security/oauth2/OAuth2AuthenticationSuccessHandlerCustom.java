@@ -5,7 +5,7 @@ import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
-import com.comeeatme.security.dto.LoginResponse;
+import com.comeeatme.security.response.LoginResponse;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

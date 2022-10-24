@@ -1,19 +1,15 @@
-package com.comeeatme.domain.comment.request;
+package com.comeeatme.security.request;
 
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommentCreate {
-
-    private Long parentId;
+public class OauthLogin {
 
     @NotBlank
-    @Size(max = 1000)
-    private String content;
+    private String accessToken;
 }

@@ -22,6 +22,14 @@ operation::auth-LoginResponse[snippets='response-body,response-fields']
 - method: POST
 - path: /login/oauth2/token/+{registrationId}+
 - registrationId: kakao
-- requestParameter: accessToken(OAuth AccessToken)
-- ex) http://localhost:8080/login/oauth2/token/kakao?accessToken=+{AccessToken}+
+- ex) http://localhost:8080/login/oauth2/token/kakao
+
+Request Body
+
+[source]
+----
+{
+    "accessToken": {OAUTH_ACCESS_TOKEN}
+}
+----
 

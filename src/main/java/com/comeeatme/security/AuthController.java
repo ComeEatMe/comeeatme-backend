@@ -5,7 +5,8 @@ import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
-import com.comeeatme.security.dto.LoginResponse;
+import com.comeeatme.security.request.OauthLogin;
+import com.comeeatme.security.response.LoginResponse;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.comeeatme.security.oauth2.OAuth2UserInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,12 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -38,8 +37,9 @@ public class AuthController {
 
     @PostMapping("/login/oauth2/token/{registrationId}")
     public ResponseEntity<LoginResponse> loginOauthToken(
-            @PathVariable String registrationId, @RequestParam String accessToken) throws JsonProcessingException {
-        String providerId = getProviderId(registrationId, accessToken);
+            @PathVariable String registrationId, @Valid @RequestBody OauthLogin oauthLogin)
+            throws JsonProcessingException {
+        String providerId = getProviderId(registrationId, oauthLogin.getAccessToken());
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(registrationId, providerId);
         String username = userInfo.ofUsername();
 
