@@ -29,7 +29,7 @@ operation::v1-posts-post[snippets='http-request,request-headers,request-fields,h
 [[v1-posts-patch]]
 == 게시물 수정
 
-operation::v1-posts-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields']
+operation::v1-posts-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
 
 
 [[v1-posts-delete]]
