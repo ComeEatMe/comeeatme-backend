@@ -7,6 +7,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -48,13 +49,13 @@ public class CommentService {
     }
 
     @Transactional
-    public Long edit(CommentEdit commentEdit, Long commentId) {
+    public UpdateResult<Long> edit(CommentEdit commentEdit, Long commentId) {
         Comment comment = getCommentById(commentId);
         CommentEditor editor = comment.toEditor()
                 .content(commentEdit.getContent())
                 .build();
         comment.edit(editor);
-        return comment.getId();
+        return new UpdateResult<>(comment.getId());
     }
 
     public boolean isNotOwnedByMember(Long commentId, String username) {

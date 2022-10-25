@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
@@ -56,13 +57,13 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<ApiResult<Long>> patch(
+    public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
         if (postService.isNotOwnedByMember(postId, username)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
-        Long editedPostId = postService.edit(postEdit, postId);
-        ApiResult<Long> result = ApiResult.success(editedPostId);
+        UpdateResult<Long> updateResult = postService.edit(postEdit, postId);
+        ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
         return ResponseEntity.ok(result);
     }
 

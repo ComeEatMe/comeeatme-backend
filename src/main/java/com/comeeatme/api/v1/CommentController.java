@@ -6,6 +6,7 @@ import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import com.comeeatme.security.annotation.CurrentUsername;
@@ -34,7 +35,7 @@ public class CommentController {
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<ApiResult<Long>> patch(
+    public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody CommentEdit commentEdit, @PathVariable Long postId, @PathVariable Long commentId,
             @CurrentUsername String username) {
         if (commentService.isNotOwnedByMember(commentId, username)) {
@@ -43,8 +44,8 @@ public class CommentController {
         if (commentService.isNotBelongToPost(commentId, postId)) {
             throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
         }
-        Long editedCommentId = commentService.edit(commentEdit, commentId);
-        ApiResult<Long> result = ApiResult.success(editedCommentId);
+        UpdateResult<Long> updateResult = commentService.edit(commentEdit, commentId);
+        ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
         return ResponseEntity.ok(result);
     }
 

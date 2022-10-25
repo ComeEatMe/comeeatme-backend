@@ -1,6 +1,7 @@
 package com.comeeatme.domain.member.service;
 
 import com.comeeatme.domain.common.response.DuplicateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -33,7 +34,7 @@ public class MemberService {
     private final ImagesRepository imagesRepository;
 
     @Transactional
-    public Long edit(MemberEdit memberEdit, String username) {
+    public UpdateResult<Long> edit(MemberEdit memberEdit, String username) {
         Member member = getMemberByUsername(username);
         MemberEditor.MemberEditorBuilder editorBuilder = member.toEditor()
                 .nickname(memberEdit.getNickname())
@@ -41,7 +42,7 @@ public class MemberService {
         editMemberImage(memberEdit, member, editorBuilder);
         MemberEditor editor = editorBuilder.build();
         member.edit(editor);
-        return member.getId();
+        return new UpdateResult<>(member.getId());
     }
 
     public Slice<MemberSimpleDto> search(Pageable pageable, MemberSearch memberSearch) {

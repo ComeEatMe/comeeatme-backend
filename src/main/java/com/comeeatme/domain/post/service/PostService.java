@@ -4,6 +4,7 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.likes.repository.LikesRepository;
@@ -70,7 +71,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long edit(PostEdit postEdit, Long postId) {
+    public UpdateResult<Long> edit(PostEdit postEdit, Long postId) {
         Post post = getPostById(postId);
         Set<PostHashtag> editedPostHashtags = postEdit.getHashtags()
                 .stream()
@@ -90,7 +91,7 @@ public class PostService {
 
         PostEditor editor = editorBuilder.build();
         post.edit(editor);
-        return post.getId();
+        return new UpdateResult<>(post.getId());
     }
 
     @Transactional

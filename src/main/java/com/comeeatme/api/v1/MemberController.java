@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
@@ -26,10 +27,10 @@ public class MemberController {
     private final MemberService memberService;
 
     @PatchMapping
-    public ResponseEntity<ApiResult<Long>> patch(
+    public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody MemberEdit memberEdit, @CurrentUsername String username) {
-        Long memberId = memberService.edit(memberEdit, username);
-        ApiResult<Long> result = ApiResult.success(memberId);
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, username);
+        ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
         return ResponseEntity.ok(result);
     }
 
