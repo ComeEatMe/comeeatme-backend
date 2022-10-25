@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
@@ -148,7 +149,7 @@ class PostControllerTest {
                 .build();
 
         given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(2L);
+        given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(new UpdateResult<>(2L));
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}", 2L)
@@ -159,7 +160,6 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-posts-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -174,8 +174,8 @@ class PostControllerTest {
                                         .attributes(key("constraint").value("최대 2000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("수정된 게시물 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("수정된 게시물 ID")
                         )
                 ))
         ;

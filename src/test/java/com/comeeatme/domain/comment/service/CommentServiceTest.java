@@ -6,6 +6,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -96,11 +97,11 @@ class CommentServiceTest {
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         // when
-        Long editedCommentId = commentService.edit(commentEdit, commentId);
+        UpdateResult<Long> updateResult = commentService.edit(commentEdit, commentId);
 
         // then
         assertThat(comment.getContent()).isEqualTo("edited-content");
-        assertThat(editedCommentId).isEqualTo(commentId);
+        assertThat(updateResult.getId()).isEqualTo(commentId);
     }
 
     @Test

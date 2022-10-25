@@ -1,6 +1,7 @@
 package com.comeeatme.domain.member.service;
 
 import com.comeeatme.domain.common.response.DuplicateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -57,11 +58,11 @@ class MemberServiceTest {
                 .build();
 
         // when
-        Long editedId = memberService.edit(memberEdit, "username");
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
 
         // then
         then(imagesRepository).should(never()).findById(anyLong());
-        assertThat(editedId).isEqualTo(member.getId());
+        assertThat(updateResult.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
     }
@@ -88,12 +89,12 @@ class MemberServiceTest {
                 .build();
 
         // when
-        Long editedId = memberService.edit(memberEdit, "username");
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
 
         // then
         then(image).should(never()).delete();
         then(imagesRepository).should(never()).findById(anyLong());
-        assertThat(editedId).isEqualTo(member.getId());
+        assertThat(updateResult.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
     }
@@ -127,11 +128,11 @@ class MemberServiceTest {
                 .build();
 
         // when
-        Long editedId = memberService.edit(memberEdit, "username");
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
 
         // then
         then(memberImage).should().delete();
-        assertThat(editedId).isEqualTo(member.getId());
+        assertThat(updateResult.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
         assertThat(member.getImage()).isEqualTo(editedImage);

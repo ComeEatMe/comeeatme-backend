@@ -4,6 +4,7 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.likes.repository.LikesRepository;
@@ -158,13 +159,13 @@ class PostServiceTest {
         given(restaurantRepository.findById(3L)).willReturn(Optional.of(editedRestaurant));
 
         // when
-        Long editedPostId = postService.edit(postEdit, 1L);
+        UpdateResult<Long> updateResult = postService.edit(postEdit, 1L);
 
         // then
         assertThat(post.getRestaurant().getId()).isEqualTo(3L);
         assertThat(post.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
         assertThat(post.getContent()).isEqualTo("edited-content");
-        assertThat(editedPostId).isEqualTo(1L);
+        assertThat(updateResult.getId()).isEqualTo(1L);
     }
 
     @Test
@@ -190,13 +191,13 @@ class PostServiceTest {
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         // when
-        Long editedPostId = postService.edit(postEdit, 1L);
+        UpdateResult<Long> updateResult = postService.edit(postEdit, 1L);
 
         // then
         assertThat(post.getRestaurant().getId()).isEqualTo(2L);
         assertThat(post.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
         assertThat(post.getContent()).isEqualTo("edited-content");
-        assertThat(editedPostId).isEqualTo(1L);
+        assertThat(updateResult.getId()).isEqualTo(1L);
         then(restaurantRepository).should(never()).findById(any());
     }
 
