@@ -24,7 +24,7 @@ operation::v1-comments-patch[snippets='http-request,request-headers,path-paramet
 [[v1-comments-delete]]
 == 댓글 삭제
 
-operation::v1-comments-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
+operation::v1-comments-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
 
 
 [[v1-comments-get]]
