@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
@@ -68,12 +69,12 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResult<Long>> delete(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(@PathVariable Long postId, @CurrentUsername String username) {
         if (postService.isNotOwnedByMember(postId, username)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
-        Long deletedId = postService.delete(postId);
-        ApiResult<Long> result = ApiResult.success(deletedId);
+        DeleteResult<Long> deleteResult = postService.delete(postId);
+        ApiResult<DeleteResult<Long>> result = ApiResult.success(deleteResult);
         return ResponseEntity.ok(result);
     }
 

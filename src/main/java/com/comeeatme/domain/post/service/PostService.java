@@ -4,6 +4,7 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
@@ -95,12 +96,12 @@ public class PostService {
     }
 
     @Transactional
-    public Long delete(Long postId) {
+    public DeleteResult<Long> delete(Long postId) {
         Post post = getPostById(postId);
         commentRepository.findAllByPostAndUseYnIsTrue(post)
                 .forEach(Comment::delete);
         post.delete();
-        return post.getId();
+        return new DeleteResult<>(post.getId());
     }
 
     public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {

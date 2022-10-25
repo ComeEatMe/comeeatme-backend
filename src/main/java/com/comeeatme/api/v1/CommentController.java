@@ -6,6 +6,7 @@ import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
@@ -50,7 +51,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<ApiResult<Long>> delete(
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
             @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
         if (commentService.isNotOwnedByMember(commentId, username)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
@@ -58,8 +59,8 @@ public class CommentController {
         if (commentService.isNotBelongToPost(commentId, postId)) {
             throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
         }
-        Long deletedCommentId = commentService.delete(commentId);
-        ApiResult<Long> result = ApiResult.success(deletedCommentId);
+        DeleteResult<Long> deleteResult = commentService.delete(commentId);
+        ApiResult<DeleteResult<Long>        > result = ApiResult.success(deleteResult);
         return ResponseEntity.ok(result);
     }
 

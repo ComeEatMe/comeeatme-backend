@@ -7,6 +7,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -67,10 +68,10 @@ public class CommentService {
     }
 
     @Transactional
-    public Long delete(Long commentId) {
+    public DeleteResult<Long> delete(Long commentId) {
         Comment comment = getCommentById(commentId);
         comment.delete();
-        return commentId;
+        return new DeleteResult<>(commentId);
     }
 
     public Slice<CommentDto> getListOfPost(Pageable pageable, Long postId) {
