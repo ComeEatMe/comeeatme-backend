@@ -5,6 +5,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +68,8 @@ class CommentControllerTest {
                 .parentId(null)
                 .content("test-content")
                 .build();
-        given(commentService.create(eq(commentCreate), anyString(), anyLong())).willReturn(1L);
+        given(commentService.create(any(CommentCreate.class), anyString(), anyLong()))
+                .willReturn(new CreateResult<>(1L));
 
         // expected
         mockMvc.perform(post("/v1/posts/{postId}/comments", 2L).with(csrf())
@@ -77,7 +79,6 @@ class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(commentCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-comments-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -92,8 +93,8 @@ class CommentControllerTest {
                                         .attributes(key("constraint").value("최대 1000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 댓글 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("생성된 댓글 ID")
                         )
                 ))
         ;

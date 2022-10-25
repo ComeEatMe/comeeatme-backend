@@ -5,6 +5,7 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -67,9 +68,11 @@ class CommentServiceTest {
                 .build();
 
         //when
-        commentService.create(commentCreate, "test-username", 2L);
+        CreateResult<Long> result = commentService.create(commentCreate, "test-username", 2L);
 
         // then
+        assertThat(result.getId()).isEqualTo(1L);
+
         Comment capturedComment = commentCaptor.getValue();
         assertThat(capturedComment.getMember()).isEqualTo(member);
         assertThat(capturedComment.getPost()).isEqualTo(post);

@@ -3,6 +3,7 @@ package com.comeeatme.domain.post.service;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.likes.repository.LikesRepository;
@@ -105,7 +106,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(5L);
 
         // when
-        long postId = postService.create(postCreate, "test-username");
+        CreateResult<Long> result = postService.create(postCreate, "test-username");
 
         // then
         Post capturedPost = postCaptor.getValue();
@@ -126,7 +127,7 @@ class PostServiceTest {
         assertThat(capturedPostImages).extracting("image")
                 .containsExactly(image1, image2, image3);
 
-        assertThat(postId).isEqualTo(5L);
+        assertThat(result.getId()).isEqualTo(5L);
     }
 
     @Test
