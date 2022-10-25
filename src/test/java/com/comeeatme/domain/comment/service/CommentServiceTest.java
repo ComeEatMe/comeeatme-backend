@@ -6,6 +6,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
@@ -134,10 +135,10 @@ class CommentServiceTest {
         given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
 
         // when
-        Long deletedId = commentService.delete(1L);
+        DeleteResult<Long> deleteResult = commentService.delete(1L);
 
         // then
-        assertThat(deletedId).isEqualTo(1L);
+        assertThat(deleteResult.getId()).isEqualTo(1L);
         assertThat(comment.getUseYn()).isFalse();
     }
 

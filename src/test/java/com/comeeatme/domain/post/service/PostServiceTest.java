@@ -4,6 +4,7 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
@@ -232,12 +233,12 @@ class PostServiceTest {
         given(commentRepository.findAllByPostAndUseYnIsTrue(post)).willReturn(comments);
 
         // when
-        Long deletedId = postService.delete(1L);
+        DeleteResult<Long> deleteResult = postService.delete(1L);
 
         // then
         comments.forEach(comment -> then(comment).should().delete());
         then(post).should().delete();
-        assertThat(deletedId).isEqualTo(1L);
+        assertThat(deleteResult.getId()).isEqualTo(1L);
     }
 
     @Test

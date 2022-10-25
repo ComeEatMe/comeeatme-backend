@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
@@ -213,7 +214,7 @@ class PostControllerTest {
     void delete_Docs() throws Exception {
         // given
         given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(postService.delete(1L)).willReturn(1L);
+        given(postService.delete(1L)).willReturn(new DeleteResult<>(1L));
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}", 1L)
@@ -223,7 +224,6 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-posts-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -232,8 +232,8 @@ class PostControllerTest {
                                 parameterWithName("postId").description("게시물 ID")
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("삭제된 게시물 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("삭제된 게시물 ID")
                         )
                 ))
         ;
