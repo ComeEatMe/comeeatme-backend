@@ -5,6 +5,7 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import com.comeeatme.security.annotation.CurrentUsername;
@@ -24,11 +25,11 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<ApiResult<Long>> post(
+    public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody CommentCreate commentCreate, @PathVariable Long postId,
             @CurrentUsername String username) {
-        Long commentId = commentService.create(commentCreate, username, postId);
-        ApiResult<Long> result = ApiResult.success(commentId);
+        CreateResult<Long> createResult = commentService.create(commentCreate, username, postId);
+        ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
     }
 

@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
@@ -44,13 +45,13 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResult<Long>> post(
+    public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody PostCreate postCreate, @CurrentUsername String username) {
         if (!imageService.validateImageIds(postCreate.getImageIds(), username)) {
             throw new InvalidImageIdception("imageIds=" + postCreate.getImageIds());
         }
-        long postId = postService.create(postCreate, username);
-        ApiResult<Long> result = ApiResult.success(postId);
+        CreateResult<Long> createResult = postService.create(postCreate, username);
+        ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
     }
 
