@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RequestMapping("/v1/images")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class ImageController {
 
     private final ImageService imageService;
 
-    @PostMapping("/scaled")
+    @PostMapping("/images/scaled")
     public ResponseEntity<ApiResult<List<Long>>> postScaled(
             @RequestPart List<MultipartFile> images, @CurrentUsername String username) {
         validateMultipartFileImages(images);

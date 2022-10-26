@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RequestMapping("/v1/posts/{postId}/comments")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
+    @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody CommentCreate commentCreate, @PathVariable Long postId,
             @CurrentUsername String username) {
@@ -35,7 +35,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("/{commentId}")
+    @PatchMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody CommentEdit commentEdit, @PathVariable Long postId, @PathVariable Long commentId,
             @CurrentUsername String username) {
@@ -50,7 +50,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
             @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
         if (commentService.isNotOwnedByMember(commentId, username)) {
@@ -64,7 +64,7 @@ public class CommentController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping
+    @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<ApiResult<Slice<CommentDto>>> get(@PathVariable Long postId, Pageable pageable) {
         Slice<CommentDto> commentDtos = commentService.getListOfPost(pageable, postId);
         ApiResult<Slice<CommentDto>> result = ApiResult.success(commentDtos);

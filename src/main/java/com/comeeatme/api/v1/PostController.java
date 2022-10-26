@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@RequestMapping("/v1/posts")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -38,7 +38,7 @@ public class PostController {
 
     private final LikeService likeService;
 
-    @GetMapping
+    @GetMapping("/posts")
     public ResponseEntity<ApiResult<Slice<PostDto>>> getList(
             Pageable pageable, @ModelAttribute PostSearch postSearch) {
         Slice<PostDto> posts = postService.getList(pageable, postSearch);
@@ -46,7 +46,7 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping
+    @PostMapping("/posts")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody PostCreate postCreate, @CurrentUsername String username) {
         if (!imageService.validateImageIds(postCreate.getImageIds(), username)) {
@@ -57,7 +57,7 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("/{postId}")
+    @PatchMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
         if (postService.isNotOwnedByMember(postId, username)) {
@@ -68,7 +68,7 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(@PathVariable Long postId, @CurrentUsername String username) {
         if (postService.isNotOwnedByMember(postId, username)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
@@ -78,14 +78,14 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{postId}/like")
+    @PutMapping("/posts/{postId}/like")
     public ResponseEntity<ApiResult<LikeResult>> like(@PathVariable Long postId, @CurrentUsername String username) {
         LikeResult likeResult = likeService.pushLike(postId, username);
         ApiResult<LikeResult> result = ApiResult.success(likeResult);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/liked")
+    @GetMapping("/posts/liked")
     public ResponseEntity<ApiResult<List<LikedResult>>> getLiked(
             @RequestParam @Valid @NotNull @Size(max = 100) List<Long> postIds, @CurrentUsername String username) {
         List<LikedResult> likedResults = likeService.isLiked(postIds, username);
