@@ -38,7 +38,7 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/posts")
+    @PostMapping("/post")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody PostCreate postCreate, @CurrentUsername String username) {
         if (!imageService.validateImageIds(postCreate.getImageIds(), username)) {

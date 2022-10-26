@@ -86,7 +86,7 @@ class PostControllerTest {
         given(postService.create(any(PostCreate.class), anyString())).willReturn(new CreateResult<>(10L));
 
         // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
+        mockMvc.perform(post("/v1/post").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
@@ -126,7 +126,7 @@ class PostControllerTest {
         given(imageService.validateImageIds(anyList(), anyString())).willReturn(false);
 
         // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
+        mockMvc.perform(post("/v1/post").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
