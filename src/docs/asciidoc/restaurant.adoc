@@ -9,16 +9,16 @@
 :operation-http-response-title: Example response
 
 
-[[v1-restaurants-get-simple]]
+[[v1-restaurant-get-simple]]
 == 음식점 제목 및 주소 리스트 조회
 
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-restaurants-get-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+operation::v1-restaurant-get-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 
-[[v1-restaurants-get]]
+[[v1-restaurant-get]]
 == 음식점 상세 조회
 
-operation::v1-restaurants-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+operation::v1-restaurant-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

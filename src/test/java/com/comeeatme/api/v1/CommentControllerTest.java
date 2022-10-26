@@ -81,7 +81,7 @@ class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(commentCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-comments-post",
+                .andDo(document("v1-comment-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -125,7 +125,7 @@ class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(commentEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-comments-patch",
+                .andDo(document("v1-comment-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -211,7 +211,7 @@ class CommentControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-comments-delete",
+                .andDo(document("v1-comment-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -308,7 +308,7 @@ class CommentControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-comments-get",
+                .andDo(document("v1-comment-get",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),

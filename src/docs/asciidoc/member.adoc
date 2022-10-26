@@ -9,25 +9,25 @@
 :operation-http-response-title: Example response
 
 
-[[v1-members-get-nickname-duplicate]]
+[[v1-member-get-nickname-duplicate]]
 == 회원 닉네임 중복 확인
 
-operation::v1-members-get-nickname-duplicate[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']
+operation::v1-member-get-nickname-duplicate[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']
 
 
-[[v1-posts-patch]]
+[[v1-member-patch]]
 == 회원 수정
 
-operation::v1-members-patch[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+operation::v1-member-patch[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
 
 
-[[v1-members-get-list]]
+[[v1-member-get-list]]
 == 회원 리스트 조회
 
-operation::v1-members-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+operation::v1-member-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 
-[[v1-members-get]]
+[[v1-member-get]]
 == 회원 상세 조회
 
-operation::v1-members-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+operation::v1-member-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

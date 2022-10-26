@@ -76,7 +76,7 @@ class RestaurantControllerTest {
                         .param("name", "음식점"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-restaurants-get-simple",
+                .andDo(document("v1-restaurant-get-simple",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -114,7 +114,7 @@ class RestaurantControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-restaurants-get",
+                .andDo(document("v1-restaurant-get",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),

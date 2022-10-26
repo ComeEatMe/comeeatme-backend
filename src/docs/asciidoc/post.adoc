@@ -9,7 +9,7 @@
 :operation-http-response-title: Example response
 
 
-[[v1-posts-get-list]]
+[[v1-post-get-list]]
 == 게시물 리스트 조회
 
 sort 파라미터 사용 불가능
@@ -17,22 +17,22 @@ sort 파라미터 사용 불가능
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-posts-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+operation::v1-post-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 
-[[v1-posts-post]]
+[[v1-post-post]]
 == 게시물 작성
 
-operation::v1-posts-post[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+operation::v1-post-post[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
 
 
-[[v1-posts-patch]]
+[[v1-post-patch]]
 == 게시물 수정
 
-operation::v1-posts-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
+operation::v1-post-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
 
 
-[[v1-posts-delete]]
+[[v1-post-delete]]
 == 게시물 삭제
 
-operation::v1-posts-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+operation::v1-post-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

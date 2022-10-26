@@ -89,7 +89,7 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-post",
+                .andDo(document("v1-post-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -156,7 +156,7 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-patch",
+                .andDo(document("v1-post-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -221,7 +221,7 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-delete",
+                .andDo(document("v1-post-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -288,7 +288,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-get-list",
+                .andDo(document("v1-post-get-list",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),

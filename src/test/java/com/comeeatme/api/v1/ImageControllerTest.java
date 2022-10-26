@@ -69,7 +69,7 @@ class ImageControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-images-post-scaled",
+                .andDo(document("v1-image-post-scaled",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
