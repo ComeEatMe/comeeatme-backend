@@ -69,6 +69,10 @@ public class LikeService {
         return likesRepository.existsByPostIdsAndUsername(postIds, username);
     }
 
+    public List<LikedResult> isLiked(List<Long> postIds, Long memberId) {
+        return likesRepository.existsByPostIdsAndMemberId(postIds, memberId);
+    }
+
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)

@@ -98,11 +98,20 @@ class LikeServiceTest {
     }
 
     @Test
-    void isLiked() {
+    void isLiked_username() {
         // when
         likeService.isLiked(List.of(1L, 2L), "username");
 
         // then
         then(likesRepository).should().existsByPostIdsAndUsername(List.of(1L, 2L), "username");
+    }
+
+    @Test
+    void isLiked_memberId() {
+        // when
+        likeService.isLiked(List.of(1L, 2L), 3L);
+
+        // then
+        then(likesRepository).should().existsByPostIdsAndMemberId(List.of(1L, 2L), 3L);
     }
 }

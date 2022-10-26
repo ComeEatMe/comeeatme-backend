@@ -11,4 +11,6 @@ public interface LikesRepositoryCustom {
     List<LikeCount> countsGroupByPosts(List<Post> posts);
 
     List<LikedResult> existsByPostIdsAndUsername(List<Long> postIds, String username);
+
+    List<LikedResult> existsByPostIdsAndMemberId(List<Long> postIds, Long memberId);
 }

@@ -203,4 +203,60 @@ class LikesRepositoryTest {
         assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
         assertThat(likedResults).extracting("liked").containsExactly(false, false, false);
     }
+
+    @Test
+    void existsByPostIdsAndMemberId() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("nickname-1")
+                .introduction("introduction")
+                .build());
+        likesRepository.saveAll(List.of(
+                Likes.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(member)
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(member)
+                        .build()
+        ));
+
+        // when
+        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndMemberId(List.of(1L, 2L, 3L), member.getId());
+
+        // then
+        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
+        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
+        assertThat(likedResults).extracting("liked").containsExactly(true, true, false);
+    }
+
+    @Test
+    void existsByPostIdsAndMemberId_MemberIdNotEqual() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("nickname-1")
+                .introduction("introduction")
+                .build());
+        likesRepository.saveAll(List.of(
+                Likes.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(member)
+                        .build(),
+                Likes.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(member)
+                        .build()
+        ));
+
+        // when
+        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndMemberId(
+                List.of(1L, 2L, 3L), member.getId() + 1);
+
+        // then
+        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
+        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
+        assertThat(likedResults).extracting("liked").containsExactly(false, false, false);
+    }
+
 }

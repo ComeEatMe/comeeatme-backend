@@ -5,7 +5,6 @@ import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.security.SecurityConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -31,7 +29,6 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,9 +43,6 @@ class LikeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockBean
     private LikeService likeService;
@@ -66,14 +60,14 @@ class LikeControllerTest {
         given(likeService.pushLike(eq(1L), anyString())).willReturn(likeResult);
 
         // expected
-        mockMvc.perform(put("/v1/posts/{postId}/like", 1L)
+        mockMvc.perform(put("/v1/member/like/{postId}", 1L)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-put-like",
+                .andDo(document("v1-member-like-put",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -95,7 +89,7 @@ class LikeControllerTest {
     @DisplayName("게시물 좋아요 여부 조회 - 문서")
     void getLiked_Docs() throws Exception {
         // given
-        given(likeService.isLiked(eq(List.of(1L, 2L)), anyString()))
+        given(likeService.isLiked(List.of(1L, 2L), 3L))
                 .willReturn(List.of(
                         LikedResult.builder()
                                 .postId(1L)
@@ -108,7 +102,7 @@ class LikeControllerTest {
                 ));
 
         // expected
-        mockMvc.perform(get("/v1/posts/liked")
+        mockMvc.perform(get("/v1/members/{memberId}/liked", 3L)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -117,7 +111,7 @@ class LikeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-get-liked",
+                .andDo(document("v1-members-liked-get",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),

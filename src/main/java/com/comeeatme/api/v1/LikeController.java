@@ -21,17 +21,17 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    @PutMapping("/posts/{postId}/like")
+    @PutMapping("/member/like/{postId}")
     public ResponseEntity<ApiResult<LikeResult>> like(@PathVariable Long postId, @CurrentUsername String username) {
         LikeResult likeResult = likeService.pushLike(postId, username);
         ApiResult<LikeResult> result = ApiResult.success(likeResult);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/posts/liked")
+    @GetMapping("/members/{memberId}/liked")
     public ResponseEntity<ApiResult<List<LikedResult>>> getLiked(
-            @RequestParam @Valid @NotNull @Size(max = 100) List<Long> postIds, @CurrentUsername String username) {
-        List<LikedResult> likedResults = likeService.isLiked(postIds, username);
+            @RequestParam @Valid @NotNull @Size(max = 100) List<Long> postIds, @PathVariable Long memberId) {
+        List<LikedResult> likedResults = likeService.isLiked(postIds, memberId);
         ApiResult<List<LikedResult>> result = ApiResult.success(likedResults);
         return ResponseEntity.ok(result);
     }
