@@ -2,9 +2,15 @@ package com.comeeatme.domain.images.service;
 
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.images.response.RestaurantImage;
 import com.comeeatme.domain.images.store.ImageStore;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
+import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +18,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,32 +39,39 @@ class ImageServiceTest {
     private ImageService imageService;
 
     @Mock
-    private ImageStore mockImageStore;
+    private ImageStore imageStore;
 
     @Mock
-    private ImagesRepository mockImagesRepository;
+    private ImagesRepository imagesRepository;
 
     @Mock
-    private MemberRepository mockMemberRepository;
+    private MemberRepository memberRepository;
+
+    @Mock
+    private RestaurantRepository restaurantRepository;
+
+    @Mock
+    private PostImageRepository postImageRepository;
+
 
     @Test
     void saveImages() {
         // given
         Member mockMember = mock(Member.class);
         given(mockMember.getUseYn()).willReturn(true);
-        given(mockMemberRepository.findByUsername(anyString())).willReturn(Optional.of(mockMember));
+        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(mockMember));
 
         Resource mockResource = mock(Resource.class);
         List<Resource> resources = List.of(mockResource);
         given(mockResource.getFilename()).willReturn("test-filename.jpg");
 
         ArgumentCaptor<String> storedNameCaptor = ArgumentCaptor.forClass(String.class);
-        given(mockImageStore.store(eq(mockResource), storedNameCaptor.capture())).willReturn("test-image-url");
+        given(imageStore.store(eq(mockResource), storedNameCaptor.capture())).willReturn("test-image-url");
 
         Images mockImage = mock(Images.class);
         given(mockImage.getId()).willReturn(1L);
         ArgumentCaptor<List<Images>> imagesCaptor = ArgumentCaptor.forClass(List.class);
-        given(mockImagesRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
+        given(imagesRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
 
         // when
         List<Long> imageIds = imageService.saveImages("username", resources);
@@ -88,13 +104,13 @@ class ImageServiceTest {
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
 
-        given(mockImagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
         given(member.getUseYn()).willReturn(true);
 
-        given(mockMemberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
+        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
 
         given(image1.getMember()).willReturn(member);
         given(image2.getMember()).willReturn(member);
@@ -125,7 +141,7 @@ class ImageServiceTest {
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(false);
 
-        given(mockImagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         // expected
         assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
@@ -143,7 +159,7 @@ class ImageServiceTest {
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
 
-        given(mockImagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
@@ -152,7 +168,7 @@ class ImageServiceTest {
         Member otherMember = mock(Member.class);
         given(otherMember.getId()).willReturn(2L);
 
-        given(mockMemberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
+        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
 
         given(image1.getMember()).willReturn(member);
         given(image2.getMember()).willReturn(member);
@@ -161,4 +177,34 @@ class ImageServiceTest {
         // expected
         assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
     }
+
+    @Test
+    void getRestaurantImages() {
+        // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(2L);
+        Images images = mock(Images.class);
+        given(images.getUrl()).willReturn("image-url");
+        PostImage postImage = mock(PostImage.class);
+        given(postImage.getPost()).willReturn(post);
+        given(postImage.getImage()).willReturn(images);
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        given(postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageRequest))
+                .willReturn(new SliceImpl<>(List.of(postImage)));
+
+        // when
+        Slice<RestaurantImage> result = imageService.getRestaurantImages(1L, pageRequest);
+
+        // then
+        RestaurantImage restaurantImage = result.getContent().get(0);
+        assertThat(restaurantImage.getRestaurantId()).isEqualTo(1L);
+        assertThat(restaurantImage.getPostId()).isEqualTo(2L);
+        assertThat(restaurantImage.getImageUrl()).isEqualTo("image-url");
+    }
+
 }
