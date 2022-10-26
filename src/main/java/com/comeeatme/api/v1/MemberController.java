@@ -26,7 +26,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PatchMapping("/members")
+    @PatchMapping("/member")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody MemberEdit memberEdit, @CurrentUsername String username) {
         UpdateResult<Long> updateResult = memberService.edit(memberEdit, username);

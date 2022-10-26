@@ -1,16 +1,14 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/v1")
 @RestController
@@ -25,5 +23,12 @@ public class RestaurantController {
         Slice<RestaurantSimpleDto> simpleList = restaurantService.getSimpleList(pageable, name);
         ApiResult<Slice<RestaurantSimpleDto>> result = ApiResult.success(simpleList);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/restaurants/{restaurantId}")
+    public ResponseEntity<ApiResult<RestaurantDetailDto>> get(@PathVariable Long restaurantId) {
+        RestaurantDetailDto detailDto = restaurantService.get(restaurantId);
+        ApiResult<RestaurantDetailDto> apiResult = ApiResult.success(detailDto);
+        return ResponseEntity.ok(apiResult);
     }
 }

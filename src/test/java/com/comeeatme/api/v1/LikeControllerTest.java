@@ -49,14 +49,14 @@ class LikeControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 좋아요 - 문서")
+    @DisplayName("게시물 좋아요 - DOCS")
     void like_Docs() throws Exception {
         // expected
         mockMvc.perform(put("/v1/member/like/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isNoContent())
-                .andDo(document("v1-member-like-put",
+                .andDo(document("v1-like-like",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -77,7 +77,7 @@ class LikeControllerTest {
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isNoContent())
-                .andDo(document("v1-member-like-put",
+                .andDo(document("v1-like-unlike",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -116,7 +116,7 @@ class LikeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-liked-get",
+                .andDo(document("v1-like-get-liked",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -126,7 +126,7 @@ class LikeControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data[]").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
+                                fieldWithPath("postId").type(Long.class.getSimpleName()).description("게시물 ID"),
                                 fieldWithPath("liked").description("좋아요 여부")
                         )
                 ))

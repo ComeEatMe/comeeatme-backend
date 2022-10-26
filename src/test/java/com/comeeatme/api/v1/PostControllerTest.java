@@ -5,7 +5,6 @@ import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
-import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
@@ -68,12 +67,9 @@ class PostControllerTest {
     @MockBean
     private ImageService imageService;
 
-    @MockBean
-    private LikeService likeService;
-
     @Test
     @WithMockUser
-    @DisplayName("게시물 작성 API")
+    @DisplayName("게시물 작성 - DOCS")
     void post_Docs() throws Exception {
         // given
         PostCreate postCreate = PostCreate.builder()
@@ -93,21 +89,22 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-post",
+                .andDo(document("v1-post-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         requestFields(
-                                fieldWithPath("restaurantId").description("음식점 ID"),
+                                fieldWithPath("restaurantId").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("hashtags").description("게시물 해시태그 리스트"),
-                                fieldWithPath("imageIds").description("이미지 ID 리스트")
-                                        .attributes(key("constraint").value("중복된 ID X. 본인의 이미지가 아닌 ID X.")),
+                                fieldWithPath("imageIds")
+                                        .attributes(key("constraint").value("중복된 ID X. 본인의 이미지가 아닌 ID X."))
+                                        .description("이미지 ID 리스트"),
                                 fieldWithPath("content").description("게시물 내용")
                                         .attributes(key("constraint").value("최대 2000."))
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("생성된 게시물 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("생성된 게시물 ID")
                         )
                 ));
     }
@@ -138,7 +135,7 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 수정 API - 문서")
+    @DisplayName("게시물 수정 - DOCS")
     void patch_Docs() throws Exception {
         // given
         PostEdit postEdit = PostEdit.builder()
@@ -159,7 +156,7 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-patch",
+                .andDo(document("v1-post-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -167,14 +164,16 @@ class PostControllerTest {
                                 parameterWithName("postId").description("게시물 ID")
                         ),
                         requestFields(
-                                fieldWithPath("restaurantId").description("게시물 음식점 ID"),
+                                fieldWithPath("restaurantId").type(Long.class.getSimpleName())
+                                        .description("게시물 음식점 ID"),
                                 fieldWithPath("hashtags").description("게시물 해시태그 리스트"),
-                                fieldWithPath("content").description("게시물 내용")
+                                fieldWithPath("content")
                                         .attributes(key("constraint").value("최대 2000."))
+                                        .description("게시물 내용")
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("수정된 게시물 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("수정된 게시물 ID")
                         )
                 ))
         ;
@@ -208,7 +207,7 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 삭제 API - 문서")
+    @DisplayName("게시물 삭제 API - DOCS")
     void delete_Docs() throws Exception {
         // given
         given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
@@ -222,7 +221,7 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-delete",
+                .andDo(document("v1-post-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -231,7 +230,7 @@ class PostControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("삭제된 게시물 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("삭제된 게시물 ID")
                         )
                 ))
         ;
@@ -258,7 +257,7 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 리스트 조회 - 문서")
+    @DisplayName("게시물 리스트 조회 - DOCS")
     void getList_Docs() throws Exception {
         // given
         PostDto postDto = PostDto.builder()
@@ -266,6 +265,8 @@ class PostControllerTest {
                 .imageUrls(List.of("image-url-1", "image-url-2"))
                 .content("post-content")
                 .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .commentCount(10L)
+                .likeCount(20L)
                 .memberId(2L)
                 .memberNickname("nickname")
                 .memberImageUrl("member-image-url")
@@ -287,7 +288,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-get-list",
+                .andDo(document("v1-post-get-list",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -302,17 +303,21 @@ class PostControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").description("게시물 ID"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
                                 fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
-                                fieldWithPath("commentCount").description("게시물 댓글 개수"),
-                                fieldWithPath("likeCount").description("게시물 좋아요 개수"),
-                                fieldWithPath("member.id").description("게시물 작성자 회원 ID"),
+                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                        .description("게시물 댓글 개수"),
+                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                        .description("게시물 좋아요 개수"),
+                                fieldWithPath("member.id").type(Long.class.getSimpleName())
+                                        .description("게시물 작성자 회원 ID"),
                                 fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
                                 fieldWithPath("member.imageUrl")
                                         .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
-                                fieldWithPath("restaurant.id").description("게시물 음식점 ID"),
+                                fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
+                                        .description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
                         )
                 ))

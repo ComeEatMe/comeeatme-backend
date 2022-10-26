@@ -1,6 +1,5 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.v1.ImageController;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.security.SecurityConfig;
@@ -50,7 +49,7 @@ class ImageControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("처리된 이미지 저장 API")
+    @DisplayName("처리된 이미지 저장 - DOCS")
     void postScaled() throws Exception {
         // given
         MockMultipartFile image1 = new MockMultipartFile("images", "test-image1.jpg",
@@ -70,7 +69,7 @@ class ImageControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-images-post-scaled",
+                .andDo(document("v1-image-post-scaled",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),

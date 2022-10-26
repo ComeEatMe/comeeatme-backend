@@ -9,19 +9,19 @@
 :operation-http-response-title: Example response
 
 
-[[v1-posts-put-like]]
+[[v1-like-like]]
 == 게시물 좋아요
 
-operation::v1-member-like-put[snippets='http-request,request-headers,path-parameters,http-response']
+operation::v1-like-like[snippets='http-request,request-headers,path-parameters,http-response']
 
 
-[[v1-member-like-put]]
+[[v1-like-unlike]]
 == 게시물 좋아요 취소
 
-operation::v1-member-like-put[snippets='http-request,request-headers,path-parameters,http-response']
+operation::v1-like-unlike[snippets='http-request,request-headers,path-parameters,http-response']
 
 
-[[v1-posts-get-liked]]
+[[v1-like-get-liked]]
 == 게시물 좋아요 여부 조회
 
-operation::v1-members-liked-get[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']
+operation::v1-like-get-liked[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']

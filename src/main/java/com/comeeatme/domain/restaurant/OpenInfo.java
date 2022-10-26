@@ -36,7 +36,7 @@ public class OpenInfo {
     private String name;
 
     // 업태구분명
-    @Column(name = "category", length = 15, updatable = false)
+    @Column(name = "category", length = 15, nullable = false, updatable = false)
     private String category;
 
     // 인허가일자

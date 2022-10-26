@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import com.comeeatme.security.SecurityConfig;
@@ -31,8 +32,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,7 +50,7 @@ class RestaurantControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 제목 및 주소 리스트 조회 API")
+    @DisplayName("음식점 제목 및 주소 리스트 조회 - DOCS")
     void getSimpleList_Docs() throws Exception {
         // given
         List<RestaurantSimpleDto> content = List.of(
@@ -76,7 +76,7 @@ class RestaurantControllerTest {
                         .param("name", "음식점"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-restaurants-get-simple",
+                .andDo(document("v1-restaurant-get-simple",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -85,9 +85,51 @@ class RestaurantControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").description("음식점 ID"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
                                 fieldWithPath("addressName").description("음식점 주소")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("음식점 상세 조회 - DOCS")
+    void get_Docs() throws Exception {
+        // given
+        RestaurantDetailDto dto = RestaurantDetailDto.builder()
+                .id(1L)
+                .name("음식점")
+                .category("업태구분(카테고리)")
+                .addressName("주소")
+                .addressRoadName("도로명주소")
+                .addressX(1.0)
+                .addressY(2.0)
+                .build();
+        given(restaurantService.get(1L)).willReturn(dto);
+
+        // expected
+        mockMvc.perform(get("/v1/restaurants/{restaurantId}", 1L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-restaurant-get",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
+                                fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("category").description("음식점 이름"),
+                                fieldWithPath("address.name").description("주소"),
+                                fieldWithPath("address.roadName").description("도로명 주소"),
+                                fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
+                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표")
                         )
                 ));
     }

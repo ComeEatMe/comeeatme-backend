@@ -61,7 +61,7 @@ class MemberControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 닉네임 중복 확인 - 문서")
+    @DisplayName("회원 닉네임 중복 확인 - DOCS")
     void getNicknameDuplicate_Docs() throws Exception {
         // given
         DuplicateResult duplicateResult = DuplicateResult.builder()
@@ -78,7 +78,7 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-get-nickname-duplicate",
+                .andDo(document("v1-member-get-nickname-duplicate",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -95,7 +95,7 @@ class MemberControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 수정 - 문서")
+    @DisplayName("회원 수정 - DOCS")
     void patch_Docs() throws Exception {
         // given
         MemberEdit memberEdit = MemberEdit.builder()
@@ -106,7 +106,7 @@ class MemberControllerTest {
         given(memberService.edit(any(MemberEdit.class), anyString())).willReturn(new UpdateResult<>(2L));
 
         // expected
-        mockMvc.perform(patch("/v1/members", 2L)
+        mockMvc.perform(patch("/v1/member", 2L)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -115,7 +115,7 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-patch",
+                .andDo(document("v1-member-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -124,11 +124,12 @@ class MemberControllerTest {
                                         .attributes(key("constraint").value("최대 15. 공백 불가능.")),
                                 fieldWithPath("introduction").description("회원 소개")
                                         .attributes(key("constraint").value("최대 100. 없을 경우 빈 문자열.")),
-                                fieldWithPath("imageId").description("회원 이미지 ID. 없을 경우 null.").optional()
+                                fieldWithPath("imageId").type(Long.class.getSimpleName()).optional()
+                                        .description("회원 이미지 ID. 없을 경우 null.")
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("수정된 회원 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("수정된 회원 ID")
                         )
                 ))
         ;
@@ -136,7 +137,7 @@ class MemberControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 리스트 조회 - 문서")
+    @DisplayName("회원 리스트 조회 - DOCS")
     void getList_Docs() throws Exception {
         // given
         MemberSimpleDto memberSimpleDto = MemberSimpleDto.builder()
@@ -156,7 +157,7 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-get-list",
+                .andDo(document("v1-member-get-list",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -165,9 +166,9 @@ class MemberControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").description("회원 아이디"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("회원 아이디"),
                                 fieldWithPath("nickname").description("회원 닉네임"),
-                                fieldWithPath("imageUrl").description("회원 이미지 URL. 없을 경우 null").optional()
+                                fieldWithPath("imageUrl").optional().description("회원 이미지 URL. 없을 경우 null")
                         )
                 ))
         ;
@@ -175,7 +176,7 @@ class MemberControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("회원 상세 조회 - 문서")
+    @DisplayName("회원 상세 조회 - DOCS")
     void get_Docs() throws Exception {
         // given
         MemberDetailDto dto = MemberDetailDto.builder()
@@ -194,7 +195,7 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-members-get",
+                .andDo(document("v1-member-get",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -203,10 +204,10 @@ class MemberControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("회원 아이디"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("회원 아이디"),
                                 fieldWithPath("nickname").description("회원 닉네임"),
                                 fieldWithPath("introduction").description("회원 소개"),
-                                fieldWithPath("imageUrl").description("회원 이미지 URL. 없을 경우 null").optional()
+                                fieldWithPath("imageUrl").optional().description("회원 이미지 URL. 없을 경우 null")
                         )
                 ))
         ;
