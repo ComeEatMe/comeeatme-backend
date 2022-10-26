@@ -63,7 +63,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 작성 API")
+    @DisplayName("댓글 작성 - DOCS")
     void post_Docs() throws Exception {
         // given
         CommentCreate commentCreate = CommentCreate.builder()
@@ -89,14 +89,15 @@ class CommentControllerTest {
                                 parameterWithName("postId").description("댓글의 게시물 ID")
                         ),
                         requestFields(
-                                fieldWithPath("parentId").description("부모 댓글 ID. 대댓글이 아닐 경우 null")
-                                        .optional(),
+                                fieldWithPath("parentId").type(Long.class.getSimpleName()).optional()
+                                        .description("부모 댓글 ID. 대댓글이 아닐 경우 null"),
                                 fieldWithPath("content").description("댓글 내용")
                                         .attributes(key("constraint").value("최대 1000."))
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("생성된 댓글 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName())
+                                        .description("생성된 댓글 ID")
                         )
                 ))
         ;
@@ -104,7 +105,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 수정 API")
+    @DisplayName("댓글 수정 - DOCS")
     void patch_Docs() throws Exception {
         // given
         CommentEdit commentEdit = CommentEdit.builder()
@@ -138,7 +139,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("수정된 댓글 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("수정된 댓글 ID")
                         )
                 ))
         ;
@@ -146,7 +147,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 수정 API - 소유하지 않은 댓글")
+    @DisplayName("댓글 수정 - 소유하지 않은 댓글")
     void patch_NotOwned() throws Exception {
         // given
         CommentEdit commentEdit = CommentEdit.builder()
@@ -170,7 +171,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 수정 API - 잘못된 게시글 ID")
+    @DisplayName("댓글 수정 - 잘못된 게시글 ID")
     void patch_BadPostId() throws Exception {
         // given
         CommentEdit commentEdit = CommentEdit.builder()
@@ -195,7 +196,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 삭제 API - 문서")
+    @DisplayName("댓글 삭제 - DOCS")
     void delete_Docs() throws Exception {
         // given
         given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
@@ -220,7 +221,7 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("삭제된 댓글 ID")
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("삭제된 댓글 ID")
                         )
                 ))
         ;
@@ -228,7 +229,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 삭제 API - 소유하지 않은 댓글")
+    @DisplayName("댓글 삭제 - 소유하지 않은 댓글")
     void delete_NotOwned() throws Exception {
         // given
         given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
@@ -247,7 +248,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 삭제 API - 잘못된 게시글 ID")
+    @DisplayName("댓글 삭제 - 잘못된 게시글 ID")
     void delete_BadPostId() throws Exception {
         // given
         given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
@@ -267,7 +268,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("댓글 리스트 조회 API - 문서")
+    @DisplayName("댓글 리스트 조회 - DOCS")
     void get_Docs() throws Exception {
         // given
         List<CommentDto> content = List.of(
@@ -316,16 +317,19 @@ class CommentControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").description("댓글 ID"),
-                                fieldWithPath("parentId").description("부모 댓글 ID. 최상위 댓글(대댓글 X)인 경우 null.").optional(),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("댓글 ID"),
+                                fieldWithPath("parentId").type(Long.class.getSimpleName()).optional()
+                                        .description("부모 댓글 ID. 최상위 댓글(대댓글 X)인 경우 null."),
                                 fieldWithPath("deleted").description("삭제 여부"),
-                                fieldWithPath("content").description("댓글 내용. 삭제된 경우 null.").optional(),
-                                fieldWithPath("createdAt").description("댓글 생성 시점. 삭제된 경우 null.").optional(),
-                                fieldWithPath("member.id").description("댓글 작성자 회원 ID. 삭제된 경우 null.").optional(),
-                                fieldWithPath("member.nickname").description("댓글 작성자 회원 닉네임. 삭제된 경우 null.").optional(),
-                                fieldWithPath("member.imageUrl")
+                                fieldWithPath("content").optional().description("댓글 내용. 삭제된 경우 null."),
+                                fieldWithPath("createdAt").optional().description("댓글 생성 시점. 삭제된 경우 null."),
+                                fieldWithPath("member.id").type(Long.class.getSimpleName()).optional()
+                                        .description("댓글 작성자 회원 ID. 삭제된 경우 null."),
+                                fieldWithPath("member.nickname").optional()
+                                        .description("댓글 작성자 회원 닉네임. 삭제된 경우 null."),
+                                fieldWithPath("member.imageUrl").optional()
                                         .description("댓글 작성자 회원 프로필 이미지 URL. " +
-                                                "프로필 이미지가 없는 경우 혹은 댓글이 삭제된 경우 null").optional()
+                                                "프로필 이미지가 없는 경우 혹은 댓글이 삭제된 경우 null")
                         )
                 ))
         ;

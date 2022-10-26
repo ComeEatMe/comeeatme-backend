@@ -49,7 +49,7 @@ class LikeControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 좋아요 - 문서")
+    @DisplayName("게시물 좋아요 - DOCS")
     void like_Docs() throws Exception {
         // expected
         mockMvc.perform(put("/v1/member/like/{postId}", 1L)
@@ -126,7 +126,7 @@ class LikeControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data[]").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
+                                fieldWithPath("postId").type(Long.class.getSimpleName()).description("게시물 ID"),
                                 fieldWithPath("liked").description("좋아요 여부")
                         )
                 ))

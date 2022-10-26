@@ -85,7 +85,7 @@ class RestaurantControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").description("음식점 ID"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
                                 fieldWithPath("addressName").description("음식점 주소")
                         )
@@ -123,13 +123,13 @@ class RestaurantControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("id").description("음식점 ID"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
                                 fieldWithPath("category").description("음식점 이름"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
-                                fieldWithPath("address.x").description("X 좌표"),
-                                fieldWithPath("address.y").description("Y 좌표")
+                                fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
+                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표")
                         )
                 ));
     }
