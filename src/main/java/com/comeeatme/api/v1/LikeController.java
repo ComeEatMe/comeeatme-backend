@@ -1,7 +1,6 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
-import com.comeeatme.domain.likes.response.LikeResult;
 import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.security.annotation.CurrentUsername;
@@ -22,10 +21,15 @@ public class LikeController {
     private final LikeService likeService;
 
     @PutMapping("/member/like/{postId}")
-    public ResponseEntity<ApiResult<LikeResult>> like(@PathVariable Long postId, @CurrentUsername String username) {
-        LikeResult likeResult = likeService.pushLike(postId, username);
-        ApiResult<LikeResult> result = ApiResult.success(likeResult);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Void> like(@PathVariable Long postId, @CurrentUsername String username) {
+        likeService.like(postId, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/member/like/{postId}")
+    public ResponseEntity<Void> unlike(@PathVariable Long postId, @CurrentUsername String username) {
+        likeService.unlike(postId, username);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/members/{memberId}/liked")

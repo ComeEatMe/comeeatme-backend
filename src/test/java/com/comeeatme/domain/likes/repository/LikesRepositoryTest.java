@@ -259,4 +259,58 @@ class LikesRepositoryTest {
         assertThat(likedResults).extracting("liked").containsExactly(false, false, false);
     }
 
+    @Test
+    void existsByPostAndMember() {
+        // given
+        likesRepository.save(Likes.builder()
+                .post(Post.builder().id(1L).build())
+                .member(Member.builder().id(2L).build())
+                .build());
+
+        // when
+        boolean result = likesRepository.existsByPostAndMember(
+                Post.builder().id(1L).build(),
+                Member.builder().id(2L).build()
+        );
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void existsByPostAndMember_PostNotEqual() {
+        // given
+        likesRepository.save(Likes.builder()
+                .post(Post.builder().id(1L).build())
+                .member(Member.builder().id(2L).build())
+                .build());
+
+        // when
+        boolean result = likesRepository.existsByPostAndMember(
+                Post.builder().id(2L).build(),
+                Member.builder().id(2L).build()
+        );
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void existsByPostAndMember_MemberNotEqual() {
+        // given
+        likesRepository.save(Likes.builder()
+                .post(Post.builder().id(1L).build())
+                .member(Member.builder().id(2L).build())
+                .build());
+
+        // when
+        boolean result = likesRepository.existsByPostAndMember(
+                Post.builder().id(1L).build(),
+                Member.builder().id(1L).build()
+        );
+
+        // then
+        assertThat(result).isFalse();
+    }
+
 }
