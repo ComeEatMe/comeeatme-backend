@@ -1,8 +1,6 @@
 package com.comeeatme.domain.member.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.member.Member;
@@ -14,7 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,53 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MemberRepositoryTest {
 
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
     private ImagesRepository imagesRepository;
 
     @Autowired
-    private EntityManager em;
-
-    @Test
-    void findByUsername() {
-        // given
-        Member member = memberRepository.saveAndFlush(Member.builder()
-                .nickname("test-nickname")
-                .introduction("test-introduction")
-                .build());
-        accountRepository.saveAndFlush(Account.builder()
-                .username("test-username")
-                .member(member)
-                .build());
-
-        // when
-        Member foundMember = memberRepository.findByUsername("test-username").orElseThrow();
-
-        // then
-        assertThat(foundMember.getNickname()).isEqualTo("test-nickname");
-        assertThat(foundMember.getIntroduction()).isEqualTo("test-introduction");
-    }
-
-    @Test
-    void findByUsername_AccountDeleted() {
-        // given
-        Member member = memberRepository.saveAndFlush(Member.builder()
-                .nickname("test-nickname")
-                .introduction("test-introduction")
-                .build());
-        Account account = accountRepository.saveAndFlush(Account.builder()
-                .username("test-username")
-                .member(member)
-                .build());
-        account.delete();
-
-        // expected
-        assertThat(memberRepository.findByUsername("test-username")).isEmpty();
-    }
+    private EntityManagerFactory emf;
 
     @Test
     void existsByNickname_True() {
@@ -125,7 +83,8 @@ class MemberRepositoryTest {
         assertThat(content)
                 .hasSize(1)
                 .extracting("id").containsExactly(member1.getId());
-        assertThat(em.getEntityManagerFactory().getPersistenceUnitUtil()
+        assertThat(emf.getPersistenceUnitUtil()
                 .isLoaded(content.get(0).getImage())).isTrue();
     }
+
 }
