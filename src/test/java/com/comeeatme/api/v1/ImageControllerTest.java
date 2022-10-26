@@ -92,7 +92,6 @@ class ImageControllerTest {
     @DisplayName("처리된 이미지 저장 - DOCS")
     void getRestaurantImages_Docs() throws Exception {
         List<RestaurantImage> content = List.of(RestaurantImage.builder()
-                .restaurantId(1L)
                 .postId(2L)
                 .imageUrl("image-url")
                 .build());
@@ -116,7 +115,6 @@ class ImageControllerTest {
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("restaurantId").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("postId").type(Long.class.getSimpleName()).description("게시물 ID"),
                                 fieldWithPath("imageUrl").description("이미지 URL")
                         )

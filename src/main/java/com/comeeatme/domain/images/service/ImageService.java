@@ -106,7 +106,6 @@ public class ImageService {
         Restaurant restaurant = getRestaurantById(restaurantId);
         return postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageable)
                 .map(postImage -> RestaurantImage.builder()
-                        .restaurantId(restaurantId)
                         .postId(postImage.getPost().getId())
                         .imageUrl(postImage.getImage().getUrl())
                         .build()

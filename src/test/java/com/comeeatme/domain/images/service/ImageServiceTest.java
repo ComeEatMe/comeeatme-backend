@@ -202,7 +202,6 @@ class ImageServiceTest {
 
         // then
         RestaurantImage restaurantImage = result.getContent().get(0);
-        assertThat(restaurantImage.getRestaurantId()).isEqualTo(1L);
         assertThat(restaurantImage.getPostId()).isEqualTo(2L);
         assertThat(restaurantImage.getImageUrl()).isEqualTo("image-url");
     }
