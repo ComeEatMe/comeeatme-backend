@@ -106,7 +106,7 @@ class MemberControllerTest {
         given(memberService.edit(any(MemberEdit.class), anyString())).willReturn(new UpdateResult<>(2L));
 
         // expected
-        mockMvc.perform(patch("/v1/members", 2L)
+        mockMvc.perform(patch("/v1/member", 2L)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
