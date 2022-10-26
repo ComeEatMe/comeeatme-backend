@@ -74,7 +74,7 @@ class CommentControllerTest {
                 .willReturn(new CreateResult<>(1L));
 
         // expected
-        mockMvc.perform(post("/v1/posts/{postId}/comments", 2L).with(csrf())
+        mockMvc.perform(post("/v1/posts/{postId}/comment", 2L).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
