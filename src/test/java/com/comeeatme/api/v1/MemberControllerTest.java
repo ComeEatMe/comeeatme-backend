@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.common.response.DuplicateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
@@ -102,7 +103,7 @@ class MemberControllerTest {
                 .introduction("introduction")
                 .imageId(1L)
                 .build();
-        given(memberService.edit(any(MemberEdit.class), anyString())).willReturn(2L);
+        given(memberService.edit(any(MemberEdit.class), anyString())).willReturn(new UpdateResult<>(2L));
 
         // expected
         mockMvc.perform(patch("/v1/members", 2L)
@@ -114,7 +115,6 @@ class MemberControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-members-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -127,8 +127,8 @@ class MemberControllerTest {
                                 fieldWithPath("imageId").description("회원 이미지 ID. 없을 경우 null.").optional()
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("수정된 회원 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("수정된 회원 ID")
                         )
                 ))
         ;

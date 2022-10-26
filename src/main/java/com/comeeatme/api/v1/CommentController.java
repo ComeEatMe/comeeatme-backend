@@ -5,6 +5,9 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import com.comeeatme.security.annotation.CurrentUsername;
@@ -16,24 +19,24 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@RequestMapping("/v1/posts/{postId}/comments")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<ApiResult<Long>> post(
+    @PostMapping("/posts/{postId}/comment")
+    public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody CommentCreate commentCreate, @PathVariable Long postId,
             @CurrentUsername String username) {
-        Long commentId = commentService.create(commentCreate, username, postId);
-        ApiResult<Long> result = ApiResult.success(commentId);
+        CreateResult<Long> createResult = commentService.create(commentCreate, username, postId);
+        ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
     }
 
-    @PatchMapping("/{commentId}")
-    public ResponseEntity<ApiResult<Long>> patch(
+    @PatchMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody CommentEdit commentEdit, @PathVariable Long postId, @PathVariable Long commentId,
             @CurrentUsername String username) {
         if (commentService.isNotOwnedByMember(commentId, username)) {
@@ -42,13 +45,13 @@ public class CommentController {
         if (commentService.isNotBelongToPost(commentId, postId)) {
             throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
         }
-        Long editedCommentId = commentService.edit(commentEdit, commentId);
-        ApiResult<Long> result = ApiResult.success(editedCommentId);
+        UpdateResult<Long> updateResult = commentService.edit(commentEdit, commentId);
+        ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<ApiResult<Long>> delete(
+    @DeleteMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
             @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
         if (commentService.isNotOwnedByMember(commentId, username)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
@@ -56,12 +59,12 @@ public class CommentController {
         if (commentService.isNotBelongToPost(commentId, postId)) {
             throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
         }
-        Long deletedCommentId = commentService.delete(commentId);
-        ApiResult<Long> result = ApiResult.success(deletedCommentId);
+        DeleteResult<Long> deleteResult = commentService.delete(commentId);
+        ApiResult<DeleteResult<Long>        > result = ApiResult.success(deleteResult);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping
+    @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<ApiResult<Slice<CommentDto>>> get(@PathVariable Long postId, Pageable pageable) {
         Slice<CommentDto> commentDtos = commentService.getListOfPost(pageable, postId);
         ApiResult<Slice<CommentDto>> result = ApiResult.success(commentDtos);

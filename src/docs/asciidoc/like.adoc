@@ -1,0 +1,27 @@
+= Like
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-posts-put-like]]
+== 게시물 좋아요
+
+operation::v1-member-like-put[snippets='http-request,request-headers,path-parameters,http-response']
+
+
+[[v1-member-like-put]]
+== 게시물 좋아요 취소
+
+operation::v1-member-like-put[snippets='http-request,request-headers,path-parameters,http-response']
+
+
+[[v1-posts-get-liked]]
+== 게시물 좋아요 여부 조회
+
+operation::v1-members-liked-get[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']

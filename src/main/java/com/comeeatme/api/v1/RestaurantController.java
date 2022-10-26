@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/v1/restaurants")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
-    @GetMapping("/simple")
+    @GetMapping("/restaurants/simple")
     public ResponseEntity<ApiResult<Slice<RestaurantSimpleDto>>> getSimpleList(
             Pageable pageable, @RequestParam String name) {
         Slice<RestaurantSimpleDto> simpleList = restaurantService.getSimpleList(pageable, name);

@@ -62,4 +62,24 @@ public class LikesRepositoryCustomImpl implements LikesRepositoryCustom {
                 .join(account.member, member)
                 .where(account.username.eq(username));
     }
+
+    @Override
+    public List<LikedResult> existsByPostIdsAndMemberId(List<Long> postIds, Long memberId) {
+        List<Likes> likes = query
+                .selectFrom(QLikes.likes)
+                .where(
+                        QLikes.likes.post.id.in(postIds),
+                        QLikes.likes.member.id.eq(memberId)
+                ).fetch();
+        Set<Long> existPostIds = likes.stream()
+                .map(like -> like.getPost().getId())
+                .collect(Collectors.toSet());
+        return postIds.stream()
+                .map(postId -> LikedResult.builder()
+                        .postId(postId)
+                        .liked(existPostIds.contains(postId))
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
 }

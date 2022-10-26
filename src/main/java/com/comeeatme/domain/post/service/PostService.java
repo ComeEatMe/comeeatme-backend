@@ -3,6 +3,9 @@ package com.comeeatme.domain.post.service;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
 import com.comeeatme.domain.likes.repository.LikesRepository;
@@ -55,7 +58,7 @@ public class PostService {
     private final LikesRepository likesRepository;
 
     @Transactional
-    public Long create(PostCreate postCreate, String username) {
+    public CreateResult<Long> create(PostCreate postCreate, String username) {
         Member member = getMemberByUsername(username);
         Restaurant restaurant = getRestaurantById(postCreate.getRestaurantId());
         Post post = postRepository.save(Post.builder()
@@ -65,11 +68,11 @@ public class PostService {
                 .build());
         postCreate.getHashtags().forEach(post::addHashtag);
         savePostImages(post, postCreate.getImageIds());
-        return post.getId();
+        return new CreateResult<>(post.getId());
     }
 
     @Transactional
-    public Long edit(PostEdit postEdit, Long postId) {
+    public UpdateResult<Long> edit(PostEdit postEdit, Long postId) {
         Post post = getPostById(postId);
         Set<PostHashtag> editedPostHashtags = postEdit.getHashtags()
                 .stream()
@@ -89,16 +92,16 @@ public class PostService {
 
         PostEditor editor = editorBuilder.build();
         post.edit(editor);
-        return post.getId();
+        return new UpdateResult<>(post.getId());
     }
 
     @Transactional
-    public Long delete(Long postId) {
+    public DeleteResult<Long> delete(Long postId) {
         Post post = getPostById(postId);
         commentRepository.findAllByPostAndUseYnIsTrue(post)
                 .forEach(Comment::delete);
         post.delete();
-        return post.getId();
+        return new DeleteResult<>(post.getId());
     }
 
     public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {

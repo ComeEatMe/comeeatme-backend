@@ -5,6 +5,9 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -67,9 +70,11 @@ class CommentServiceTest {
                 .build();
 
         //when
-        commentService.create(commentCreate, "test-username", 2L);
+        CreateResult<Long> result = commentService.create(commentCreate, "test-username", 2L);
 
         // then
+        assertThat(result.getId()).isEqualTo(1L);
+
         Comment capturedComment = commentCaptor.getValue();
         assertThat(capturedComment.getMember()).isEqualTo(member);
         assertThat(capturedComment.getPost()).isEqualTo(post);
@@ -93,11 +98,11 @@ class CommentServiceTest {
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         // when
-        Long editedCommentId = commentService.edit(commentEdit, commentId);
+        UpdateResult<Long> updateResult = commentService.edit(commentEdit, commentId);
 
         // then
         assertThat(comment.getContent()).isEqualTo("edited-content");
-        assertThat(editedCommentId).isEqualTo(commentId);
+        assertThat(updateResult.getId()).isEqualTo(commentId);
     }
 
     @Test
@@ -130,10 +135,10 @@ class CommentServiceTest {
         given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
 
         // when
-        Long deletedId = commentService.delete(1L);
+        DeleteResult<Long> deleteResult = commentService.delete(1L);
 
         // then
-        assertThat(deletedId).isEqualTo(1L);
+        assertThat(deleteResult.getId()).isEqualTo(1L);
         assertThat(comment.getUseYn()).isFalse();
     }
 

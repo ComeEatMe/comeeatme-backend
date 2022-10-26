@@ -2,6 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
@@ -18,22 +19,22 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@RequestMapping("/v1/members")
+@RequestMapping("/v1")
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PatchMapping
-    public ResponseEntity<ApiResult<Long>> patch(
+    @PatchMapping("/members")
+    public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody MemberEdit memberEdit, @CurrentUsername String username) {
-        Long memberId = memberService.edit(memberEdit, username);
-        ApiResult<Long> result = ApiResult.success(memberId);
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, username);
+        ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/duplicate/nickname")
+    @GetMapping("/members/duplicate/nickname")
     public ResponseEntity<ApiResult<DuplicateResult>> getNicknameDuplicate(
             @RequestParam @NotBlank @Size(max = 15) String nickname) {
         DuplicateResult duplicateResult = memberService.checkNicknameDuplicate(nickname);
@@ -41,7 +42,7 @@ public class MemberController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping
+    @GetMapping("/members")
     public ResponseEntity<ApiResult<Slice<MemberSimpleDto>>> getList(
             Pageable pageable, @ModelAttribute MemberSearch memberSearch) {
         Slice<MemberSimpleDto> simpleDtos = memberService.search(pageable, memberSearch);
@@ -49,7 +50,7 @@ public class MemberController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{memberId}")
+    @GetMapping("/members/{memberId}")
     public ResponseEntity<ApiResult<MemberDetailDto>> get(@PathVariable Long memberId) {
         MemberDetailDto memberDetailDto = memberService.get(memberId);
         ApiResult<MemberDetailDto> result = ApiResult.success(memberDetailDto);

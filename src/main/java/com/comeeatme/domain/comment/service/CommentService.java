@@ -6,6 +6,9 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -31,7 +34,7 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Long create(CommentCreate commentCreate, String username, Long postId) {
+    public CreateResult<Long> create(CommentCreate commentCreate, String username, Long postId) {
         Member member = getMemberByUsername(username);
         Post post = getPostById(postId);
         Comment parent = Optional.ofNullable(commentCreate.getParentId())
@@ -43,17 +46,17 @@ public class CommentService {
                         .parent(parent)
                         .content(commentCreate.getContent())
                 .build());
-        return comment.getId();
+        return new CreateResult<>(comment.getId());
     }
 
     @Transactional
-    public Long edit(CommentEdit commentEdit, Long commentId) {
+    public UpdateResult<Long> edit(CommentEdit commentEdit, Long commentId) {
         Comment comment = getCommentById(commentId);
         CommentEditor editor = comment.toEditor()
                 .content(commentEdit.getContent())
                 .build();
         comment.edit(editor);
-        return comment.getId();
+        return new UpdateResult<>(comment.getId());
     }
 
     public boolean isNotOwnedByMember(Long commentId, String username) {
@@ -65,10 +68,10 @@ public class CommentService {
     }
 
     @Transactional
-    public Long delete(Long commentId) {
+    public DeleteResult<Long> delete(Long commentId) {
         Comment comment = getCommentById(commentId);
         comment.delete();
-        return commentId;
+        return new DeleteResult<>(commentId);
     }
 
     public Slice<CommentDto> getListOfPost(Pageable pageable, Long postId) {

@@ -1,9 +1,10 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
-import com.comeeatme.domain.likes.response.LikeResult;
-import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
@@ -82,17 +83,16 @@ class PostControllerTest {
                 .content("test-content")
                 .build();
         given(imageService.validateImageIds(anyList(), anyString())).willReturn(true);
-        given(postService.create(any(PostCreate.class), anyString())).willReturn(10L);
+        given(postService.create(any(PostCreate.class), anyString())).willReturn(new CreateResult<>(10L));
 
         // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
+        mockMvc.perform(post("/v1/post").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .content(objectMapper.writeValueAsString(postCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-posts-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -106,8 +106,8 @@ class PostControllerTest {
                                         .attributes(key("constraint").value("최대 2000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 게시물 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("생성된 게시물 ID")
                         )
                 ));
     }
@@ -126,7 +126,7 @@ class PostControllerTest {
         given(imageService.validateImageIds(anyList(), anyString())).willReturn(false);
 
         // expected
-        mockMvc.perform(post("/v1/posts").with(csrf())
+        mockMvc.perform(post("/v1/post").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
@@ -148,7 +148,7 @@ class PostControllerTest {
                 .build();
 
         given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(2L);
+        given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(new UpdateResult<>(2L));
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}", 2L)
@@ -159,7 +159,6 @@ class PostControllerTest {
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-posts-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -174,8 +173,8 @@ class PostControllerTest {
                                         .attributes(key("constraint").value("최대 2000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("수정된 게시물 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("수정된 게시물 ID")
                         )
                 ))
         ;
@@ -213,7 +212,7 @@ class PostControllerTest {
     void delete_Docs() throws Exception {
         // given
         given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(postService.delete(1L)).willReturn(1L);
+        given(postService.delete(1L)).willReturn(new DeleteResult<>(1L));
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}", 1L)
@@ -223,7 +222,6 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-posts-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -232,8 +230,8 @@ class PostControllerTest {
                                 parameterWithName("postId").description("게시물 ID")
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("삭제된 게시물 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("삭제된 게시물 ID")
                         )
                 ))
         ;
@@ -255,43 +253,6 @@ class PostControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
-        ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 좋아요 API - 문서")
-    void like_Docs() throws Exception {
-        // given
-        LikeResult likeResult = LikeResult.builder()
-                .postId(1L)
-                .liked(true)
-                .count(10L)
-                .build();
-        given(likeService.pushLike(eq(1L), anyString())).willReturn(likeResult);
-
-        // expected
-        mockMvc.perform(put("/v1/posts/{postId}/like", 1L)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-put-like",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("postId").description("게시물 ID")
-                        ),
-                        responseFields(
-                                beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
-                                fieldWithPath("liked").description("좋아요 생성(true), 취소(false)"),
-                                fieldWithPath("count").description("개시물 내 좋아요 개수")
-                        )
-                ))
         ;
     }
 
@@ -353,50 +314,6 @@ class PostControllerTest {
                                         .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
                                 fieldWithPath("restaurant.id").description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
-                        )
-                ))
-        ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 좋아요 여부 조회 - 문서")
-    void getLiked_Docs() throws Exception {
-        // given
-        given(likeService.isLiked(eq(List.of(1L, 2L)), anyString()))
-                .willReturn(List.of(
-                        LikedResult.builder()
-                                .postId(1L)
-                                .liked(true)
-                                .build(),
-                        LikedResult.builder()
-                                .postId(2L)
-                                .liked(false)
-                                .build()
-                ));
-
-        // expected
-        mockMvc.perform(get("/v1/posts/liked")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("postIds", "1", "2")
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-get-liked",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        requestParameters(
-                                parameterWithName("postIds")
-                                        .description("조회하려는 게시물 ID 리스트. 최대 100")
-                        ),
-                        responseFields(
-                                beneathPath("data[]").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
-                                fieldWithPath("liked").description("좋아요 여부")
                         )
                 ))
         ;

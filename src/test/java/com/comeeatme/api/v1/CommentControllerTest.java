@@ -5,6 +5,9 @@ import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
+import com.comeeatme.domain.common.response.CreateResult;
+import com.comeeatme.domain.common.response.DeleteResult;
+import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,17 +70,17 @@ class CommentControllerTest {
                 .parentId(null)
                 .content("test-content")
                 .build();
-        given(commentService.create(eq(commentCreate), anyString(), anyLong())).willReturn(1L);
+        given(commentService.create(any(CommentCreate.class), anyString(), anyLong()))
+                .willReturn(new CreateResult<>(1L));
 
         // expected
-        mockMvc.perform(post("/v1/posts/{postId}/comments", 2L).with(csrf())
+        mockMvc.perform(post("/v1/posts/{postId}/comment", 2L).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .content(objectMapper.writeValueAsString(commentCreate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-comments-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -92,8 +95,8 @@ class CommentControllerTest {
                                         .attributes(key("constraint").value("최대 1000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("생성된 댓글 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("생성된 댓글 ID")
                         )
                 ))
         ;
@@ -110,7 +113,7 @@ class CommentControllerTest {
 
         given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
         given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(false);
-        given(commentService.edit(any(CommentEdit.class), eq(1L))).willReturn(1L);
+        given(commentService.edit(any(CommentEdit.class), eq(1L))).willReturn(new UpdateResult<>(1L));
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
@@ -121,7 +124,6 @@ class CommentControllerTest {
                         .content(objectMapper.writeValueAsString(commentEdit)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-comments-patch",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -135,8 +137,8 @@ class CommentControllerTest {
                                         .attributes(key("constraint").value("최대 1000."))
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("수정된 댓글 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("수정된 댓글 ID")
                         )
                 ))
         ;
@@ -198,7 +200,7 @@ class CommentControllerTest {
         // given
         given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
         given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(false);
-        given(commentService.delete(1L)).willReturn(1L);
+        given(commentService.delete(1L)).willReturn(new DeleteResult<>(1L));
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
@@ -208,7 +210,6 @@ class CommentControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isNumber())
                 .andDo(document("v1-comments-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -218,8 +219,8 @@ class CommentControllerTest {
                                 parameterWithName("commentId").description("댓글 ID")
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("삭제된 댓글 ID")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("삭제된 댓글 ID")
                         )
                 ))
         ;
