@@ -5,8 +5,6 @@ import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
-import com.comeeatme.domain.likes.response.LikeResult;
-import com.comeeatme.domain.likes.response.LikedResult;
 import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
@@ -260,43 +258,6 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("게시물 좋아요 API - 문서")
-    void like_Docs() throws Exception {
-        // given
-        LikeResult likeResult = LikeResult.builder()
-                .postId(1L)
-                .liked(true)
-                .count(10L)
-                .build();
-        given(likeService.pushLike(eq(1L), anyString())).willReturn(likeResult);
-
-        // expected
-        mockMvc.perform(put("/v1/posts/{postId}/like", 1L)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-put-like",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("postId").description("게시물 ID")
-                        ),
-                        responseFields(
-                                beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
-                                fieldWithPath("liked").description("좋아요 생성(true), 취소(false)"),
-                                fieldWithPath("count").description("개시물 내 좋아요 개수")
-                        )
-                ))
-        ;
-    }
-
-    @Test
-    @WithMockUser
     @DisplayName("게시물 리스트 조회 - 문서")
     void getList_Docs() throws Exception {
         // given
@@ -353,50 +314,6 @@ class PostControllerTest {
                                         .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
                                 fieldWithPath("restaurant.id").description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
-                        )
-                ))
-        ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 좋아요 여부 조회 - 문서")
-    void getLiked_Docs() throws Exception {
-        // given
-        given(likeService.isLiked(eq(List.of(1L, 2L)), anyString()))
-                .willReturn(List.of(
-                        LikedResult.builder()
-                                .postId(1L)
-                                .liked(true)
-                                .build(),
-                        LikedResult.builder()
-                                .postId(2L)
-                                .liked(false)
-                                .build()
-                ));
-
-        // expected
-        mockMvc.perform(get("/v1/posts/liked")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .param("postIds", "1", "2")
-                )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-posts-get-liked",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        requestParameters(
-                                parameterWithName("postIds")
-                                        .description("조회하려는 게시물 ID 리스트. 최대 100")
-                        ),
-                        responseFields(
-                                beneathPath("data[]").withSubsectionId("data"),
-                                fieldWithPath("postId").description("게시물 ID"),
-                                fieldWithPath("liked").description("좋아요 여부")
                         )
                 ))
         ;

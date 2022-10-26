@@ -5,9 +5,6 @@ import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.service.ImageService;
-import com.comeeatme.domain.likes.response.LikeResult;
-import com.comeeatme.domain.likes.response.LikedResult;
-import com.comeeatme.domain.likes.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
@@ -23,9 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.List;
 
 @RequestMapping("/v1")
 @RestController
@@ -35,8 +29,6 @@ public class PostController {
     private final PostService postService;
 
     private final ImageService imageService;
-
-    private final LikeService likeService;
 
     @GetMapping("/posts")
     public ResponseEntity<ApiResult<Slice<PostDto>>> getList(
@@ -75,21 +67,6 @@ public class PostController {
         }
         DeleteResult<Long> deleteResult = postService.delete(postId);
         ApiResult<DeleteResult<Long>> result = ApiResult.success(deleteResult);
-        return ResponseEntity.ok(result);
-    }
-
-    @PutMapping("/posts/{postId}/like")
-    public ResponseEntity<ApiResult<LikeResult>> like(@PathVariable Long postId, @CurrentUsername String username) {
-        LikeResult likeResult = likeService.pushLike(postId, username);
-        ApiResult<LikeResult> result = ApiResult.success(likeResult);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/posts/liked")
-    public ResponseEntity<ApiResult<List<LikedResult>>> getLiked(
-            @RequestParam @Valid @NotNull @Size(max = 100) List<Long> postIds, @CurrentUsername String username) {
-        List<LikedResult> likedResults = likeService.isLiked(postIds, username);
-        ApiResult<List<LikedResult>> result = ApiResult.success(likedResults);
         return ResponseEntity.ok(result);
     }
 
