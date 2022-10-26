@@ -17,3 +17,11 @@
 - 이미지 압축
 
 operation::v1-image-post-scaled[snippets='http-request,request-headers,http-response,response-fields']
+
+
+[v1-image-get-restaurant-images]
+== 음식점 이미지 조회
+
+음식점의 게시물을 통한 음식점 이미지 조회
+
+operation::v1-image-get-restaurant-images[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
