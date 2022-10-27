@@ -116,6 +116,30 @@ class BookmarkServiceTest {
         // expected
         assertThatThrownBy(() -> bookmarkService.bookmark(1L, "username", "그루비룸"))
                 .isInstanceOf(AlreadyBookmarkedException.class);
-
     }
+
+    @Test
+    void cancelBookmark() {
+        // given
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+
+        BookmarkGroup group = mock(BookmarkGroup.class);
+        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
+
+        Bookmark bookmark = mock(Bookmark.class);
+        given(bookmarkRepository.findByGroupAndPost(group, post)).willReturn(Optional.of(bookmark));
+
+        // when
+        bookmarkService.cancelBookmark(1L, "username", "그루비룸");
+
+        // then
+        then(bookmarkRepository).should().delete(bookmark);
+    }
+
 }

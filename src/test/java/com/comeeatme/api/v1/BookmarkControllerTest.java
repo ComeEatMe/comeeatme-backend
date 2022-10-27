@@ -22,6 +22,7 @@ import static org.mockito.BDDMockito.then;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -81,4 +82,46 @@ class BookmarkControllerTest {
                 ));
         then(bookmarkService).should().bookmark(eq(1L), anyString(), eq(null));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 북마크 취소 - DOCS")
+    void cancelBookmark_Docs() throws Exception {
+        mockMvc.perform(delete("/v1/member/bookmark/{groupName}/{postId}", "그루비룸", 1L)
+                        .with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(document("v1-bookmark-cancel-bookmark",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("groupName").description("북마크 그룹"),
+                                parameterWithName("postId").description("게시물 ID")
+                        )
+                ));
+        then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq("그루비룸"));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 북마크 취소 (그룹 지정 X) - DOCS")
+    void cancelBookmark_Docs_GroupNull_Docs() throws Exception {
+        mockMvc.perform(delete("/v1/member/bookmark/{postId}", 1L)
+                        .with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andDo(document("v1-bookmark-cancel-bookmark-group-null",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 ID")
+                        )
+                ));
+        then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq(null));
+    }
+
 }

@@ -85,4 +85,55 @@ class BookmarkRepositoryTest {
         )).isFalse();
     }
 
+    @Test
+    void findByGroupAndPost() {
+        // given
+        Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(10L).build())
+                .post(Post.builder().id(20L).build())
+                .group(BookmarkGroup.builder().id(30L).build())
+                .build());
+
+        // when
+        Bookmark result = bookmarkRepository.findByGroupAndPost(
+                BookmarkGroup.builder().id(30L).build(),
+                Post.builder().id(20L).build()
+        ).orElseThrow();
+
+        // then
+        assertThat(bookmark.getId()).isEqualTo(result.getId());
+    }
+
+    @Test
+    void findByGroupAndPost_GroupNotEqual() {
+        // given
+        Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(10L).build())
+                .post(Post.builder().id(20L).build())
+                .group(BookmarkGroup.builder().id(30L).build())
+                .build());
+
+        // expected
+        assertThat(bookmarkRepository.findByGroupAndPost(
+                BookmarkGroup.builder().id(40L).build(),
+                Post.builder().id(20L).build()
+        )).isEmpty();
+    }
+
+    @Test
+    void findByGroupAndPost_PostNotEqual() {
+        // given
+        Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(10L).build())
+                .post(Post.builder().id(20L).build())
+                .group(BookmarkGroup.builder().id(30L).build())
+                .build());
+
+        // expected
+        assertThat(bookmarkRepository.findByGroupAndPost(
+                BookmarkGroup.builder().id(30L).build(),
+                Post.builder().id(40L).build()
+        )).isEmpty();
+    }
+
 }
