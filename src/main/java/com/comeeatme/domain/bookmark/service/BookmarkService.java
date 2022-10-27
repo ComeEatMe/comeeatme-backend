@@ -49,6 +49,16 @@ public class BookmarkService {
                 .build());
     }
 
+    @Transactional
+    public void cancelBookmark(Long postId, String username, String groupName) {
+        Post post = getPostById(postId);
+        Member member = getMemberByUsername(username);
+        BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
+        Bookmark bookmark = bookmarkRepository.findByGroupAndPost(group, post)
+                .orElseThrow(() -> new EntityNotFoundException("group=" + groupName + ", post.id=" + postId));
+        bookmarkRepository.delete(bookmark);
+    }
+
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)
