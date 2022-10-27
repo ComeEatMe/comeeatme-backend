@@ -1,16 +1,16 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.domain.images.response.RestaurantImage;
 import com.comeeatme.domain.images.service.ImageService;
 import com.comeeatme.error.exception.InvalidImageException;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -54,6 +54,14 @@ public class ImageController {
                         .isPresent()
                 )
                 .isPresent();
+    }
+
+    @GetMapping("/restaurants/{restaurantId}/images")
+    public ResponseEntity<ApiResult<Slice<RestaurantImage>>> getRestaurantImages(
+            Pageable pageable, @PathVariable Long restaurantId) {
+        Slice<RestaurantImage> restaurantImages = imageService.getRestaurantImages(restaurantId, pageable);
+        ApiResult<Slice<RestaurantImage>> apiResult = ApiResult.success(restaurantImages);
+        return ResponseEntity.ok(apiResult);
     }
 
 }

@@ -2,12 +2,18 @@ package com.comeeatme.domain.images.service;
 
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.images.response.RestaurantImage;
 import com.comeeatme.domain.images.store.ImageStore;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.post.repository.PostImageRepository;
+import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +35,11 @@ public class ImageService {
 
     private final MemberRepository memberRepository;
 
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private final RestaurantRepository restaurantRepository;
+
+    private final PostImageRepository postImageRepository;
+
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     @Transactional
     public List<Long> saveImages(String username, List<Resource> images) {
@@ -91,4 +101,21 @@ public class ImageService {
                 .filter(Images::getUseYn)
                 .collect(Collectors.toList());
     }
+
+    public Slice<RestaurantImage> getRestaurantImages(Long restaurantId, Pageable pageable) {
+        Restaurant restaurant = getRestaurantById(restaurantId);
+        return postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageable)
+                .map(postImage -> RestaurantImage.builder()
+                        .postId(postImage.getPost().getId())
+                        .imageUrl(postImage.getImage().getUrl())
+                        .build()
+                );
+    }
+
+    private Restaurant getRestaurantById(Long id) {
+        return restaurantRepository.findById(id)
+                .filter(Restaurant::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant.id=" + id));
+    }
+
 }
