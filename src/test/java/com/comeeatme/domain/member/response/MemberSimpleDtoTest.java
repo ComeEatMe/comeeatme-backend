@@ -1,11 +1,10 @@
 package com.comeeatme.domain.member.response;
 
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -14,7 +13,7 @@ class MemberSimpleDtoTest {
     @Test
     void of() {
         // given
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUseYn()).willReturn(true);
         given(image.getUrl()).willReturn("image-url");
         Member member = mock(Member.class);
@@ -34,7 +33,7 @@ class MemberSimpleDtoTest {
     @Test
     void of_ImageDeleted() {
         // given
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUseYn()).willReturn(false);
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);

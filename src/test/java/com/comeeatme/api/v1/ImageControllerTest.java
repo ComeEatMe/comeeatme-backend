@@ -1,8 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.images.response.RestaurantImage;
-import com.comeeatme.domain.images.service.ImageService;
+import com.comeeatme.domain.image.response.RestaurantImage;
+import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.comeeatme.domain.images.response;
+package com.comeeatme.domain.image.response;
 
 import lombok.*;
 

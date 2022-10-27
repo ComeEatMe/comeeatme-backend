@@ -6,8 +6,8 @@ import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
@@ -47,7 +47,7 @@ public class PostService {
 
     private final PostImageRepository postImageRepository;
 
-    private final ImagesRepository imagesRepository;
+    private final ImageRepository imageRepository;
 
     private final RestaurantRepository restaurantRepository;
 
@@ -138,15 +138,15 @@ public class PostService {
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
     }
 
-    private List<Images> getImagesByIds(List<Long> imageIds) {
-        return imagesRepository.findAllById(imageIds)
+    private List<Image> getImagesByIds(List<Long> imageIds) {
+        return imageRepository.findAllById(imageIds)
                 .stream()
-                .filter(Images::getUseYn)
+                .filter(Image::getUseYn)
                 .collect(Collectors.toList());
     }
 
     private void savePostImages(Post post, List<Long> imageIds) {
-        List<Images> images = getImagesByIds(imageIds);
+        List<Image> images = getImagesByIds(imageIds);
         postImageRepository.saveAll(images.stream()
                 .map(image -> PostImage.builder()
                         .post(post)

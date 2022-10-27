@@ -6,8 +6,8 @@ import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
@@ -58,7 +58,7 @@ class PostServiceTest {
     private PostImageRepository postImageRepository;
 
     @Mock
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Mock
     private RestaurantRepository restaurantRepository;
@@ -96,13 +96,13 @@ class PostServiceTest {
         ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
         given(postRepository.save(postCaptor.capture())).willReturn(post);
 
-        Images image1 = mock(Images.class);
-        Images image2 = mock(Images.class);
-        Images image3 = mock(Images.class);
+        Image image1 = mock(Image.class);
+        Image image2 = mock(Image.class);
+        Image image3 = mock(Image.class);
         given(image1.getUseYn()).willReturn(true);
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
-        given(imagesRepository.findAllById(postCreate.getImageIds()))
+        given(imageRepository.findAllById(postCreate.getImageIds()))
                 .willReturn(List.of(image1, image2, image3));
 
         given(post.getId()).willReturn(5L);
@@ -254,13 +254,13 @@ class PostServiceTest {
         given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(postSlice);
 
-        Images image1 = mock(Images.class);
+        Image image1 = mock(Image.class);
         given(image1.getUrl()).willReturn("image-url-1");
         PostImage postImage1 = mock(PostImage.class);
         given(postImage1.getPost()).willReturn(post);
         given(postImage1.getImage()).willReturn(image1);
 
-        Images image2 = mock(Images.class);
+        Image image2 = mock(Image.class);
         given(image2.getUrl()).willReturn("image-url-2");
         PostImage postImage2 = mock(PostImage.class);
         given(postImage2.getPost()).willReturn(post);

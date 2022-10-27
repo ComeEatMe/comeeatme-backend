@@ -1,8 +1,8 @@
 package com.comeeatme.domain.member.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ class MemberRepositoryTest {
     private MemberRepository memberRepository;
 
     @Autowired
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Autowired
     private EntityManagerFactory emf;
@@ -58,7 +58,7 @@ class MemberRepositoryTest {
     @Test
     void findSliceWithImagesByNicknameStartingWith() {
         // given
-        Images image = imagesRepository.saveAndFlush(Images.builder()
+        Image image = imageRepository.saveAndFlush(Image.builder()
                 .originName("origin-name")
                 .storedName("stored-name")
                 .url("image-url")

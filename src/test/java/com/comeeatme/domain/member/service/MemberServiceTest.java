@@ -2,8 +2,8 @@ package com.comeeatme.domain.member.service;
 
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
@@ -39,7 +39,7 @@ class MemberServiceTest {
     private MemberRepository memberRepository;
 
     @Mock
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Test
     void edit_EqualMemberImageAndImageNull() {
@@ -61,7 +61,7 @@ class MemberServiceTest {
         UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
 
         // then
-        then(imagesRepository).should(never()).findById(anyLong());
+        then(imageRepository).should(never()).findById(anyLong());
         assertThat(updateResult.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
@@ -70,7 +70,7 @@ class MemberServiceTest {
     @Test
     void edit_EqualMemberImageAndImage() {
         // given
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUseYn()).willReturn(true);
         given(image.getId()).willReturn(2L);
 
@@ -93,7 +93,7 @@ class MemberServiceTest {
 
         // then
         then(image).should(never()).delete();
-        then(imagesRepository).should(never()).findById(anyLong());
+        then(imageRepository).should(never()).findById(anyLong());
         assertThat(updateResult.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo("edited-nickname");
         assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
@@ -102,7 +102,7 @@ class MemberServiceTest {
     @Test
     void edit_DiffMemberImageAndImage() {
         // given
-        Images memberImage = mock(Images.class);
+        Image memberImage = mock(Image.class);
         given(memberImage.getUseYn()).willReturn(true);
         given(memberImage.getId()).willReturn(2L);
 
@@ -116,10 +116,10 @@ class MemberServiceTest {
 
         Member imageMember = mock(Member.class);
         given(imageMember.getId()).willReturn(1L);
-        Images editedImage = mock(Images.class);
+        Image editedImage = mock(Image.class);
         given(editedImage.getUseYn()).willReturn(true);
         given(editedImage.getMember()).willReturn(imageMember);
-        given(imagesRepository.findById(3L)).willReturn(Optional.of(editedImage));
+        given(imageRepository.findById(3L)).willReturn(Optional.of(editedImage));
 
         MemberEdit memberEdit = MemberEdit.builder()
                 .nickname("edited-nickname")
@@ -170,7 +170,7 @@ class MemberServiceTest {
     @Test
     void get() {
         // given
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUseYn()).willReturn(true);
         given(image.getUrl()).willReturn("image-url");
         Member member = mock(Member.class);

@@ -1,4 +1,4 @@
-package com.comeeatme.domain.images;
+package com.comeeatme.domain.image;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.member.Member;
@@ -18,7 +18,7 @@ import javax.persistence.*;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Images extends BaseTimeEntity {
+public class Image extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,7 @@ public class Images extends BaseTimeEntity {
     private String url;
 
     @Builder
-    private Images(
+    private Image(
             @Nullable Long id,
             Member member,
             String originName,

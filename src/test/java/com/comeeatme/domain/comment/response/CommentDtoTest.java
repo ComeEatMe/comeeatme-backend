@@ -1,7 +1,7 @@
 package com.comeeatme.domain.comment.response;
 
 import com.comeeatme.domain.comment.Comment;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ class CommentDtoTest {
     void of_Undeleted_NotContainsNull() {
         Comment parent = mock(Comment.class);
         given(parent.getId()).willReturn(2L);
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUrl()).willReturn("image-url");
         Member member = mock(Member.class);
         given(member.getId()).willReturn(3L);
@@ -77,7 +77,7 @@ class CommentDtoTest {
     void of_Deleted() {
         Comment parent = mock(Comment.class);
         given(parent.getId()).willReturn(2L);
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUrl()).willReturn("image-url");
         Member member = mock(Member.class);
         given(member.getId()).willReturn(3L);

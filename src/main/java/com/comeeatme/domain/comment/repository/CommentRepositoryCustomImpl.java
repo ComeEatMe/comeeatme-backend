@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import static com.comeeatme.domain.account.QAccount.account;
 import static com.comeeatme.domain.comment.QComment.comment;
-import static com.comeeatme.domain.images.QImages.images;
+import static com.comeeatme.domain.image.QImage.image;
 import static com.comeeatme.domain.member.QMember.member;
 
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .selectFrom(comment)
                 .join(comment.post)
                 .join(comment.member, member).fetchJoin()
-                .leftJoin(member.image, images).fetchJoin()
+                .leftJoin(member.image, image).fetchJoin()
                 .where(comment.post.eq(post))
                 .orderBy(comment.parent.id.coalesce(comment.id).asc())
                 .offset(pageable.getOffset())

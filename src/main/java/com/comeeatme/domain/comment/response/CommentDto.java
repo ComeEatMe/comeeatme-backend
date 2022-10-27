@@ -1,7 +1,7 @@
 package com.comeeatme.domain.comment.response;
 
 import com.comeeatme.domain.comment.Comment;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +41,7 @@ public class CommentDto {
                     .memberId(comment.getMember().getId())
                     .memberNickname(comment.getMember().getNickname())
                     .memberImageUrl(Optional.ofNullable(comment.getMember().getImage())
-                            .map(Images::getUrl).orElse(null));
+                            .map(Image::getUrl).orElse(null));
         }
 
         return builder.build();

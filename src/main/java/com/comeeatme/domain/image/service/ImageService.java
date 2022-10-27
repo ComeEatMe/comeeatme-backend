@@ -1,9 +1,9 @@
-package com.comeeatme.domain.images.service;
+package com.comeeatme.domain.image.service;
 
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
-import com.comeeatme.domain.images.response.RestaurantImage;
-import com.comeeatme.domain.images.store.ImageStore;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
+import com.comeeatme.domain.image.response.RestaurantImage;
+import com.comeeatme.domain.image.store.ImageStore;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.repository.PostImageRepository;
@@ -31,7 +31,7 @@ public class ImageService {
 
     private final ImageStore imageStore;
 
-    private final ImagesRepository imagesRepository;
+    private final ImageRepository imageRepository;
 
     private final MemberRepository memberRepository;
 
@@ -44,12 +44,12 @@ public class ImageService {
     @Transactional
     public List<Long> saveImages(String username, List<Resource> images) {
         Member member = getMemberByUsername(username);
-        List<Images> storedImages = imagesRepository.saveAll(images.stream()
+        List<Image> storedImages = imageRepository.saveAll(images.stream()
                 .map(image -> {
                     String originName = image.getFilename();
                     String storedName = createStoredName(originName);
                     String url = imageStore.store(image, storedName);
-                    return Images.builder()
+                    return Image.builder()
                             .member(member)
                             .originName(originName)
                             .storedName(storedName)
@@ -58,7 +58,7 @@ public class ImageService {
                 }).collect(Collectors.toList())
         );
         return storedImages.stream()
-                .map(Images::getId)
+                .map(Image::getId)
                 .collect(Collectors.toList());
     }
 
@@ -78,7 +78,7 @@ public class ImageService {
         if (imageIds.size() != imageIds.stream().distinct().count()) {
             return false;
         }
-        List<Images> images = getImagesByIds(imageIds);
+        List<Image> images = getImagesByIds(imageIds);
         if (imageIds.size() != images.size()) {
             return false;
         }
@@ -95,10 +95,10 @@ public class ImageService {
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
     }
 
-    private List<Images> getImagesByIds(List<Long> imageIds) {
-        return imagesRepository.findAllById(imageIds)
+    private List<Image> getImagesByIds(List<Long> imageIds) {
+        return imageRepository.findAllById(imageIds)
                 .stream()
-                .filter(Images::getUseYn)
+                .filter(Image::getUseYn)
                 .collect(Collectors.toList());
     }
 

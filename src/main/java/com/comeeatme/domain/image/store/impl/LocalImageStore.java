@@ -1,6 +1,6 @@
-package com.comeeatme.domain.images.store.impl;
+package com.comeeatme.domain.image.store.impl;
 
-import com.comeeatme.domain.images.store.ImageStore;
+import com.comeeatme.domain.image.store.ImageStore;
 import com.comeeatme.error.exception.InvalidImageException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;

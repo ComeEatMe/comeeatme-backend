@@ -1,6 +1,6 @@
 package com.comeeatme.domain.member.response;
 
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,8 +25,8 @@ public class MemberSimpleDto {
                 .id(member.getId())
                 .nickname(member.getNickname())
                 .imageUrl(Optional.ofNullable(member.getImage())
-                        .filter(Images::getUseYn)
-                        .map(Images::getUrl)
+                        .filter(Image::getUseYn)
+                        .map(Image::getUrl)
                         .orElse(null))
                 .build();
     }

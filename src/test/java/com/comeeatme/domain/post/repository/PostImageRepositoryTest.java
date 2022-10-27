@@ -1,8 +1,8 @@
 package com.comeeatme.domain.post.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
@@ -18,7 +18,6 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -32,7 +31,7 @@ class PostImageRepositoryTest {
     private PostImageRepository postImageRepository;
 
     @Autowired
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Autowired
     private EntityManager em;
@@ -45,7 +44,7 @@ class PostImageRepositoryTest {
                 .restaurant(Restaurant.builder().id(2L).build())
                 .content("test-content-1")
                 .build());
-        Images image1 = imagesRepository.save(Images.builder()
+        Image image1 = imageRepository.save(Image.builder()
                 .member(Member.builder().id(1L).build())
                 .originName("origin-name-1")
                 .storedName("stored-name-1")
@@ -61,7 +60,7 @@ class PostImageRepositoryTest {
                 .restaurant(Restaurant.builder().id(2L).build())
                 .content("test-content-2")
                 .build());
-        Images image2 = imagesRepository.save(Images.builder()
+        Image image2 = imageRepository.save(Image.builder()
                 .member(Member.builder().id(1L).build())
                 .originName("origin-name-2")
                 .storedName("stored-name-2")
@@ -77,7 +76,7 @@ class PostImageRepositoryTest {
                 .restaurant(Restaurant.builder().id(2L).build())
                 .content("test-content-2")
                 .build());
-        Images image3 = imagesRepository.save(Images.builder()
+        Image image3 = imageRepository.save(Image.builder()
                 .member(Member.builder().id(1L).build())
                 .originName("origin-name-2")
                 .storedName("stored-name-2")

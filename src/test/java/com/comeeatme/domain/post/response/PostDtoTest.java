@@ -1,7 +1,7 @@
 package com.comeeatme.domain.post.response;
 
 import com.comeeatme.domain.comment.response.CommentCount;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
@@ -21,7 +21,7 @@ class PostDtoTest {
     @Test
     void of() {
         // given
-        Images image = mock(Images.class);
+        Image image = mock(Image.class);
         given(image.getUseYn()).willReturn(true);
         given(image.getUrl()).willReturn("image-url");
 
@@ -29,7 +29,7 @@ class PostDtoTest {
         given(postImage.getUseYn()).willReturn(true);
         given(postImage.getImage()).willReturn(image);
 
-        Images memberImage = mock(Images.class);
+        Image memberImage = mock(Image.class);
         given(memberImage.getUseYn()).willReturn(true);
         given(memberImage.getUrl()).willReturn("member-image-url");
 

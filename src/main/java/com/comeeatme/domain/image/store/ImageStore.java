@@ -1,4 +1,4 @@
-package com.comeeatme.domain.images.store;
+package com.comeeatme.domain.image.store;
 
 import org.springframework.core.io.Resource;
 

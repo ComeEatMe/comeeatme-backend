@@ -2,8 +2,8 @@ package com.comeeatme.domain.member.service;
 
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -31,7 +31,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    private final ImagesRepository imagesRepository;
+    private final ImageRepository imageRepository;
 
     @Transactional
     public UpdateResult<Long> edit(MemberEdit memberEdit, String username) {
@@ -57,22 +57,22 @@ public class MemberService {
 
     private void editMemberImage(MemberEdit memberEdit, Member member, MemberEditor.MemberEditorBuilder editorBuilder) {
         Long memberImageId = Optional.ofNullable(member.getImage())
-                .filter(Images::getUseYn)
-                .map(Images::getId)
+                .filter(Image::getUseYn)
+                .map(Image::getId)
                 .orElse(null);
         if (!Objects.equals(memberImageId, memberEdit.getImageId())) {
             if (nonNull(memberImageId)) {
                 member.getImage().delete();
             }
             if (nonNull(memberEdit.getImageId())) {
-                Images image = getImageById(memberEdit.getImageId());
+                Image image = getImageById(memberEdit.getImageId());
                 validateImageOwner(member, image);
                 editorBuilder.image(image);
             }
         }
     }
 
-    private void validateImageOwner(Member member, Images image) {
+    private void validateImageOwner(Member member, Image image) {
         if (!Objects.equals(image.getMember().getId(), member.getId())) {
             throw new EntityAccessDeniedException(String.format(
                     "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
@@ -91,9 +91,9 @@ public class MemberService {
                 .orElseThrow(() -> new EntityNotFoundException("Member id=" + id));
     }
 
-    private Images getImageById(Long imageId) {
-        return imagesRepository.findById(imageId)
-                .filter(Images::getUseYn)
+    private Image getImageById(Long imageId) {
+        return imageRepository.findById(imageId)
+                .filter(Image::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Images id=" + imageId));
     }
 

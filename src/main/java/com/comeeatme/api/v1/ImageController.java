@@ -1,8 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
-import com.comeeatme.domain.images.response.RestaurantImage;
-import com.comeeatme.domain.images.service.ImageService;
+import com.comeeatme.domain.image.response.RestaurantImage;
+import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.error.exception.InvalidImageException;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;

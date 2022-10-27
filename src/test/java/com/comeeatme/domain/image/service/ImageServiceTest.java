@@ -1,9 +1,9 @@
-package com.comeeatme.domain.images.service;
+package com.comeeatme.domain.image.service;
 
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
-import com.comeeatme.domain.images.response.RestaurantImage;
-import com.comeeatme.domain.images.store.ImageStore;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
+import com.comeeatme.domain.image.response.RestaurantImage;
+import com.comeeatme.domain.image.store.ImageStore;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -42,7 +42,7 @@ class ImageServiceTest {
     private ImageStore imageStore;
 
     @Mock
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Mock
     private MemberRepository memberRepository;
@@ -68,10 +68,10 @@ class ImageServiceTest {
         ArgumentCaptor<String> storedNameCaptor = ArgumentCaptor.forClass(String.class);
         given(imageStore.store(eq(mockResource), storedNameCaptor.capture())).willReturn("test-image-url");
 
-        Images mockImage = mock(Images.class);
+        Image mockImage = mock(Image.class);
         given(mockImage.getId()).willReturn(1L);
-        ArgumentCaptor<List<Images>> imagesCaptor = ArgumentCaptor.forClass(List.class);
-        given(imagesRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
+        ArgumentCaptor<List<Image>> imagesCaptor = ArgumentCaptor.forClass(List.class);
+        given(imageRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
 
         // when
         List<Long> imageIds = imageService.saveImages("username", resources);
@@ -81,7 +81,7 @@ class ImageServiceTest {
         int extPos = storedName.lastIndexOf(".");
         assertThat(storedName.substring(extPos + 1)).isEqualTo("jpg");
 
-        List<Images> images = imagesCaptor.getValue();
+        List<Image> images = imagesCaptor.getValue();
         assertThat(images).hasSize(1);
         assertThat(images).extracting("storedName").containsExactly(storedName);
         assertThat(images).extracting("originName").containsExactly("test-filename.jpg");
@@ -96,15 +96,15 @@ class ImageServiceTest {
     void validateImageIds() {
         // given
         List<Long> imageIds = List.of(1L, 2L, 3L);
-        Images image1 = mock(Images.class);
-        Images image2 = mock(Images.class);
-        Images image3 = mock(Images.class);
+        Image image1 = mock(Image.class);
+        Image image2 = mock(Image.class);
+        Image image3 = mock(Image.class);
 
         given(image1.getUseYn()).willReturn(true);
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
 
-        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imageRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
@@ -133,15 +133,15 @@ class ImageServiceTest {
     void validateImageIds_DeletedImageId() {
         // given
         List<Long> imageIds = List.of(1L, 2L, 3L);
-        Images image1 = mock(Images.class);
-        Images image2 = mock(Images.class);
-        Images image3 = mock(Images.class);
+        Image image1 = mock(Image.class);
+        Image image2 = mock(Image.class);
+        Image image3 = mock(Image.class);
 
         given(image1.getUseYn()).willReturn(true);
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(false);
 
-        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imageRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         // expected
         assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
@@ -151,15 +151,15 @@ class ImageServiceTest {
     void validateImageIds_NotOwnedByMember() {
         // given
         List<Long> imageIds = List.of(1L, 2L, 3L);
-        Images image1 = mock(Images.class);
-        Images image2 = mock(Images.class);
-        Images image3 = mock(Images.class);
+        Image image1 = mock(Image.class);
+        Image image2 = mock(Image.class);
+        Image image3 = mock(Image.class);
 
         given(image1.getUseYn()).willReturn(true);
         given(image2.getUseYn()).willReturn(true);
         given(image3.getUseYn()).willReturn(true);
 
-        given(imagesRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
+        given(imageRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
@@ -187,11 +187,11 @@ class ImageServiceTest {
 
         Post post = mock(Post.class);
         given(post.getId()).willReturn(2L);
-        Images images = mock(Images.class);
-        given(images.getUrl()).willReturn("image-url");
+        Image image = mock(Image.class);
+        given(image.getUrl()).willReturn("image-url");
         PostImage postImage = mock(PostImage.class);
         given(postImage.getPost()).willReturn(post);
-        given(postImage.getImage()).willReturn(images);
+        given(postImage.getImage()).willReturn(image);
 
         PageRequest pageRequest = PageRequest.of(0, 10);
         given(postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageRequest))
