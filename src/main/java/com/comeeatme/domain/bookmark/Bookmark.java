@@ -19,6 +19,7 @@ import javax.persistence.*;
                         columnNames = {"bookmark_group_id", "post_id"})
         },
         indexes = {
+                @Index(name = "IX_bookmark_member", columnList = "member_id"),
                 @Index(name = "IX_bookmark_post", columnList = "post_id")
         }
 )
