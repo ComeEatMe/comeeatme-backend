@@ -1,21 +1,24 @@
-package com.comeeatme.domain.likes.response;
+package com.comeeatme.domain.like.response;
 
-import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LikeCount {
+public class LikeResult {
 
     private Long postId;
 
+    private Boolean liked;
+
     private Long count;
 
-    @QueryProjection
-    public LikeCount(Long postId, Long count) {
+    @Builder
+    private LikeResult(Long postId, Boolean liked, Long count) {
         this.postId = postId;
+        this.liked = liked;
         this.count = count;
     }
 }

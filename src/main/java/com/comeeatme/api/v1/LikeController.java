@@ -1,8 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.dto.ApiResult;
-import com.comeeatme.domain.likes.response.LikedResult;
-import com.comeeatme.domain.likes.service.LikeService;
+import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.comeeatme.domain.likes.response;
+package com.comeeatme.domain.like.response;
 
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.comeeatme.domain.likes;
+package com.comeeatme.domain.like;
 
 import com.comeeatme.domain.common.core.BaseCreatedAtEntity;
 import com.comeeatme.domain.member.Member;
@@ -23,7 +23,7 @@ import javax.persistence.*;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Likes extends BaseCreatedAtEntity {
+public class Like extends BaseCreatedAtEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,7 @@ public class Likes extends BaseCreatedAtEntity {
     private Member member;
 
     @Builder
-    private Likes(@Nullable Long id, Post post, Member member) {
+    private Like(@Nullable Long id, Post post, Member member) {
         this.id = id;
         this.post = post;
         this.member = member;

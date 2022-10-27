@@ -1,11 +1,11 @@
-package com.comeeatme.domain.likes.repository;
+package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
-import com.comeeatme.domain.likes.Likes;
-import com.comeeatme.domain.likes.response.LikeCount;
-import com.comeeatme.domain.likes.response.LikedResult;
+import com.comeeatme.domain.like.Like;
+import com.comeeatme.domain.like.response.LikeCount;
+import com.comeeatme.domain.like.response.LikedResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Transactional
 @Import(TestJpaConfig.class)
-class LikesRepositoryCustomTest {
+class LikeRepositoryCustomTest {
 
     @Autowired
-    private LikesRepository likesRepository;
+    private LikeRepository likesRepository;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -37,27 +37,27 @@ class LikesRepositoryCustomTest {
     void countsGroupByPosts() {
         // given
         likesRepository.saveAll(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(1L).build())
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(2L).build())
                         .build(),
-                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                Like.builder() // 다른 Post ID -> count 에 포함 X
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(3L).build())
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(Member.builder().id(1L).build())
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(Member.builder().id(2L).build())
                         .build(),
-                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                Like.builder() // 다른 Post ID -> count 에 포함 X
                         .post(Post.builder().id(3L).build())
                         .member(Member.builder().id(1L).build())
                         .build()
@@ -88,11 +88,11 @@ class LikesRepositoryCustomTest {
                         .member(member)
                         .build());
         likesRepository.saveAll(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(member)
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(member)
                         .build()
@@ -120,11 +120,11 @@ class LikesRepositoryCustomTest {
                         .member(member)
                         .build());
         likesRepository.saveAll(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(member)
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(member)
                         .build()
@@ -147,11 +147,11 @@ class LikesRepositoryCustomTest {
                 .introduction("introduction")
                 .build());
         likesRepository.saveAll(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(member)
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(member)
                         .build()
@@ -174,11 +174,11 @@ class LikesRepositoryCustomTest {
                 .introduction("introduction")
                 .build());
         likesRepository.saveAll(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(member)
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(member)
                         .build()

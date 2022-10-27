@@ -1,7 +1,7 @@
-package com.comeeatme.domain.likes;
+package com.comeeatme.domain.like;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import org.junit.jupiter.api.Test;
@@ -18,14 +18,14 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 @Transactional
 @Import(TestJpaConfig.class)
-class LikesTest {
+class LikeTest {
 
     @Autowired
-    private LikesRepository likesRepository;
+    private LikeRepository likesRepository;
 
     @Test
     void createAndSave() {
-        assertThatNoException().isThrownBy(() -> likesRepository.saveAndFlush(Likes.builder()
+        assertThatNoException().isThrownBy(() -> likesRepository.saveAndFlush(Like.builder()
                 .member(Member.builder().id(1L).build())
                 .post(Post.builder().id(2L).build())
                 .build()));
@@ -35,11 +35,11 @@ class LikesTest {
     void Unique_Member_Post() {
         assertThatThrownBy(() -> likesRepository.saveAllAndFlush(
                 List.of(
-                        Likes.builder()
+                        Like.builder()
                                 .member(Member.builder().id(1L).build())
                                 .post(Post.builder().id(2L).build())
                                 .build(),
-                        Likes.builder()
+                        Like.builder()
                                 .member(Member.builder().id(1L).build())
                                 .post(Post.builder().id(2L).build())
                                 .build()

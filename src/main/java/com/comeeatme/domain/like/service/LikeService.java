@@ -1,8 +1,8 @@
-package com.comeeatme.domain.likes.service;
+package com.comeeatme.domain.like.service;
 
-import com.comeeatme.domain.likes.Likes;
-import com.comeeatme.domain.likes.repository.LikesRepository;
-import com.comeeatme.domain.likes.response.LikedResult;
+import com.comeeatme.domain.like.Like;
+import com.comeeatme.domain.like.repository.LikeRepository;
+import com.comeeatme.domain.like.response.LikedResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikeService {
 
-    private final LikesRepository likesRepository;
+    private final LikeRepository likesRepository;
 
     private final PostRepository postRepository;
 
@@ -36,7 +36,7 @@ public class LikeService {
             throw new AlreadyLikedPostException(String.format(
                     "post.id=%s, member.id=%s", post.getId(), member.getId()));
         }
-        likesRepository.save(Likes.builder()
+        likesRepository.save(Like.builder()
                 .post(post)
                 .member(member)
                 .build());
@@ -46,7 +46,7 @@ public class LikeService {
     public void unlike(Long postId, String username) {
         Post post = getPostById(postId);
         Member member = getMemberByUsername(username);
-        Likes like = likesRepository.findByPostAndMember(post, member)
+        Like like = likesRepository.findByPostAndMember(post, member)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(
                         "post.id=%s, member.id=%s", post.getId(), member.getId())));
         likesRepository.delete(like);

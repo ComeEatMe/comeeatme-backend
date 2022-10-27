@@ -1,7 +1,7 @@
-package com.comeeatme.domain.likes.service;
+package com.comeeatme.domain.like.service;
 
-import com.comeeatme.domain.likes.Likes;
-import com.comeeatme.domain.likes.repository.LikesRepository;
+import com.comeeatme.domain.like.Like;
+import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -31,7 +31,7 @@ class LikeServiceTest {
     private LikeService likeService;
 
     @Mock
-    private LikesRepository likesRepository;
+    private LikeRepository likesRepository;
 
     @Mock
     private PostRepository postRepository;
@@ -56,11 +56,11 @@ class LikeServiceTest {
         likeService.like(1L, "username");
 
         // then
-        ArgumentCaptor<Likes> likesCaptor = ArgumentCaptor.forClass(Likes.class);
+        ArgumentCaptor<Like> likesCaptor = ArgumentCaptor.forClass(Like.class);
         then(likesRepository).should().save(likesCaptor.capture());
-        Likes likesCaptorValue = likesCaptor.getValue();
-        assertThat(likesCaptorValue.getPost()).isEqualTo(post);
-        assertThat(likesCaptorValue.getMember()).isEqualTo(member);
+        Like likeCaptorValue = likesCaptor.getValue();
+        assertThat(likeCaptorValue.getPost()).isEqualTo(post);
+        assertThat(likeCaptorValue.getMember()).isEqualTo(member);
     }
 
     @Test
@@ -93,7 +93,7 @@ class LikeServiceTest {
         given(member.getUseYn()).willReturn(true);
         given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
 
-        Likes like = mock(Likes.class);
+        Like like = mock(Like.class);
         given(likesRepository.findByPostAndMember(post, member)).willReturn(Optional.of(like));
 
         // when

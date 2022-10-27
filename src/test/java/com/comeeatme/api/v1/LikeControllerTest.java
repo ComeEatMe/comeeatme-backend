@@ -1,8 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.likes.response.LikedResult;
-import com.comeeatme.domain.likes.service.LikeService;
+import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

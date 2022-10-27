@@ -8,8 +8,8 @@ import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.images.Images;
 import com.comeeatme.domain.images.repository.ImagesRepository;
-import com.comeeatme.domain.likes.repository.LikesRepository;
-import com.comeeatme.domain.likes.response.LikeCount;
+import com.comeeatme.domain.like.repository.LikeRepository;
+import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -55,7 +55,7 @@ public class PostService {
 
     private final CommentRepository commentRepository;
 
-    private final LikesRepository likesRepository;
+    private final LikeRepository likesRepository;
 
     @Transactional
     public CreateResult<Long> create(PostCreate postCreate, String username) {

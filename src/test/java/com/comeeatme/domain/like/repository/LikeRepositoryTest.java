@@ -1,7 +1,7 @@
-package com.comeeatme.domain.likes.repository;
+package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.likes.Likes;
+import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import org.junit.jupiter.api.Test;
@@ -18,22 +18,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Transactional
 @Import(TestJpaConfig.class)
-class LikesRepositoryTest {
+class LikeRepositoryTest {
 
     @Autowired
-    private LikesRepository likesRepository;
+    private LikeRepository likesRepository;
 
     @Test
     void findByPostAndMember_Present() {
         // given
-        Likes like = likesRepository.saveAndFlush(
-                Likes.builder()
+        Like like = likesRepository.saveAndFlush(
+                Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(2L).build())
                         .build());
 
         // when
-        Optional<Likes> foundLike = likesRepository.findByPostAndMember(
+        Optional<Like> foundLike = likesRepository.findByPostAndMember(
                 Post.builder().id(1L).build(), Member.builder().id(2L).build());
 
         // then
@@ -44,18 +44,18 @@ class LikesRepositoryTest {
     void findByPostAndMember_Empty() {
         // given
         likesRepository.saveAllAndFlush(List.of(
-                Likes.builder() // Not equal post id
+                Like.builder() // Not equal post id
                         .post(Post.builder().id(2L).build())
                         .member(Member.builder().id(2L).build())
                         .build(),
-                Likes.builder() // Not equal member id
+                Like.builder() // Not equal member id
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(3L).build())
                         .build()
         ));
 
         // when
-        Optional<Likes> foundLike = likesRepository.findByPostAndMember(
+        Optional<Like> foundLike = likesRepository.findByPostAndMember(
                 Post.builder().id(1L).build(), Member.builder().id(2L).build());
 
         // then
@@ -66,15 +66,15 @@ class LikesRepositoryTest {
     void countByPost() {
         // given
         likesRepository.saveAllAndFlush(List.of(
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(Member.builder().id(2L).build())
                         .build(),
-                Likes.builder()
+                Like.builder()
                         .post(Post.builder().id(2L).build())
                         .member(Member.builder().id(3L).build())
                         .build(),
-                Likes.builder() // 다른 Post ID -> count 에 포함 X
+                Like.builder() // 다른 Post ID -> count 에 포함 X
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(3L).build())
                         .build()
@@ -90,7 +90,7 @@ class LikesRepositoryTest {
     @Test
     void existsByPostAndMember() {
         // given
-        likesRepository.save(Likes.builder()
+        likesRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
                 .member(Member.builder().id(2L).build())
                 .build());
@@ -108,7 +108,7 @@ class LikesRepositoryTest {
     @Test
     void existsByPostAndMember_PostNotEqual() {
         // given
-        likesRepository.save(Likes.builder()
+        likesRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
                 .member(Member.builder().id(2L).build())
                 .build());
@@ -126,7 +126,7 @@ class LikesRepositoryTest {
     @Test
     void existsByPostAndMember_MemberNotEqual() {
         // given
-        likesRepository.save(Likes.builder()
+        likesRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
                 .member(Member.builder().id(2L).build())
                 .build());

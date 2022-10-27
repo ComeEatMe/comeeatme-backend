@@ -1,15 +1,15 @@
-package com.comeeatme.domain.likes.repository;
+package com.comeeatme.domain.like.repository;
 
-import com.comeeatme.domain.likes.Likes;
+import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface LikesRepository extends JpaRepository<Likes, Long>, LikesRepositoryCustom {
+public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositoryCustom {
 
-    Optional<Likes> findByPostAndMember(Post post, Member member);
+    Optional<Like> findByPostAndMember(Post post, Member member);
 
     boolean existsByPostAndMember(Post post, Member member);
 

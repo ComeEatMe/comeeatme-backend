@@ -1,10 +1,10 @@
-package com.comeeatme.domain.likes.repository;
+package com.comeeatme.domain.like.repository;
 
-import com.comeeatme.domain.likes.Likes;
-import com.comeeatme.domain.likes.QLikes;
-import com.comeeatme.domain.likes.response.LikeCount;
-import com.comeeatme.domain.likes.response.LikedResult;
-import com.comeeatme.domain.likes.response.QLikeCount;
+import com.comeeatme.domain.like.Like;
+import com.comeeatme.domain.like.QLike;
+import com.comeeatme.domain.like.response.LikeCount;
+import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.response.QLikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import com.querydsl.core.types.Expression;
@@ -17,32 +17,31 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.comeeatme.domain.account.QAccount.account;
-import static com.comeeatme.domain.likes.QLikes.likes;
 import static com.comeeatme.domain.member.QMember.member;
 
 @RequiredArgsConstructor
-public class LikesRepositoryCustomImpl implements LikesRepositoryCustom {
+public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
 
     private final JPAQueryFactory query;
 
     @Override
     public List<LikeCount> countsGroupByPosts(List<Post> posts) {
         return query
-                .select(new QLikeCount(likes.post.id, likes.id.count()))
-                .from(likes)
+                .select(new QLikeCount(QLike.like.post.id, QLike.like.id.count()))
+                .from(QLike.like)
                 .where(
-                        likes.post.in(posts))
-                .groupBy(likes.post)
+                        QLike.like.post.in(posts))
+                .groupBy(QLike.like.post)
                 .fetch();
     }
 
     @Override
     public List<LikedResult> existsByPostIdsAndUsername(List<Long> postIds, String username) {
-        List<Likes> likes = query
-                .selectFrom(QLikes.likes)
+        List<Like> likes = query
+                .selectFrom(QLike.like)
                 .where(
-                        QLikes.likes.post.id.in(postIds),
-                        QLikes.likes.member.eq(memberOfUsername(username))
+                        QLike.like.post.id.in(postIds),
+                        QLike.like.member.eq(memberOfUsername(username))
                 ).fetch();
         Set<Long> existPostIds = likes.stream()
                 .map(like -> like.getPost().getId())
@@ -65,11 +64,11 @@ public class LikesRepositoryCustomImpl implements LikesRepositoryCustom {
 
     @Override
     public List<LikedResult> existsByPostIdsAndMemberId(List<Long> postIds, Long memberId) {
-        List<Likes> likes = query
-                .selectFrom(QLikes.likes)
+        List<Like> likes = query
+                .selectFrom(QLike.like)
                 .where(
-                        QLikes.likes.post.id.in(postIds),
-                        QLikes.likes.member.id.eq(memberId)
+                        QLike.like.post.id.in(postIds),
+                        QLike.like.member.id.eq(memberId)
                 ).fetch();
         Set<Long> existPostIds = likes.stream()
                 .map(like -> like.getPost().getId())

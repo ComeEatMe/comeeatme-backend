@@ -2,7 +2,7 @@ package com.comeeatme.domain.post.response;
 
 import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.likes.response.LikeCount;
+import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
