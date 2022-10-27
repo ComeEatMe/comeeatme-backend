@@ -17,6 +17,7 @@
 - xref:member.adoc[Member]
 - xref:post.adoc[Post]
 - xref:like.adoc[Like]
+- xref:bookmark.adoc[Bookmark]
 - xref:comment.adoc[Comment]
 - xref:restaurant.adoc[Restaurant]
 
