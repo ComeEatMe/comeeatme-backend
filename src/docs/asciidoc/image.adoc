@@ -9,7 +9,7 @@
 :operation-http-response-title: Example response
 
 
-[[v1-images-post-scaled]]
+[[v1-image-post-scaled]]
 == 처리된 이미지 저장 API
 
 .클라이언트에서 필요한 이미지 처리
@@ -19,7 +19,7 @@
 operation::v1-image-post-scaled[snippets='http-request,request-headers,http-response,response-fields']
 
 
-[v1-image-get-restaurant-images]
+[v1-image-get-restaurant-image]
 == 음식점 이미지 조회
 
 음식점의 게시물을 통한 음식점 이미지 조회
@@ -30,4 +30,4 @@ sort 파라미터 사용 불가능
 
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-image-get-restaurant-images[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+operation::v1-image-get-restaurant-image[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']

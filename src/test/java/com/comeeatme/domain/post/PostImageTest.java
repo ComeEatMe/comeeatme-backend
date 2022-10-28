@@ -1,7 +1,7 @@
 package com.comeeatme.domain.post;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class PostImageTest {
     void save() {
         assertThatNoException().isThrownBy(() -> postImageRepository.saveAndFlush(PostImage.builder()
                 .post(Post.builder().id(1L).build())
-                .image(Images.builder().id(2L).build())
+                .image(Image.builder().id(2L).build())
                 .build()
         ));
     }

@@ -1,8 +1,8 @@
 package com.comeeatme.domain.post.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.images.repository.ImagesRepository;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
@@ -32,7 +32,7 @@ class PostImageRepositoryCustomTest {
     private PostRepository postRepository;
 
     @Autowired
-    private ImagesRepository imagesRepository;
+    private ImageRepository imageRepository;
 
     @Autowired
     private EntityManagerFactory emf;
@@ -45,7 +45,7 @@ class PostImageRepositoryCustomTest {
                 .member(Member.builder().id(2L).build())
                 .content("content")
                 .build());
-        Images image = imagesRepository.save(Images.builder()
+        Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
@@ -78,7 +78,7 @@ class PostImageRepositoryCustomTest {
                 .member(Member.builder().id(2L).build())
                 .content("content")
                 .build());
-        Images image = imagesRepository.save(Images.builder()
+        Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
@@ -108,7 +108,7 @@ class PostImageRepositoryCustomTest {
                 .member(Member.builder().id(2L).build())
                 .content("content")
                 .build());
-        Images image = imagesRepository.save(Images.builder()
+        Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")

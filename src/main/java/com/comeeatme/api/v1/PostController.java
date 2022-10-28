@@ -4,7 +4,7 @@ import com.comeeatme.api.common.dto.ApiResult;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.service.ImageService;
+import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;

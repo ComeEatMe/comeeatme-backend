@@ -8,7 +8,7 @@ import com.comeeatme.domain.comment.response.CommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -151,7 +151,7 @@ class CommentServiceTest {
 
         Comment parent1 = mock(Comment.class);
         given(parent1.getId()).willReturn(2L);
-        Images image1 = mock(Images.class);
+        Image image1 = mock(Image.class);
         given(image1.getUrl()).willReturn("image-url-1");
         Member member1 = mock(Member.class);
         given(member1.getId()).willReturn(3L);

@@ -1,8 +1,8 @@
 package com.comeeatme.domain.post.response;
 
 import com.comeeatme.domain.comment.response.CommentCount;
-import com.comeeatme.domain.images.Images;
-import com.comeeatme.domain.likes.response.LikeCount;
+import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import lombok.AccessLevel;
@@ -41,7 +41,7 @@ public class PostDto {
                 .id(post.getId())
                 .imageUrls(postImages.stream()
                         .map(PostImage::getImage)
-                        .map(Images::getUrl)
+                        .map(Image::getUrl)
                         .collect(Collectors.toList()))
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
@@ -50,8 +50,8 @@ public class PostDto {
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
                 .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
-                        .filter(Images::getUseYn)
-                        .map(Images::getUrl)
+                        .filter(Image::getUseYn)
+                        .map(Image::getUrl)
                         .orElse(null))
                 .restaurantId(post.getRestaurant().getId())
                 .restaurantName(post.getRestaurant().getName())

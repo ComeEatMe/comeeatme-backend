@@ -1,6 +1,6 @@
 package com.comeeatme.domain.member;
 
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,10 +11,10 @@ public class MemberEditor {
 
     private String introduction;
 
-    private Images image;
+    private Image image;
 
     @Builder
-    private MemberEditor(String nickname, String introduction, Images image) {
+    private MemberEditor(String nickname, String introduction, Image image) {
         this.nickname = nickname;
         this.introduction = introduction;
         this.image = image;

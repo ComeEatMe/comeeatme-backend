@@ -1,7 +1,7 @@
 package com.comeeatme.domain.post;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,13 +31,13 @@ public class PostImage extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "image_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Images image;
+    private Image image;
 
     @Builder
     private PostImage(
             @Nullable Long id,
             Post post,
-            Images image) {
+            Image image) {
         this.id = id;
         this.post = post;
         this.image = image;

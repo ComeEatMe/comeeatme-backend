@@ -1,7 +1,7 @@
 package com.comeeatme.domain.member;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
-import com.comeeatme.domain.images.Images;
+import com.comeeatme.domain.image.Image;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,14 +32,14 @@ public class Member extends BaseTimeEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Images image;
+    private Image image;
 
     @Builder
     private Member(
             @Nullable Long id,
             String nickname,
             String introduction,
-            @Nullable Images image) {
+            @Nullable Image image) {
         this.id = id;
         this.nickname = nickname;
         this.introduction = introduction;
