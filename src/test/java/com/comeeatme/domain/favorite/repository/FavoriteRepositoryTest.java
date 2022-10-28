@@ -69,4 +69,52 @@ class FavoriteRepositoryTest {
         )).isFalse();
     }
 
+    @Test
+    void findByGroupAndRestaurant() {
+        Favorite favorite = favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .group(FavoriteGroup.builder().id(3L).build())
+                .build());
+
+        // when
+        Favorite result = favoriteRepository.findByGroupAndRestaurant(
+                FavoriteGroup.builder().id(3L).build(),
+                Restaurant.builder().id(2L).build()
+        ).orElseThrow();
+
+        // then
+        assertThat(result.getId()).isEqualTo(favorite.getId());
+    }
+
+    @Test
+    void findByGroupAndRestaurant_GroupNotEqual() {
+        Favorite favorite = favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .group(FavoriteGroup.builder().id(3L).build())
+                .build());
+
+        // expected
+        assertThat(favoriteRepository.findByGroupAndRestaurant(
+                FavoriteGroup.builder().id(4L).build(),
+                Restaurant.builder().id(2L).build()
+        )).isEmpty();
+    }
+
+    @Test
+    void findByGroupAndRestaurant_RestaurantNotEqual() {
+        Favorite favorite = favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .group(FavoriteGroup.builder().id(3L).build())
+                .build());
+
+        // expected
+        assertThat(favoriteRepository.findByGroupAndRestaurant(
+                FavoriteGroup.builder().id(3L).build(),
+                Restaurant.builder().id(4L).build()
+        )).isEmpty();
+    }
+
 }

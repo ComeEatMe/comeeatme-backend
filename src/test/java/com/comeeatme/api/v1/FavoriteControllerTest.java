@@ -22,6 +22,7 @@ import static org.mockito.BDDMockito.then;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -42,7 +43,7 @@ class FavoriteControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 맛집 즐겨찾기 - DOCS")
+    @DisplayName("맛집 즐겨찾기 - DOCS")
     void put_Docs() throws Exception {
         mockMvc.perform(put("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
                         .with(csrf())
@@ -62,7 +63,7 @@ class FavoriteControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 맛집 즐겨찾기 (그룹 지정 X) - DOCS")
+    @DisplayName("맛집 즐겨찾기 (그룹 지정 X) - DOCS")
     void put_GroupNull_Docs() throws Exception {
         mockMvc.perform(put("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
@@ -78,4 +79,44 @@ class FavoriteControllerTest {
                 ));
         then(favoriteService).should().favorite(eq(1L), anyString(), eq(null));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("맛집 즐겨찾기 취소 - DOCS")
+    void delete_Docs() throws Exception {
+        mockMvc.perform(delete("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
+                        .with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isNoContent())
+                .andDo(document("v1-favorite-delete",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("groupName").description("맛집 즐겨찾기 그룹"),
+                                parameterWithName("restaurantId").description("음식점 ID")
+                        )
+                ));
+        then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq("그루비룸"));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("맛집 즐겨찾기 취소 (그룹 지정 X) - DOCS")
+    void delete_GroupNull_Docs() throws Exception {
+        mockMvc.perform(delete("/v1/member/favorite/{restaurantId}", 1L)
+                        .with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isNoContent())
+                .andDo(document("v1-favorite-delete-group-null",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("restaurantId").description("음식점 ID")
+                        )
+                ));
+        then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq(null));
+    }
+
 }

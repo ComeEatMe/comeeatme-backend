@@ -121,4 +121,53 @@ class FavoriteServiceTest {
                 .isInstanceOf(AlreadyFavoriteException.class);
     }
 
+    @Test
+    void cancelFavorite() {
+        // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
+
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+
+        FavoriteGroup group = mock(FavoriteGroup.class);
+        given(favoriteGroupRepository.findByMemberAndName(member, "그루비룸"))
+                .willReturn(Optional.of(group));
+
+        Favorite favorite = mock(Favorite.class);
+        given(favoriteRepository.findByGroupAndRestaurant(group, restaurant))
+                .willReturn(Optional.of(favorite));
+
+        // when
+        favoriteService.cancelFavorite(1L, "username", "그루비룸");
+
+        // then
+        then(favoriteRepository).should().delete(favorite);
+        then(group).should().decrFavoriteCount();
+    }
+
+    @Test
+    void cancelFavorite_GroupNull() {
+        // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
+
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+
+        Favorite favorite = mock(Favorite.class);
+        given(favoriteRepository.findByGroupAndRestaurant(null, restaurant))
+                .willReturn(Optional.of(favorite));
+
+        // when
+        favoriteService.cancelFavorite(1L, "username", null);
+
+        // then
+        then(favoriteRepository).should().delete(favorite);
+    }
+
 }
