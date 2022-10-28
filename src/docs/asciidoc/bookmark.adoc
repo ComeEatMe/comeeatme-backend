@@ -39,3 +39,9 @@ operation::v1-bookmark-cancel-bookmark-group-null[snippets='http-request,request
 === Response
 
 operation::v1-bookmark-cancel-bookmark[snippets='http-response']
+
+
+[[v1-bookmark-get-bookmark-groups]]
+== 북마크 그룹 리스트 조회
+
+operation::v1-bookmark-get-bookmark-groups[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
