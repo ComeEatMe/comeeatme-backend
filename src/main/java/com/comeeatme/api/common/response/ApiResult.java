@@ -1,4 +1,4 @@
-package com.comeeatme.api.common.dto;
+package com.comeeatme.api.common.response;
 
 import com.comeeatme.error.dto.ErrorResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,6 +1,6 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.security.annotation.CurrentUsername;

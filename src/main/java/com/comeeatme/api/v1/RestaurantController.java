@@ -1,6 +1,6 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;

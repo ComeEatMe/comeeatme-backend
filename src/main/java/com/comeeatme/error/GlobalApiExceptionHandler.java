@@ -1,6 +1,6 @@
 package com.comeeatme.error;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.error.dto.ErrorResponse;
 import com.comeeatme.error.exception.BusinessException;
 import com.comeeatme.error.exception.ErrorCode;

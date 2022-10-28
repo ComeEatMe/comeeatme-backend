@@ -1,6 +1,6 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.member.request.MemberEdit;

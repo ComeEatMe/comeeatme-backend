@@ -1,6 +1,6 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.security.annotation.CurrentUsername;
