@@ -20,6 +20,7 @@
 - xref:bookmark.adoc[Bookmark]
 - xref:comment.adoc[Comment]
 - xref:restaurant.adoc[Restaurant]
+- xref:favorite.adoc[Favorite]
 
 == HTTP Method
 

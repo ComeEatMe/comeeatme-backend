@@ -1,0 +1,25 @@
+= Favorite
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-bookmark-bookmark]]
+== 음식점 맛집 즐겨찾기
+
+=== 그룹 지정 O 요청
+
+operation::v1-favorite-put[snippets='http-request,request-headers,path-parameters']
+
+=== 그룹 지정 X 요청
+
+operation::v1-favorite-put-group-null[snippets='http-request,request-headers,path-parameters']
+
+=== Response
+
+operation::v1-favorite-put[snippets='http-response']
