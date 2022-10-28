@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -115,6 +117,34 @@ class FavoriteRepositoryTest {
                 FavoriteGroup.builder().id(3L).build(),
                 Restaurant.builder().id(4L).build()
         )).isEmpty();
+    }
+
+    @Test
+    void countByMember() {
+        // given
+        favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .member(Member.builder().id(1L).build())
+                        .restaurant(Restaurant.builder().id(2L).build())
+                        .group(FavoriteGroup.builder().id(3L).build())
+                        .build(),
+                Favorite.builder()
+                        .member(Member.builder().id(1L).build())
+                        .restaurant(Restaurant.builder().id(4L).build())
+                        .group(FavoriteGroup.builder().id(4L).build())
+                        .build(),
+                Favorite.builder()
+                        .member(Member.builder().id(2L).build())
+                        .restaurant(Restaurant.builder().id(5L).build())
+                        .group(FavoriteGroup.builder().id(3L).build())
+                        .build()
+        ));
+
+        // when
+        int result = favoriteRepository.countByMember(Member.builder().id(1L).build());
+
+        // then
+        assertThat(result).isEqualTo(2);
     }
 
 }

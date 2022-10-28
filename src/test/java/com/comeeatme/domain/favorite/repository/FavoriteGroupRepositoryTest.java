@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -65,6 +67,31 @@ class FavoriteGroupRepositoryTest {
         assertThat(favoriteGroupRepository.findByMemberAndName(
                 Member.builder().id(2L).build(), "그루"
         )).isEmpty();
+    }
+
+    @Test
+    void findAllByMember() {
+        // given
+        favoriteGroupRepository.saveAll(List.of(
+                FavoriteGroup.builder()
+                        .name("그루비룸-1")
+                        .favoriteCount(0)
+                        .member(Member.builder().id(1L).build())
+                        .build(),
+                FavoriteGroup.builder()
+                        .name("그루비룸-2")
+                        .favoriteCount(0)
+                        .member(Member.builder().id(2L).build())
+                        .build()
+        ));
+
+        // when
+        List<FavoriteGroup> result = favoriteGroupRepository.findAllByMember(Member.builder().id(1L).build());
+
+        // then
+        assertThat(result)
+                .hasSize(1)
+                .extracting("name").containsExactly("그루비룸-1");
     }
 
 }
