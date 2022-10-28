@@ -4,6 +4,7 @@ import com.comeeatme.domain.favorite.Favorite;
 import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
+import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,6 +72,24 @@ public class FavoriteService {
                 .ifPresent(FavoriteGroup::decrFavoriteCount);
     }
 
+    public List<FavoriteGroupDto> getAllGroupsOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<FavoriteGroup> groups = favoriteGroupRepository.findAllByMember(member);
+        int allCount = favoriteRepository.countByMember(member);
+        List<FavoriteGroupDto> groupDtos = new ArrayList<>();
+        groupDtos.add(FavoriteGroupDto.builder()
+                .name(FavoriteGroup.ALL_NAME)
+                .favoriteCount(allCount)
+                .build());
+        groups.stream()
+                .map(group -> FavoriteGroupDto.builder()
+                        .name(group.getName())
+                        .favoriteCount(group.getFavoriteCount())
+                        .build())
+                .forEach(groupDtos::add);
+        return groupDtos;
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
@@ -79,6 +100,12 @@ public class FavoriteService {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
     }
 
     private FavoriteGroup getFavoriteGroupByMemberAndName(Member member, String name) {
