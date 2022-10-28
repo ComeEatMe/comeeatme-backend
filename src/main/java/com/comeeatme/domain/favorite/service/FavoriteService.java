@@ -53,6 +53,22 @@ public class FavoriteService {
                 .ifPresent(FavoriteGroup::incrFavoriteCount);
     }
 
+    @Transactional
+    public void cancelFavorite(Long restaurantId, String username, String groupName) {
+        Restaurant restaurant = getRestaurantById(restaurantId);
+        Member member = getMemberByUsername(username);
+        FavoriteGroup group = Optional.ofNullable(groupName)
+                .map(name -> getFavoriteGroupByMemberAndName(member, name))
+                .orElse(null);
+        Favorite favorite = favoriteRepository.findByGroupAndRestaurant(group, restaurant)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "group=" + groupName + ", restaurant.id" + restaurantId));
+
+        favoriteRepository.delete(favorite);
+        Optional.ofNullable(group)
+                .ifPresent(FavoriteGroup::decrFavoriteCount);
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)

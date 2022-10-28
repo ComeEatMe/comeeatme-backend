@@ -21,4 +21,12 @@ public class FavoriteController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
+    public ResponseEntity<Void> delete(
+            @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
+            @CurrentUsername String username) {
+        favoriteService.cancelFavorite(restaurantId, username, groupName);
+        return ResponseEntity.noContent().build();
+    }
+
 }
