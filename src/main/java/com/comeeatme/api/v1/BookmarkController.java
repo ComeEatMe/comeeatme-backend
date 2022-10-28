@@ -1,10 +1,14 @@
 package com.comeeatme.api.v1;
 
+import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/v1")
 @RestController
@@ -29,4 +33,10 @@ public class BookmarkController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/members/{memberId}/bookmark-groups")
+    public ResponseEntity<ApiResult<List<BookmarkGroupDto>>> getBookmarkGroups(@PathVariable Long memberId) {
+        List<BookmarkGroupDto> groups = bookmarkService.getAllGroupsOfMember(memberId);
+        ApiResult<List<BookmarkGroupDto>> apiResult = ApiResult.success(groups);
+        return ResponseEntity.ok(apiResult);
+    }
 }

@@ -4,6 +4,7 @@ import com.comeeatme.domain.bookmark.Bookmark;
 import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
+import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -15,7 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,6 +63,23 @@ public class BookmarkService {
         bookmarkRepository.delete(bookmark);
     }
 
+    public List<BookmarkGroupDto> getAllGroupsOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<BookmarkGroup> groups = bookmarkGroupRepository.findAllByMember(member);
+        int allCount = bookmarkRepository.countByMember(member);
+        List<BookmarkGroupDto> groupDtos = new ArrayList<>();
+        groupDtos.add(BookmarkGroupDto.builder()
+                .name(BookmarkGroup.ALL_NAME)
+                .bookmarkCount(allCount)
+                .build());
+        groupDtos.addAll(groups.stream().map(group -> BookmarkGroupDto.builder()
+                        .name(group.getName())
+                        .bookmarkCount(group.getBookmarkCount())
+                        .build())
+                .collect(Collectors.toList()));
+        return groupDtos;
+    }
+
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)
@@ -71,6 +92,13 @@ public class BookmarkService {
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
     }
 
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
+    }
+
+    @Nullable
     private BookmarkGroup getBookmarkGroupByMemberAndName(Member member, @Nullable String name) {
         return Optional.ofNullable(name)
                 .map(groupName -> bookmarkGroupRepository.findByMemberAndName(member, groupName)
