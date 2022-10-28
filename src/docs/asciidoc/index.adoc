@@ -20,6 +20,7 @@
 - xref:bookmark.adoc[Bookmark]
 - xref:comment.adoc[Comment]
 - xref:restaurant.adoc[Restaurant]
+- xref:favorite.adoc[Favorite]
 
 == HTTP Method
 
@@ -105,3 +106,9 @@ operation::common-ApiResult-error[snippets='http-response,response-fields']
 === 필드 에러
 
 operation::common-ApiResult-field-error[snippets='http-response,response-fields']
+
+
+[[error-codes]]
+== 에러 코드
+
+include::{snippets}/docs-error-codes/http-response.adoc[]

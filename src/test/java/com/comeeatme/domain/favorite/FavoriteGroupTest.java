@@ -1,7 +1,7 @@
-package com.comeeatme.domain.bookmark;
+package com.comeeatme.domain.favorite;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
+import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.member.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,68 +17,68 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 @Transactional
 @Import(TestJpaConfig.class)
-class BookmarkGroupTest {
+class FavoriteGroupTest {
 
     @Autowired
-    private BookmarkGroupRepository bookmarkGroupRepository;
+    private FavoriteGroupRepository favoriteGroupRepository;
 
     @Test
     void createAndSave() {
-        assertThatNoException().isThrownBy(() -> bookmarkGroupRepository.save(
-                BookmarkGroup.builder()
+        assertThatNoException().isThrownBy(() -> favoriteGroupRepository.save(
+                FavoriteGroup.builder()
                         .member(Member.builder().id(1L).build())
-                        .name("데이트")
-                        .bookmarkCount(0)
-                        .build())
-        );
+                        .name("그루비룸")
+                        .favoriteCount(0)
+                        .build()
+        ));
     }
 
     @Test
     void Unique_Member_Name() {
-        assertThatThrownBy(() -> bookmarkGroupRepository.saveAll(List.of(
-                BookmarkGroup.builder()
+        assertThatThrownBy(() -> favoriteGroupRepository.saveAll(List.of(
+                FavoriteGroup.builder()
                         .member(Member.builder().id(1L).build())
-                        .name("데이트")
-                        .bookmarkCount(0)
+                        .name("그루비룸")
+                        .favoriteCount(0)
                         .build(),
-                BookmarkGroup.builder()
+                FavoriteGroup.builder()
                         .member(Member.builder().id(1L).build())
-                        .name("데이트")
-                        .bookmarkCount(0)
+                        .name("그루비룸")
+                        .favoriteCount(0)
                         .build()
-                ))).isInstanceOf(DataIntegrityViolationException.class);;
+        ))).isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
-    void incrBookmarkCount() {
+    void incrFavoriteCount() {
         // given
-        BookmarkGroup group = BookmarkGroup.builder()
+        FavoriteGroup group = FavoriteGroup.builder()
                 .member(Member.builder().id(1L).build())
                 .name("그루비룸")
-                .bookmarkCount(10)
+                .favoriteCount(10)
                 .build();
 
         // when
-        group.incrBookmarkCount();
+        group.incrFavoriteCount();
 
         // then
-        assertThat(group.getBookmarkCount()).isEqualTo(11);
+        assertThat(group.getFavoriteCount()).isEqualTo(11);
     }
 
     @Test
-    void decrBookmarkCount() {
+    void decrFavoriteCount() {
         // given
-        BookmarkGroup group = BookmarkGroup.builder()
+        FavoriteGroup group = FavoriteGroup.builder()
                 .member(Member.builder().id(1L).build())
                 .name("그루비룸")
-                .bookmarkCount(10)
+                .favoriteCount(10)
                 .build();
 
         // when
-        group.decrBookmarkCount();
+        group.incrFavoriteCount();
 
         // then
-        assertThat(group.getBookmarkCount()).isEqualTo(9);
+        assertThat(group.getFavoriteCount()).isEqualTo(11);
     }
 
 }

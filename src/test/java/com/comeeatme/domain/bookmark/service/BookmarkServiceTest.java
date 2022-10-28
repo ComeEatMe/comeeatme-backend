@@ -71,6 +71,8 @@ class BookmarkServiceTest {
         assertThat(captorValue.getMember()).isEqualTo(member);
         assertThat(captorValue.getGroup()).isEqualTo(group);
         assertThat(captorValue.getPost()).isEqualTo(post);
+
+        then(group).should().incrBookmarkCount();
     }
 
     @Test
@@ -142,6 +144,8 @@ class BookmarkServiceTest {
 
         // then
         then(bookmarkRepository).should().delete(bookmark);
+
+        then(group).should().decrBookmarkCount();
     }
 
     @Test

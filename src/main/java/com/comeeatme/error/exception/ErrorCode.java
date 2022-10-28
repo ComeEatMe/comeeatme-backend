@@ -21,8 +21,9 @@ public enum ErrorCode {
     INVALID_IMAGE(SC_BAD_REQUEST, "잘못된 이미지를 업로드하였습니다."),
     INVALID_IMAGE_ID(SC_BAD_REQUEST, "잘못된 이미지 ID 입니다."),
 
-    ALREADY_LIKED_POST(SC_BAD_REQUEST, "이미 좋아요한 게시물입니다."),
-    ALREADY_BOOKMARKED(SC_BAD_REQUEST, "이미 북마크된 게시물입니다."),
+    ALREADY_LIKED_POST(SC_CONFLICT, "이미 좋아요한 게시물입니다."),
+    ALREADY_BOOKMARKED(SC_CONFLICT, "이미 북마크된 게시물입니다."),
+    ALREADY_FAVORITE(SC_CONFLICT, "이미지 맛집 등록한 음식점입니다."),
     ;
 
     private final int status;
