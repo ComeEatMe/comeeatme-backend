@@ -2,6 +2,7 @@ package com.comeeatme.domain.like.service;
 
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.like.repository.LikeRepository;
+import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -123,20 +124,29 @@ class LikeServiceTest {
     }
 
     @Test
-    void isLiked_username() {
+    void isLiked() {
+        // given
+        Post post1 = mock(Post.class);
+        given(post1.getId()).willReturn(1L);
+        Like like1 = mock(Like.class);
+        given(like1.getPost()).willReturn(post1);
+
+        Post post2 = mock(Post.class);
+        given(post2.getId()).willReturn(2L);
+        Like like2 = mock(Like.class);
+        given(like2.getPost()).willReturn(post2);
+
+        List<Like> likes = List.of(like1, like2);
+        given(likesRepository.findByMemberIdAndPostIds(3L, List.of(1L, 2L, 3L)))
+                .willReturn(likes);
+
         // when
-        likeService.isLiked(List.of(1L, 2L), "username");
+        List<PostLiked> result = likeService.isLiked(3L, List.of(1L, 2L, 3L));
 
         // then
-        then(likesRepository).should().existsByPostIdsAndUsername(List.of(1L, 2L), "username");
+        assertThat(result).hasSize(3);
+        assertThat(result).extracting("postId").containsExactly(1L, 2L, 3L);
+        assertThat(result).extracting("liked").containsExactly(true, true, false);
     }
 
-    @Test
-    void isLiked_memberId() {
-        // when
-        likeService.isLiked(List.of(1L, 2L), 3L);
-
-        // then
-        then(likesRepository).should().existsByPostIdsAndMemberId(List.of(1L, 2L), 3L);
-    }
 }

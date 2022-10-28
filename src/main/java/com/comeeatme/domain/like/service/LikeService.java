@@ -2,7 +2,7 @@ package com.comeeatme.domain.like.service;
 
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.like.repository.LikeRepository;
-import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -52,12 +54,17 @@ public class LikeService {
         likesRepository.delete(like);
     }
 
-    public List<LikedResult> isLiked(List<Long> postIds, String username) {
-        return likesRepository.existsByPostIdsAndUsername(postIds, username);
-    }
-
-    public List<LikedResult> isLiked(List<Long> postIds, Long memberId) {
-        return likesRepository.existsByPostIdsAndMemberId(postIds, memberId);
+    public List<PostLiked> isLiked(Long memberId, List<Long> postIds) {
+        List<Like> likes = likesRepository.findByMemberIdAndPostIds(memberId, postIds);
+        Set<Long> existingPostIds = likes.stream()
+                .map(like -> like.getPost().getId())
+                .collect(Collectors.toSet());
+        return postIds.stream()
+                .map(postId -> PostLiked.builder()
+                        .postId(postId)
+                        .liked(existingPostIds.contains(postId))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     private Post getPostById(Long postId) {

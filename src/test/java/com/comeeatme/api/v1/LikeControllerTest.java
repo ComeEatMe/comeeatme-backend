@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -94,13 +94,13 @@ class LikeControllerTest {
     @DisplayName("게시물 좋아요 여부 조회 - 문서")
     void getLiked_Docs() throws Exception {
         // given
-        given(likeService.isLiked(List.of(1L, 2L), 3L))
+        given(likeService.isLiked(3L, List.of(1L, 2L)))
                 .willReturn(List.of(
-                        LikedResult.builder()
+                        PostLiked.builder()
                                 .postId(1L)
                                 .liked(true)
                                 .build(),
-                        LikedResult.builder()
+                        PostLiked.builder()
                                 .postId(2L)
                                 .liked(false)
                                 .build()
