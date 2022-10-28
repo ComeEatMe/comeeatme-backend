@@ -47,4 +47,12 @@ public class BookmarkGroup extends BaseCreatedAtEntity {
         this.name = name;
         this.bookmarkCount = bookmarkCount;
     }
+
+    public void incrBookmarkCount() {
+        bookmarkCount += 1;
+    }
+
+    public void decrBookmarkCount() {
+        bookmarkCount -= 1;
+    }
 }

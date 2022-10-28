@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -49,4 +48,37 @@ class BookmarkGroupTest {
                         .build()
                 ))).isInstanceOf(DataIntegrityViolationException.class);;
     }
+
+    @Test
+    void incrBookmarkCount() {
+        // given
+        BookmarkGroup group = BookmarkGroup.builder()
+                .member(Member.builder().id(1L).build())
+                .name("그루비룸")
+                .bookmarkCount(10)
+                .build();
+
+        // when
+        group.incrBookmarkCount();
+
+        // then
+        assertThat(group.getBookmarkCount()).isEqualTo(11);
+    }
+
+    @Test
+    void decrBookmarkCount() {
+        // given
+        BookmarkGroup group = BookmarkGroup.builder()
+                .member(Member.builder().id(1L).build())
+                .name("그루비룸")
+                .bookmarkCount(10)
+                .build();
+
+        // when
+        group.decrBookmarkCount();
+
+        // then
+        assertThat(group.getBookmarkCount()).isEqualTo(9);
+    }
+
 }

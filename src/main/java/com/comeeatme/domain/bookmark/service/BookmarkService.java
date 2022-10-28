@@ -51,6 +51,7 @@ public class BookmarkService {
                 .group(group)
                 .post(post)
                 .build());
+        Optional.ofNullable(group).ifPresent(BookmarkGroup::incrBookmarkCount);
     }
 
     @Transactional
@@ -61,6 +62,7 @@ public class BookmarkService {
         Bookmark bookmark = bookmarkRepository.findByGroupAndPost(group, post)
                 .orElseThrow(() -> new EntityNotFoundException("group=" + groupName + ", post.id=" + postId));
         bookmarkRepository.delete(bookmark);
+        Optional.ofNullable(group).ifPresent(BookmarkGroup::decrBookmarkCount);
     }
 
     public List<BookmarkGroupDto> getAllGroupsOfMember(Long memberId) {
