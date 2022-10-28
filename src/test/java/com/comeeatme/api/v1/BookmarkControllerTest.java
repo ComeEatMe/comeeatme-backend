@@ -1,6 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.bookmark.BookmarkGroup;
+import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -13,21 +15,26 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(RestDocsConfig.class)
@@ -122,6 +129,51 @@ class BookmarkControllerTest {
                         )
                 ));
         then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq(null));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("북마크 그룹 리스트 조회 - DOCS")
+    void getBookmarkGroups_Docs() throws Exception {
+        // given
+        List<BookmarkGroupDto> groups = List.of(
+                BookmarkGroupDto.builder()
+                        .name(BookmarkGroup.ALL_NAME)
+                        .bookmarkCount(10)
+                        .build(),
+                BookmarkGroupDto.builder()
+                        .name("그루비룸")
+                        .bookmarkCount(2)
+                        .build(),
+                BookmarkGroupDto.builder()
+                        .name("국밥")
+                        .bookmarkCount(3)
+                        .build()
+        );
+        given(bookmarkService.getAllGroupsOfMember(1L)).willReturn(groups);
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}/bookmark-groups", 1L)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-bookmark-get-bookmark-groups",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("name").description("북마크 그룹 이름. 모든 북마크는 " +
+                                        BookmarkGroup.ALL_NAME + " 그룹에 포함되어 있음."),
+                                fieldWithPath("bookmarkCount").type(Integer.class.getSimpleName())
+                                        .description("북마크 그룹에 포함된 북마크 개수")
+                        )
+                ));
     }
 
 }

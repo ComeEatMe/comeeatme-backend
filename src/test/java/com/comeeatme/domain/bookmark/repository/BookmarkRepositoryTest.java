@@ -11,8 +11,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -134,6 +135,34 @@ class BookmarkRepositoryTest {
                 BookmarkGroup.builder().id(30L).build(),
                 Post.builder().id(40L).build()
         )).isEmpty();
+    }
+
+    @Test
+    void countByMember() {
+        // given
+        bookmarkRepository.saveAll(List.of(
+                Bookmark.builder()
+                        .member(Member.builder().id(1L).build())
+                        .post(Post.builder().id(2L).build())
+                        .group(BookmarkGroup.builder().id(3L).build())
+                        .build(),
+                Bookmark.builder()
+                        .member(Member.builder().id(1L).build())
+                        .post(Post.builder().id(3L).build())
+                        .group(BookmarkGroup.builder().id(3L).build())
+                        .build(),
+                Bookmark.builder()
+                        .member(Member.builder().id(2L).build())
+                        .post(Post.builder().id(4L).build())
+                        .group(BookmarkGroup.builder().id(3L).build())
+                        .build()
+        ));
+
+        // when
+        int result = bookmarkRepository.countByMember(Member.builder().id(1L).build());
+
+        // then
+        assertThat(result).isEqualTo(2);
     }
 
 }

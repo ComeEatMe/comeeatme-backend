@@ -4,6 +4,7 @@ import com.comeeatme.domain.bookmark.Bookmark;
 import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
+import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,6 +142,33 @@ class BookmarkServiceTest {
 
         // then
         then(bookmarkRepository).should().delete(bookmark);
+    }
+
+    @Test
+    void getAllGroupsOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        BookmarkGroup group1 = mock(BookmarkGroup.class);
+        given(group1.getName()).willReturn("그루비룸-1");
+        given(group1.getBookmarkCount()).willReturn(1);
+
+        BookmarkGroup group2 = mock(BookmarkGroup.class);
+        given(group2.getName()).willReturn("그루비룸-2");
+        given(group2.getBookmarkCount()).willReturn(2);
+        given(bookmarkGroupRepository.findAllByMember(member)).willReturn(List.of(group1, group2));
+
+        given(bookmarkRepository.countByMember(member)).willReturn(10);
+
+        // when
+        List<BookmarkGroupDto> result = bookmarkService.getAllGroupsOfMember(1L);
+
+        // then
+        assertThat(result).hasSize(3);
+        assertThat(result).extracting("name").containsExactly(BookmarkGroup.ALL_NAME, "그루비룸-1", "그루비룸-2");
+        assertThat(result).extracting("bookmarkCount").containsExactly(10, 1, 2);
     }
 
 }

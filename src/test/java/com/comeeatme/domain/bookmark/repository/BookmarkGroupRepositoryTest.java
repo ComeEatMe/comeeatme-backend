@@ -9,8 +9,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -66,6 +67,31 @@ class BookmarkGroupRepositoryTest {
         assertThat(bookmarkGroupRepository.findByMemberAndName(
                 Member.builder().id(10L).build(), "그루"
         )).isEmpty();
+    }
+
+    @Test
+    void findAllByMember() {
+        // given
+        bookmarkGroupRepository.saveAll(List.of(
+                BookmarkGroup.builder()
+                        .name("그루비룸-1")
+                        .bookmarkCount(0)
+                        .member(Member.builder().id(10L).build())
+                        .build(),
+                BookmarkGroup.builder()
+                        .name("그루비룸-2")
+                        .bookmarkCount(0)
+                        .member(Member.builder().id(20L).build())
+                        .build()
+        ));
+
+        // when
+        List<BookmarkGroup> result = bookmarkGroupRepository.findAllByMember(Member.builder().id(10L).build());
+
+        // then
+        assertThat(result)
+                .hasSize(1)
+                .extracting("name").containsExactly("그루비룸-1");
     }
 
 }
