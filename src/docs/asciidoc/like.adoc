@@ -19,9 +19,3 @@ operation::v1-like-like[snippets='http-request,request-headers,path-parameters,h
 == 게시물 좋아요 취소
 
 operation::v1-like-unlike[snippets='http-request,request-headers,path-parameters,http-response']
-
-
-[[v1-like-get-liked]]
-== 게시물 좋아요 여부 조회
-
-operation::v1-like-get-liked[snippets='http-request,request-headers,request-parameters,http-response,response-fields-data']
