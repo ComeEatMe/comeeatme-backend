@@ -101,4 +101,32 @@ class LikeRepositoryCustomTest {
                 .extracting("id").containsExactly(likes.get(0).getId(), likes.get(1).getId());
     }
 
+    @Test
+    void deleteAllByPost() {
+        // given
+        List<Like> likes = likeRepository.saveAll(List.of(
+                Like.builder()
+                        .member(Member.builder().id(10L).build())
+                        .post(Post.builder().id(1L).build())
+                        .build(),
+                Like.builder()
+                        .member(Member.builder().id(10L).build())
+                        .post(Post.builder().id(2L).build())
+                        .build(),
+                Like.builder()
+                        .member(Member.builder().id(11L).build())
+                        .post(Post.builder().id(1L).build())
+                        .build()
+        ));
+
+        // when
+        likeRepository.deleteAllByPost(Post.builder().id(1L).build());
+
+        // then
+        List<Like> foundLikes = likeRepository.findAll();
+        assertThat(foundLikes)
+                .hasSize(1)
+                .extracting("id").containsOnly(likes.get(1).getId());
+    }
+
 }

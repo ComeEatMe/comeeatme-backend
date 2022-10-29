@@ -50,4 +50,32 @@ class BookmarkRepositoryCustomTest {
                 .extracting("id").containsExactly(bookmarks.get(0).getId(), bookmarks.get(1).getId());
     }
 
+    @Test
+    void deleteAllByPost() {
+        // given
+        List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
+                Bookmark.builder()
+                        .member(Member.builder().id(10L).build())
+                        .post(Post.builder().id(1L).build())
+                        .build(),
+                Bookmark.builder()
+                        .member(Member.builder().id(10L).build())
+                        .post(Post.builder().id(2L).build())
+                        .build(),
+                Bookmark.builder()
+                        .member(Member.builder().id(11L).build())
+                        .post(Post.builder().id(1L).build())
+                        .build()
+        ));
+
+        // when
+        bookmarkRepository.deleteAllByPost(Post.builder().id(1L).build());
+
+        // then
+        List<Bookmark> foundBookmarks = bookmarkRepository.findAll();
+        assertThat(foundBookmarks)
+                .hasSize(1)
+                .extracting("id").containsOnly(bookmarks.get(1).getId());
+    }
+
 }

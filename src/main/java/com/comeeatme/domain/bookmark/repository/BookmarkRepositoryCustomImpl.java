@@ -1,6 +1,7 @@
 package com.comeeatme.domain.bookmark.repository;
 
 import com.comeeatme.domain.bookmark.Bookmark;
+import com.comeeatme.domain.post.Post;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -22,4 +23,13 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
                         bookmark.post.id.in(postIds)
                 ).fetch();
     }
+
+    @Override
+    public void deleteAllByPost(Post post) {
+        query
+                .delete(bookmark)
+                .where(bookmark.post.eq(post))
+                .execute();
+    }
+
 }

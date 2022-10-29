@@ -1,5 +1,6 @@
 package com.comeeatme.domain.post.service;
 
+import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
@@ -55,7 +56,9 @@ public class PostService {
 
     private final CommentRepository commentRepository;
 
-    private final LikeRepository likesRepository;
+    private final LikeRepository likeRepository;
+
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional
     public CreateResult<Long> create(PostCreate postCreate, String username) {
@@ -100,6 +103,8 @@ public class PostService {
         Post post = getPostById(postId);
         commentRepository.findAllByPostAndUseYnIsTrue(post)
                 .forEach(Comment::delete);
+        likeRepository.deleteAllByPost(post);
+        bookmarkRepository.deleteAllByPost(post);
         post.delete();
         return new DeleteResult<>(post.getId());
     }
@@ -114,7 +119,7 @@ public class PostService {
         Map<Long, CommentCount> postIdToCommentCount = commentRepository.countsGroupByPosts(posts.getContent())
                 .stream()
                 .collect(Collectors.toMap(CommentCount::getPostId, Function.identity()));
-        Map<Long, LikeCount> postIdToLikeCount = likesRepository.countsGroupByPosts(posts.getContent())
+        Map<Long, LikeCount> postIdToLikeCount = likeRepository.countsGroupByPosts(posts.getContent())
                 .stream()
                 .collect(Collectors.toMap(LikeCount::getPostId, Function.identity()));
         return posts.map(post -> PostDto.of(post,
@@ -162,4 +167,5 @@ public class PostService {
                 .filter(Post::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
+
 }

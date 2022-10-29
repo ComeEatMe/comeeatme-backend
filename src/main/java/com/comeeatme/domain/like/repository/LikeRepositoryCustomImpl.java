@@ -37,4 +37,12 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
                 ).fetch();
     }
 
+    @Override
+    public void deleteAllByPost(Post post) {
+        query
+                .delete(like)
+                .where(like.post.eq(post))
+                .execute();
+    }
+
 }

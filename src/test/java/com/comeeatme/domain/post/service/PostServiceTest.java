@@ -1,5 +1,6 @@
 package com.comeeatme.domain.post.service;
 
+import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.response.CommentCount;
@@ -70,7 +71,10 @@ class PostServiceTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private LikeRepository likesRepository;
+    private LikeRepository likeRepository;
+
+    @Mock
+    private BookmarkRepository bookmarkRepository;
 
     @Test
     void create() {
@@ -237,6 +241,8 @@ class PostServiceTest {
 
         // then
         comments.forEach(comment -> then(comment).should().delete());
+        then(likeRepository).should().deleteAllByPost(post);
+        then(bookmarkRepository).should().deleteAllByPost(post);
         then(post).should().delete();
         assertThat(deleteResult.getId()).isEqualTo(1L);
     }
@@ -270,7 +276,7 @@ class PostServiceTest {
                 .willReturn(List.of(postImage1, postImage2));
         given(commentRepository.countsGroupByPosts(postSlice.getContent()))
                 .willReturn(List.of(new CommentCount(1L, 10L)));
-        given(likesRepository.countsGroupByPosts(postSlice.getContent()))
+        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
                 .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
