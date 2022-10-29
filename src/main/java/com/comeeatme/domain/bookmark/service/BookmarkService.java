@@ -5,6 +5,7 @@ import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
+import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -19,6 +20,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,6 +82,19 @@ public class BookmarkService {
                         .build())
                 .collect(Collectors.toList()));
         return groupDtos;
+    }
+
+    public List<PostBookmarked> isBookmarked(Long memberId, List<Long> postIds) {
+        List<Bookmark> bookmarks = bookmarkRepository.findByMemberIdAndPostIds(memberId, postIds);
+        Set<Long> existentPostIds = bookmarks.stream()
+                .map(bookmark -> bookmark.getPost().getId())
+                .collect(Collectors.toSet());
+        return postIds.stream()
+                .map(postId -> PostBookmarked.builder()
+                        .postId(postId)
+                        .bookmarked(existentPostIds.contains(postId))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     private Post getPostById(Long postId) {
