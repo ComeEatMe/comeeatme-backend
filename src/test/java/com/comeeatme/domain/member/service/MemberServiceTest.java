@@ -139,6 +139,38 @@ class MemberServiceTest {
     }
 
     @Test
+    void edit_DiffMemberImageAndImage_EditedImageNull() {
+        // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getId()).willReturn(2L);
+
+        Member member = Member.builder()
+                .id(1L)
+                .nickname("nickname")
+                .introduction("introduction")
+                .image(memberImage)
+                .build();
+        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+
+        MemberEdit memberEdit = MemberEdit.builder()
+                .nickname("edited-nickname")
+                .introduction("edited-introduction")
+                .imageId(null)
+                .build();
+
+        // when
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
+
+        // then
+        then(memberImage).should().delete();
+        assertThat(updateResult.getId()).isEqualTo(member.getId());
+        assertThat(member.getNickname()).isEqualTo("edited-nickname");
+        assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
+        assertThat(member.getImage()).isNull();
+    }
+
+    @Test
     void checkNicknameDuplicate() {
         // given
         given(memberRepository.existsByNickname("username")).willReturn(true);

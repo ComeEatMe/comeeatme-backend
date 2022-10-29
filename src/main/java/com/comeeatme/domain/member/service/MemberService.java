@@ -63,6 +63,7 @@ public class MemberService {
         if (!Objects.equals(memberImageId, memberEdit.getImageId())) {
             if (nonNull(memberImageId)) {
                 member.getImage().delete();
+                editorBuilder.image(null);
             }
             if (nonNull(memberEdit.getImageId())) {
                 Image image = getImageById(memberEdit.getImageId());
