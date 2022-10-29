@@ -1,10 +1,16 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
+import com.comeeatme.api.common.response.WithLikedBookmarked;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.bookmark.response.PostBookmarked;
+import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.like.response.PostLiked;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
@@ -20,6 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestMapping("/v1")
 @RestController
@@ -30,12 +39,33 @@ public class PostController {
 
     private final ImageService imageService;
 
+    private final LikeService likeService;
+
+    private final BookmarkService bookmarkService;
+
+    private final AccountService accountService;
+
     @GetMapping("/posts")
-    public ResponseEntity<ApiResult<Slice<PostDto>>> getList(
-            Pageable pageable, @ModelAttribute PostSearch postSearch) {
+    public ResponseEntity<ApiResult<Slice<WithLikedBookmarked<PostDto>>>> getList(
+            Pageable pageable, @ModelAttribute PostSearch postSearch, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
         Slice<PostDto> posts = postService.getList(pageable, postSearch);
-        ApiResult<Slice<PostDto>> result = ApiResult.success(posts);
-        return ResponseEntity.ok(result);
+        List<Long> postIds = posts.stream()
+                .map(PostDto::getId)
+                .collect(Collectors.toList());
+        Map<Long, Boolean> postIdToLiked = likeService.isLiked(memberId, postIds).stream()
+                .collect(Collectors.toMap(PostLiked::getPostId, PostLiked::getLiked));
+        Map<Long, Boolean> postIdToBookmarked = bookmarkService.isBookmarked(memberId, postIds).stream()
+                .collect(Collectors.toMap(PostBookmarked::getPostId, PostBookmarked::getBookmarked));
+        Slice<WithLikedBookmarked<PostDto>> postWiths = posts
+                .map(post -> WithLikedBookmarked.<PostDto>builder()
+                        .post(post)
+                        .liked(postIdToLiked.get(post.getId()))
+                        .bookmarked(postIdToBookmarked.get(post.getId()))
+                        .build()
+                );
+        ApiResult<Slice<WithLikedBookmarked<PostDto>>> apiResult = ApiResult.success(postWiths);
+        return ResponseEntity.ok(apiResult);
     }
 
     @PostMapping("/post")
