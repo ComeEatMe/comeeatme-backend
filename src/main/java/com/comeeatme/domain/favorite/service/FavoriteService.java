@@ -5,6 +5,7 @@ import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
+import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -19,6 +20,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -88,6 +91,19 @@ public class FavoriteService {
                         .build())
                 .forEach(groupDtos::add);
         return groupDtos;
+    }
+
+    public List<RestaurantFavorited> isFavorite(Long memberId, List<Long> restaurantIds) {
+        List<Favorite> favorites = favoriteRepository.findAllByMemberIdAndRestaurantIds(memberId, restaurantIds);
+        Set<Long> favoriteRestaurantIds = favorites.stream()
+                .map(favorite -> favorite.getRestaurant().getId())
+                .collect(Collectors.toSet());
+        return restaurantIds.stream()
+                .map(restaurantId -> RestaurantFavorited.builder()
+                        .restaurantId(restaurantId)
+                        .favorited(favoriteRestaurantIds.contains(restaurantId))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     private Restaurant getRestaurantById(Long id) {
