@@ -5,6 +5,7 @@ import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
+import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -22,7 +23,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -200,6 +200,26 @@ class FavoriteServiceTest {
                 .containsExactly(FavoriteGroup.ALL_NAME, "그루비룸-1", "그루비룸-2");
         assertThat(result).extracting("favoriteCount")
                 .containsExactly(10, 2, 3);
+    }
+
+    @Test
+    void isFavorite() {
+        // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(1L);
+        Favorite favorite = mock(Favorite.class);
+        given(favorite.getRestaurant()).willReturn(restaurant);
+
+        given(favoriteRepository.findAllByMemberIdAndRestaurantIds(3L, List.of(1L, 2L)))
+                .willReturn(List.of(favorite));
+
+        // when
+        List<RestaurantFavorited> result = favoriteService.isFavorite(3L, List.of(1L, 2L));
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting("restaurantId").containsExactly(1L, 2L);
+        assertThat(result).extracting("favorited").containsExactly(true, false);
     }
 
 }
