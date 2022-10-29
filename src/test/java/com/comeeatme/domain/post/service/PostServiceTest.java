@@ -255,18 +255,18 @@ class PostServiceTest {
                 .willReturn(postSlice);
 
         Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
         given(image1.getUrl()).willReturn("image-url-1");
         PostImage postImage1 = mock(PostImage.class);
         given(postImage1.getPost()).willReturn(post);
         given(postImage1.getImage()).willReturn(image1);
 
         Image image2 = mock(Image.class);
-        given(image2.getUrl()).willReturn("image-url-2");
+        given(image2.getUseYn()).willReturn(false);
         PostImage postImage2 = mock(PostImage.class);
-        given(postImage2.getPost()).willReturn(post);
         given(postImage2.getImage()).willReturn(image2);
 
-        given(postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(postSlice.getContent()))
+        given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
                 .willReturn(List.of(postImage1, postImage2));
         given(commentRepository.countsGroupByPosts(postSlice.getContent()))
                 .willReturn(List.of(new CommentCount(1L, 10L)));
@@ -280,7 +280,7 @@ class PostServiceTest {
         List<PostDto> content = result.getContent();
         assertThat(content).hasSize(1);
         assertThat(content).extracting("id").containsExactly(1L);
-        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1");
     }
 
 }

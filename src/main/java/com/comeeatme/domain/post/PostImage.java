@@ -1,6 +1,5 @@
 package com.comeeatme.domain.post;
 
-import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.image.Image;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +17,7 @@ import javax.persistence.*;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostImage extends BaseTimeEntity {
+public class PostImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

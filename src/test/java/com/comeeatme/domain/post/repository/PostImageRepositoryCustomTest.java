@@ -88,7 +88,7 @@ class PostImageRepositoryCustomTest {
                 .post(post)
                 .image(image)
                 .build());
-        postImage.delete();
+        image.delete();
 
         // when
         Restaurant restaurant = Restaurant.builder().id(1L).build();
@@ -118,7 +118,6 @@ class PostImageRepositoryCustomTest {
                 .post(post)
                 .image(image)
                 .build());
-        postImage.delete();
 
         // when
         Restaurant restaurant = Restaurant.builder().id(2L).build();

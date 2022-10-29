@@ -106,8 +106,10 @@ public class PostService {
 
     public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {
         Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
-        List<PostImage> postImages = postImageRepository.findAllWithImagesByPostInAndUseYnIsTrue(posts.getContent());
-        Map<Long, List<PostImage>> postIdToPostImages = postImages.stream()
+        List<PostImage> postImages = postImageRepository.findAllWithImageByPostIn(posts.getContent());
+        Map<Long, List<PostImage>> postIdToPostImages = postImages
+                .stream()
+                .filter(postImage -> postImage.getImage().getUseYn())
                 .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
         Map<Long, CommentCount> postIdToCommentCount = commentRepository.countsGroupByPosts(posts.getContent())
                 .stream()
