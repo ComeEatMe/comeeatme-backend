@@ -2,19 +2,27 @@ package com.comeeatme.domain.like.service;
 
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.like.repository.LikeRepository;
-import com.comeeatme.domain.like.response.LikedResult;
+import com.comeeatme.domain.like.response.LikedPostDto;
+import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.error.exception.AlreadyLikedPostException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,9 +30,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikeService {
 
-    private final LikeRepository likesRepository;
+    private final LikeRepository likeRepository;
 
     private final PostRepository postRepository;
+
+    private final PostImageRepository postImageRepository;
 
     private final MemberRepository memberRepository;
 
@@ -32,11 +42,11 @@ public class LikeService {
     public void like(Long postId, String username) {
         Post post = getPostById(postId);
         Member member = getMemberByUsername(username);
-        if (likesRepository.existsByPostAndMember(post, member)) {
+        if (likeRepository.existsByPostAndMember(post, member)) {
             throw new AlreadyLikedPostException(String.format(
                     "post.id=%s, member.id=%s", post.getId(), member.getId()));
         }
-        likesRepository.save(Like.builder()
+        likeRepository.save(Like.builder()
                 .post(post)
                 .member(member)
                 .build());
@@ -46,24 +56,57 @@ public class LikeService {
     public void unlike(Long postId, String username) {
         Post post = getPostById(postId);
         Member member = getMemberByUsername(username);
-        Like like = likesRepository.findByPostAndMember(post, member)
+        Like like = likeRepository.findByPostAndMember(post, member)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(
                         "post.id=%s, member.id=%s", post.getId(), member.getId())));
-        likesRepository.delete(like);
+        likeRepository.delete(like);
     }
 
-    public List<LikedResult> isLiked(List<Long> postIds, String username) {
-        return likesRepository.existsByPostIdsAndUsername(postIds, username);
+    public List<PostLiked> areLiked(Long memberId, List<Long> postIds) {
+        List<Like> likes = likeRepository.findByMemberIdAndPostIds(memberId, postIds);
+        Set<Long> existingPostIds = likes.stream()
+                .map(like -> like.getPost().getId())
+                .collect(Collectors.toSet());
+        return postIds.stream()
+                .map(postId -> PostLiked.builder()
+                        .postId(postId)
+                        .liked(existingPostIds.contains(postId))
+                        .build()
+                ).collect(Collectors.toList());
     }
 
-    public List<LikedResult> isLiked(List<Long> postIds, Long memberId) {
-        return likesRepository.existsByPostIdsAndMemberId(postIds, memberId);
+    public Slice<LikedPostDto> getLikedPosts(Pageable pageable, Long memberId) {
+        Member member = getMemberById(memberId);
+        Slice<Post> likedPosts = likeRepository.findSliceWithPostByMember(pageable, member)
+                .map(Like::getPost);
+        Map<Long, List<PostImage>> postIdToPostImages = postImageRepository.findAllWithImageByPostIn(
+                        likedPosts.getContent())
+                .stream()
+                .filter(postImage -> postImage.getImage().getUseYn())
+                .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
+
+        return likedPosts
+                .map(post -> LikedPostDto.builder()
+                        .id(post.getId())
+                        .content(post.getContent())
+                        .createdAt(post.getCreatedAt())
+                        .imageUrls(postIdToPostImages.get(post.getId()).stream()
+                                .map(postImage -> postImage.getImage().getUrl())
+                                .collect(Collectors.toList())
+                        ).build()
+                );
     }
 
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
     }
 
     private Member getMemberByUsername(String username) {

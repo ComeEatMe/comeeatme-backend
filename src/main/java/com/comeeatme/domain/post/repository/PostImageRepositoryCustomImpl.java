@@ -26,7 +26,7 @@ public class PostImageRepositoryCustomImpl implements PostImageRepositoryCustom 
                 .join(postImage.post, post)
                 .where(
                         post.restaurant.eq(restaurant),
-                        postImage.useYn.isTrue()
+                        postImage.image.useYn.isTrue()
                 ).offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1L)
                 .fetch();

@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class LikedResult {
+public class PostLiked {
 
     private Long postId;
 
     private Boolean liked;
 
     @Builder
-    private LikedResult(Long postId, Boolean liked) {
+    private PostLiked(Long postId, Boolean liked) {
         this.postId = postId;
         this.liked = liked;
     }

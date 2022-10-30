@@ -26,7 +26,6 @@ class PostDtoTest {
         given(image.getUrl()).willReturn("image-url");
 
         PostImage postImage = mock(PostImage.class);
-        given(postImage.getUseYn()).willReturn(true);
         given(postImage.getImage()).willReturn(image);
 
         Image memberImage = mock(Image.class);

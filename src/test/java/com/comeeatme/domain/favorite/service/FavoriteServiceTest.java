@@ -5,6 +5,8 @@ import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
+import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
+import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -16,13 +18,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -200,6 +207,119 @@ class FavoriteServiceTest {
                 .containsExactly(FavoriteGroup.ALL_NAME, "그루비룸-1", "그루비룸-2");
         assertThat(result).extracting("favoriteCount")
                 .containsExactly(10, 2, 3);
+    }
+
+    @Test
+    void areFavorite() {
+        // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(1L);
+        Favorite favorite = mock(Favorite.class);
+        given(favorite.getRestaurant()).willReturn(restaurant);
+
+        given(favoriteRepository.findAllByMemberIdAndRestaurantIds(3L, List.of(1L, 2L)))
+                .willReturn(List.of(favorite));
+
+        // when
+        List<RestaurantFavorited> result = favoriteService.areFavorite(3L, List.of(1L, 2L));
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting("restaurantId").containsExactly(1L, 2L);
+        assertThat(result).extracting("favorited").containsExactly(true, false);
+    }
+
+    @Test
+    void getFavoriteRestaurants() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        FavoriteGroup group = mock(FavoriteGroup.class);
+        given(favoriteGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(2L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Favorite favorite = mock(Favorite.class);
+        given(favorite.getRestaurant()).willReturn(restaurant);
+
+        given(favoriteRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(group)))
+                .willReturn(new SliceImpl<>(List.of(favorite)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<FavoriteRestaurantDto> result = favoriteService.getFavoriteRestaurants(pageRequest, 1L, "그루비룸");
+
+        //then
+        List<FavoriteRestaurantDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(2L);
+        assertThat(content).extracting("name").containsExactly("지그재그");
+    }
+
+    @Test
+    void getFavoriteRestaurants_GroupNull() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(2L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Favorite favorite = mock(Favorite.class);
+        given(favorite.getRestaurant()).willReturn(restaurant);
+
+        given(favoriteRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(null)))
+                .willReturn(new SliceImpl<>(List.of(favorite)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<FavoriteRestaurantDto> result = favoriteService.getFavoriteRestaurants(pageRequest, 1L, null);
+
+        //then
+        List<FavoriteRestaurantDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(2L);
+        assertThat(content).extracting("name").containsExactly("지그재그");
+    }
+
+    @Test
+    void isFavorite_True() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(2L)).willReturn(Optional.of(restaurant));
+
+        given(favoriteRepository.existsByMemberAndRestaurant(member, restaurant)).willReturn(true);
+
+        // expected
+        assertThat(favoriteService.isFavorite(1L, 2L)).isTrue();
+    }
+
+    @Test
+    void isFavorite_False() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(2L)).willReturn(Optional.of(restaurant));
+
+        given(favoriteRepository.existsByMemberAndRestaurant(member, restaurant)).willReturn(false);
+
+        // expected
+        assertThat(favoriteService.isFavorite(1L, 2L)).isFalse();
     }
 
 }

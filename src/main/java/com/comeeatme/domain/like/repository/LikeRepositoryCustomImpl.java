@@ -1,23 +1,15 @@
 package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.domain.like.Like;
-import com.comeeatme.domain.like.QLike;
 import com.comeeatme.domain.like.response.LikeCount;
-import com.comeeatme.domain.like.response.LikedResult;
 import com.comeeatme.domain.like.response.QLikeCount;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
-import com.querydsl.core.types.Expression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.comeeatme.domain.account.QAccount.account;
-import static com.comeeatme.domain.member.QMember.member;
+import static com.comeeatme.domain.like.QLike.like;
 
 @RequiredArgsConstructor
 public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
@@ -27,58 +19,30 @@ public class LikeRepositoryCustomImpl implements LikeRepositoryCustom {
     @Override
     public List<LikeCount> countsGroupByPosts(List<Post> posts) {
         return query
-                .select(new QLikeCount(QLike.like.post.id, QLike.like.id.count()))
-                .from(QLike.like)
+                .select(new QLikeCount(like.post.id, like.id.count()))
+                .from(like)
                 .where(
-                        QLike.like.post.in(posts))
-                .groupBy(QLike.like.post)
+                        like.post.in(posts))
+                .groupBy(like.post)
                 .fetch();
     }
 
     @Override
-    public List<LikedResult> existsByPostIdsAndUsername(List<Long> postIds, String username) {
-        List<Like> likes = query
-                .selectFrom(QLike.like)
+    public List<Like> findByMemberIdAndPostIds(Long memberId, List<Long> postIds) {
+        return query
+                .selectFrom(like)
                 .where(
-                        QLike.like.post.id.in(postIds),
-                        QLike.like.member.eq(memberOfUsername(username))
+                        like.post.id.in(postIds),
+                        like.member.id.eq(memberId)
                 ).fetch();
-        Set<Long> existPostIds = likes.stream()
-                .map(like -> like.getPost().getId())
-                .collect(Collectors.toSet());
-        return postIds.stream()
-                .map(postId -> LikedResult.builder()
-                        .postId(postId)
-                        .liked(existPostIds.contains(postId))
-                        .build()
-                ).collect(Collectors.toList());
-    }
-
-    private Expression<Member> memberOfUsername(String username) {
-        return JPAExpressions
-                .select(member)
-                .from(account)
-                .join(account.member, member)
-                .where(account.username.eq(username));
     }
 
     @Override
-    public List<LikedResult> existsByPostIdsAndMemberId(List<Long> postIds, Long memberId) {
-        List<Like> likes = query
-                .selectFrom(QLike.like)
-                .where(
-                        QLike.like.post.id.in(postIds),
-                        QLike.like.member.id.eq(memberId)
-                ).fetch();
-        Set<Long> existPostIds = likes.stream()
-                .map(like -> like.getPost().getId())
-                .collect(Collectors.toSet());
-        return postIds.stream()
-                .map(postId -> LikedResult.builder()
-                        .postId(postId)
-                        .liked(existPostIds.contains(postId))
-                        .build()
-                ).collect(Collectors.toList());
+    public void deleteAllByPost(Post post) {
+        query
+                .delete(like)
+                .where(like.post.eq(post))
+                .execute();
     }
 
 }

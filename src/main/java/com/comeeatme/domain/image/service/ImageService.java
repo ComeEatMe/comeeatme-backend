@@ -1,5 +1,6 @@
 package com.comeeatme.domain.image.service;
 
+import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.image.response.RestaurantImage;
@@ -42,7 +43,7 @@ public class ImageService {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     @Transactional
-    public List<Long> saveImages(String username, List<Resource> images) {
+    public CreateResults<Long> saveImages(String username, List<Resource> images) {
         Member member = getMemberByUsername(username);
         List<Image> storedImages = imageRepository.saveAll(images.stream()
                 .map(image -> {
@@ -57,9 +58,10 @@ public class ImageService {
                             .build();
                 }).collect(Collectors.toList())
         );
-        return storedImages.stream()
+        List<Long> imageIds = storedImages.stream()
                 .map(Image::getId)
                 .collect(Collectors.toList());
+        return new CreateResults<>(imageIds);
     }
 
     private String createStoredName(String originalName) {

@@ -10,5 +10,5 @@ import java.util.List;
 public interface PostImageRepository extends JpaRepository<PostImage, Long>, PostImageRepositoryCustom {
 
     @EntityGraph(attributePaths = "image")
-    List<PostImage> findAllWithImagesByPostInAndUseYnIsTrue(List<Post> posts);
+    List<PostImage> findAllWithImageByPostIn(List<Post> posts);
 }

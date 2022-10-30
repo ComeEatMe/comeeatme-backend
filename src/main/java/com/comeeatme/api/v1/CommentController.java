@@ -1,6 +1,6 @@
 package com.comeeatme.api.v1;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;

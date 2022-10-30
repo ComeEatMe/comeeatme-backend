@@ -1,11 +1,9 @@
 package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.like.response.LikeCount;
-import com.comeeatme.domain.like.response.LikedResult;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
@@ -25,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LikeRepositoryCustomTest {
 
     @Autowired
-    private LikeRepository likesRepository;
+    private LikeRepository likeRepository;
 
     @Autowired
     private AccountRepository accountRepository;
@@ -36,7 +34,7 @@ class LikeRepositoryCustomTest {
     @Test
     void countsGroupByPosts() {
         // given
-        likesRepository.saveAll(List.of(
+        likeRepository.saveAll(List.of(
                 Like.builder()
                         .post(Post.builder().id(1L).build())
                         .member(Member.builder().id(1L).build())
@@ -64,7 +62,7 @@ class LikeRepositoryCustomTest {
         ));
 
         // when
-        List<LikeCount> counts = likesRepository.countsGroupByPosts(List.of(
+        List<LikeCount> counts = likeRepository.countsGroupByPosts(List.of(
                 Post.builder().id(1L).build(),
                 Post.builder().id(2L).build()
         ));
@@ -76,122 +74,59 @@ class LikeRepositoryCustomTest {
     }
 
     @Test
-    void existsByPostIdsAndUsername() {
+    void findByMemberIdAndPostIds() {
         // given
-        Member member = memberRepository.save(Member.builder()
-                .nickname("nickname-1")
-                .introduction("introduction")
-                .build());
-        Account account = accountRepository.save(
-                Account.builder()
-                        .username("username")
-                        .member(member)
-                        .build());
-        likesRepository.saveAll(List.of(
+        List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
+                        .member(Member.builder().id(10L).build())
                         .post(Post.builder().id(1L).build())
-                        .member(member)
                         .build(),
                 Like.builder()
+                        .member(Member.builder().id(10L).build())
                         .post(Post.builder().id(2L).build())
-                        .member(member)
+                        .build(),
+                Like.builder()
+                        .member(Member.builder().id(11L).build())
+                        .post(Post.builder().id(3L).build())
                         .build()
         ));
 
         // when
-        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndUsername(List.of(1L, 2L, 3L), "username");
+        List<Like> result = likeRepository.findByMemberIdAndPostIds(10L, List.of(1L, 2L, 3L));
 
         // then
-        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
-        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
-        assertThat(likedResults).extracting("liked").containsExactly(true, true, false);
+        result.sort((o1, o2) -> (int) (o1.getPost().getId() - o2.getPost().getId()));
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsExactly(likes.get(0).getId(), likes.get(1).getId());
     }
 
     @Test
-    void existsByPostIdsAndUsername_UsernameNotEqual() {
+    void deleteAllByPost() {
         // given
-        Member member = memberRepository.save(Member.builder()
-                .nickname("nickname-1")
-                .introduction("introduction")
-                .build());
-        Account account = accountRepository.save(
-                Account.builder()
-                        .username("username")
-                        .member(member)
-                        .build());
-        likesRepository.saveAll(List.of(
+        List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
+                        .member(Member.builder().id(10L).build())
                         .post(Post.builder().id(1L).build())
-                        .member(member)
                         .build(),
                 Like.builder()
+                        .member(Member.builder().id(10L).build())
                         .post(Post.builder().id(2L).build())
-                        .member(member)
+                        .build(),
+                Like.builder()
+                        .member(Member.builder().id(11L).build())
+                        .post(Post.builder().id(1L).build())
                         .build()
         ));
 
         // when
-        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndUsername(List.of(1L, 2L, 3L), "user");
+        likeRepository.deleteAllByPost(Post.builder().id(1L).build());
 
         // then
-        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
-        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
-        assertThat(likedResults).extracting("liked").containsExactly(false, false, false);
-    }
-
-    @Test
-    void existsByPostIdsAndMemberId() {
-        // given
-        Member member = memberRepository.save(Member.builder()
-                .nickname("nickname-1")
-                .introduction("introduction")
-                .build());
-        likesRepository.saveAll(List.of(
-                Like.builder()
-                        .post(Post.builder().id(1L).build())
-                        .member(member)
-                        .build(),
-                Like.builder()
-                        .post(Post.builder().id(2L).build())
-                        .member(member)
-                        .build()
-        ));
-
-        // when
-        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndMemberId(List.of(1L, 2L, 3L), member.getId());
-
-        // then
-        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
-        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
-        assertThat(likedResults).extracting("liked").containsExactly(true, true, false);
-    }
-
-    @Test
-    void existsByPostIdsAndMemberId_MemberIdNotEqual() {
-        // given
-        Member member = memberRepository.save(Member.builder()
-                .nickname("nickname-1")
-                .introduction("introduction")
-                .build());
-        likesRepository.saveAll(List.of(
-                Like.builder()
-                        .post(Post.builder().id(1L).build())
-                        .member(member)
-                        .build(),
-                Like.builder()
-                        .post(Post.builder().id(2L).build())
-                        .member(member)
-                        .build()
-        ));
-
-        // when
-        List<LikedResult> likedResults = likesRepository.existsByPostIdsAndMemberId(
-                List.of(1L, 2L, 3L), member.getId() + 1);
-
-        // then
-        likedResults.sort((o1, o2) -> (int) (o1.getPostId() - o2.getPostId()));
-        assertThat(likedResults).extracting("postId").containsExactly(1L, 2L, 3L);
-        assertThat(likedResults).extracting("liked").containsExactly(false, false, false);
+        List<Like> foundLikes = likeRepository.findAll();
+        assertThat(foundLikes)
+                .hasSize(1)
+                .extracting("id").containsOnly(likes.get(1).getId());
     }
 
 }

@@ -1,6 +1,6 @@
 package com.comeeatme.common;
 
-import com.comeeatme.api.common.dto.ApiResult;
+import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.error.dto.ErrorResponse;
 import com.comeeatme.error.exception.ErrorCode;
 import org.springframework.data.domain.*;

@@ -147,4 +147,49 @@ class FavoriteRepositoryTest {
         assertThat(result).isEqualTo(2);
     }
 
+    @Test
+    void existsByMemberAndRestaurant() {
+        // given
+        favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(favoriteRepository.existsByMemberAndRestaurant(
+                Member.builder().id(1L).build(),
+                Restaurant.builder().id(2L).build()
+        )).isTrue();
+    }
+
+    @Test
+    void existsByMemberAndRestaurant_MemberNotEqual() {
+        // given
+        favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(favoriteRepository.existsByMemberAndRestaurant(
+                Member.builder().id(3L).build(),
+                Restaurant.builder().id(2L).build()
+        )).isFalse();
+    }
+
+    @Test
+    void existsByMemberAndRestaurant_RestaurantNotEqual() {
+        // given
+        favoriteRepository.save(Favorite.builder()
+                .member(Member.builder().id(1L).build())
+                .restaurant(Restaurant.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(favoriteRepository.existsByMemberAndRestaurant(
+                Member.builder().id(1L).build(),
+                Restaurant.builder().id(3L).build()
+        )).isFalse();
+    }
+
 }

@@ -1,10 +1,15 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.bookmark.response.PostBookmarked;
+import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.like.response.PostLiked;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
@@ -66,6 +71,16 @@ class PostControllerTest {
 
     @MockBean
     private ImageService imageService;
+
+    @MockBean
+    private LikeService likeService;
+
+    @MockBean
+    private BookmarkService bookmarkService;
+
+    @MockBean
+    private AccountService accountService;
+
 
     @Test
     @WithMockUser
@@ -260,6 +275,8 @@ class PostControllerTest {
     @DisplayName("게시물 리스트 조회 - DOCS")
     void getList_Docs() throws Exception {
         // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
         PostDto postDto = PostDto.builder()
                 .id(1L)
                 .imageUrls(List.of("image-url-1", "image-url-2"))
@@ -275,6 +292,18 @@ class PostControllerTest {
                 .build();
         given(postService.getList(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(new SliceImpl<>(List.of(postDto), PageRequest.of(0, 10), false));
+
+        PostLiked postLiked = PostLiked.builder()
+                .postId(1L)
+                .liked(true)
+                .build();
+        given(likeService.areLiked(10L, List.of(1L))).willReturn(List.of(postLiked));
+
+        PostBookmarked postBookmarked = PostBookmarked.builder()
+                .postId(1L)
+                .bookmarked(false)
+                .build();
+        given(bookmarkService.areBookmarked(10L, List.of(1L))).willReturn(List.of(postBookmarked));
 
         // expected
         mockMvc.perform(get("/v1/posts")
@@ -311,6 +340,8 @@ class PostControllerTest {
                                         .description("게시물 댓글 개수"),
                                 fieldWithPath("likeCount").type(Long.class.getSimpleName())
                                         .description("게시물 좋아요 개수"),
+                                fieldWithPath("liked").description("좋아요 여부"),
+                                fieldWithPath("bookmarked").description("북마크 여부"),
                                 fieldWithPath("member.id").type(Long.class.getSimpleName())
                                         .description("게시물 작성자 회원 ID"),
                                 fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
