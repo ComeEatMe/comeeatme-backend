@@ -5,11 +5,16 @@ import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
+import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
+import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.error.exception.AlreadyBookmarkedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +22,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -44,6 +56,9 @@ class BookmarkServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private PostImageRepository postImageRepository;
 
     @Test
     void bookmark_GroupNotNull() {
@@ -200,6 +215,139 @@ class BookmarkServiceTest {
         assertThat(result).hasSize(3);
         assertThat(result).extracting("postId").containsExactly(1L, 2L, 3L);
         assertThat(result).extracting("bookmarked").containsExactly(true, true, false);
+    }
+
+    @Test
+    void getBookmarkedPosts_DeletedImageContain() {
+        // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getUrl()).willReturn("member-image-url");
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(member.getId()).willReturn(1L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(memberImage);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        BookmarkGroup group = mock(BookmarkGroup.class);
+        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸"))
+                .willReturn(Optional.of(group));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(2L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(3L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 10, 29, 19, 59));
+        given(post.getRestaurant()).willReturn(restaurant);
+        given(post.getMember()).willReturn(member);
+
+        Bookmark bookmark = mock(Bookmark.class);
+        given(bookmark.getPost()).willReturn(post);
+        given(bookmarkRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(group)))
+                .willReturn(new SliceImpl<>(List.of(bookmark)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getImage()).willReturn(image1);
+        given(postImage1.getPost()).willReturn(post);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(false);
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L, "그루비룸");
+
+        // then
+        List<BookmarkedPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(3L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 10, 29, 19, 59));
+        assertThat(content).extracting("member.id").containsExactly(1L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly("member-image-url");
+        assertThat(content).extracting("restaurant.id").containsExactly(2L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+        for (BookmarkedPostDto bookmarkedPostDto : content) {
+            assertThat(bookmarkedPostDto.getImageUrls())
+                    .containsExactly("url-1");
+        }
+    }
+
+    @Test
+    void getBookmarkedPosts_MemberImageNull_GroupNull() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(member.getId()).willReturn(1L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(null);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(2L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(3L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 10, 29, 19, 59));
+        given(post.getRestaurant()).willReturn(restaurant);
+        given(post.getMember()).willReturn(member);
+
+        Bookmark bookmark = mock(Bookmark.class);
+        given(bookmark.getPost()).willReturn(post);
+        given(bookmarkRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(null)))
+                .willReturn(new SliceImpl<>(List.of(bookmark)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getImage()).willReturn(image1);
+        given(postImage1.getPost()).willReturn(post);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getImage()).willReturn(image2);
+        given(postImage2.getPost()).willReturn(post);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L, null);
+
+        // then
+        List<BookmarkedPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(3L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 10, 29, 19, 59));
+        assertThat(content).extracting("member.id").containsExactly(1L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly((Object) null);
+        assertThat(content).extracting("restaurant.id").containsExactly(2L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+        for (BookmarkedPostDto bookmarkedPostDto : content) {
+            assertThat(bookmarkedPostDto.getImageUrls())
+                    .containsExactly("url-1", "url-2");
+        }
     }
 
 }
