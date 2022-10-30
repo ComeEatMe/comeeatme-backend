@@ -5,22 +5,25 @@ import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
+import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.error.exception.AlreadyBookmarkedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +36,8 @@ public class BookmarkService {
     private final BookmarkRepository bookmarkRepository;
 
     private final PostRepository postRepository;
+
+    private final PostImageRepository postImageRepository;
 
     private final MemberRepository memberRepository;
 
@@ -82,6 +87,36 @@ public class BookmarkService {
                         .build())
                 .collect(Collectors.toList()));
         return groupDtos;
+    }
+
+    public Slice<BookmarkedPostDto> getBookmarkedPosts(Pageable pageable, Long memberId, @Nullable String groupName) {
+        Member member = getMemberById(memberId);
+        BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
+        Slice<Post> bookmarkedPosts = bookmarkRepository.findSliceWithByMemberAndGroup(pageable, member, group)
+                .map(Bookmark::getPost);
+        Map<Long, List<PostImage>> postIdToPostImages = postImageRepository.findAllWithImageByPostIn(
+                        bookmarkedPosts.getContent())
+                .stream()
+                .filter(postImage -> postImage.getImage().getUseYn())
+                .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
+        return bookmarkedPosts
+                .map(post -> BookmarkedPostDto.builder()
+                        .id(post.getId())
+                        .content(post.getContent())
+                        .createdAt(post.getCreatedAt())
+                        .imageUrls(postIdToPostImages.get(post.getId()).stream()
+                                .map(postImage -> postImage.getImage().getUrl())
+                                .collect(Collectors.toList()))
+                        .memberId(post.getMember().getId())
+                        .memberNickname(post.getMember().getNickname())
+                        .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
+                                .filter(Image::getUseYn)
+                                .map(Image::getUrl)
+                                .orElse(null))
+                        .restaurantId(post.getRestaurant().getId())
+                        .restaurantName(post.getRestaurant().getName())
+                        .build()
+                );
     }
 
     public List<PostBookmarked> isBookmarked(Long memberId, List<Long> postIds) {
