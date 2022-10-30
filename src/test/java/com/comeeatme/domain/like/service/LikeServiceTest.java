@@ -124,7 +124,7 @@ class LikeServiceTest {
     }
 
     @Test
-    void isLiked() {
+    void areLiked() {
         // given
         Post post1 = mock(Post.class);
         given(post1.getId()).willReturn(1L);
@@ -141,7 +141,7 @@ class LikeServiceTest {
                 .willReturn(likes);
 
         // when
-        List<PostLiked> result = likeService.isLiked(3L, List.of(1L, 2L, 3L));
+        List<PostLiked> result = likeService.areLiked(3L, List.of(1L, 2L, 3L));
 
         // then
         assertThat(result).hasSize(3);

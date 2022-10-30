@@ -215,7 +215,7 @@ class BookmarkControllerTest {
                 .postId(2L)
                 .liked(true)
                 .build();
-        given(likeService.isLiked(memberId, List.of(2L))).willReturn(List.of(postLiked));
+        given(likeService.areLiked(memberId, List.of(2L))).willReturn(List.of(postLiked));
 
         // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")
@@ -283,7 +283,7 @@ class BookmarkControllerTest {
                 .postId(2L)
                 .liked(true)
                 .build();
-        given(likeService.isLiked(myMemberId, List.of(2L))).willReturn(List.of(postLiked));
+        given(likeService.areLiked(myMemberId, List.of(2L))).willReturn(List.of(postLiked));
 
         PostBookmarked postBookmarked = PostBookmarked.builder()
                 .postId(2L)
@@ -328,7 +328,7 @@ class BookmarkControllerTest {
                 .postId(2L)
                 .liked(true)
                 .build();
-        given(likeService.isLiked(1L, List.of(2L))).willReturn(List.of(postLiked));
+        given(likeService.areLiked(1L, List.of(2L))).willReturn(List.of(postLiked));
 
         // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked", 1L)

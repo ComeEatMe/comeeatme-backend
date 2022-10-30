@@ -65,7 +65,7 @@ public class BookmarkController {
         List<Long> postIds = posts.stream()
                 .map(BookmarkedPostDto::getId)
                 .collect(Collectors.toList());
-        Set<Long> likedPostIds = likeService.isLiked(myMemberId, postIds).stream()
+        Set<Long> likedPostIds = likeService.areLiked(myMemberId, postIds).stream()
                 .filter(PostLiked::getLiked)
                 .map(PostLiked::getPostId)
                 .collect(Collectors.toSet());

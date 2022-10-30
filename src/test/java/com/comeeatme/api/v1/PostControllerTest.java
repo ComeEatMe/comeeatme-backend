@@ -297,7 +297,7 @@ class PostControllerTest {
                 .postId(1L)
                 .liked(true)
                 .build();
-        given(likeService.isLiked(10L, List.of(1L))).willReturn(List.of(postLiked));
+        given(likeService.areLiked(10L, List.of(1L))).willReturn(List.of(postLiked));
 
         PostBookmarked postBookmarked = PostBookmarked.builder()
                 .postId(1L)

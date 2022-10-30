@@ -54,7 +54,7 @@ public class LikeService {
         likesRepository.delete(like);
     }
 
-    public List<PostLiked> isLiked(Long memberId, List<Long> postIds) {
+    public List<PostLiked> areLiked(Long memberId, List<Long> postIds) {
         List<Like> likes = likesRepository.findByMemberIdAndPostIds(memberId, postIds);
         Set<Long> existingPostIds = likes.stream()
                 .map(like -> like.getPost().getId())

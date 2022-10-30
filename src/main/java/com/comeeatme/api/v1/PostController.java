@@ -53,7 +53,7 @@ public class PostController {
         List<Long> postIds = posts.stream()
                 .map(PostDto::getId)
                 .collect(Collectors.toList());
-        Set<Long> likedPostIds = likeService.isLiked(memberId, postIds).stream()
+        Set<Long> likedPostIds = likeService.areLiked(memberId, postIds).stream()
                 .filter(PostLiked::getLiked)
                 .map(PostLiked::getPostId)
                 .collect(Collectors.toSet());
