@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.security.SecurityConfig;
@@ -60,7 +61,8 @@ class ImageControllerTest {
         MockMultipartFile image2 = new MockMultipartFile("images", "test-image2.jpg",
                 MediaType.IMAGE_JPEG_VALUE, "test-image2-content".getBytes());
 
-        given(imageService.saveImages(anyString(), any(List.class))).willReturn(List.of(1L, 2L));
+        given(imageService.saveImages(anyString(), any(List.class)))
+                .willReturn(new CreateResults<>(List.of(1L, 2L)));
 
         // expected
         mockMvc.perform(multipart("/v1/images/scaled")
@@ -80,8 +82,8 @@ class ImageControllerTest {
                                 partWithName("images").description("게시물 작물 이미지")
                         ),
                         responseFields(
-                                fieldWithPath("success").description("요청 성공 여부"),
-                                fieldWithPath("data").description("저장된 이미지 ID 리스트")
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("ids").description("저장된 이미지 ID 리스트")
                         )
                 ))
         ;

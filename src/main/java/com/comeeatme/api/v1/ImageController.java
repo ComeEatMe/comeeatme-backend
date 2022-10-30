@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
+import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.error.exception.InvalidImageException;
@@ -25,14 +26,14 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("/images/scaled")
-    public ResponseEntity<ApiResult<List<Long>>> postScaled(
+    public ResponseEntity<ApiResult<CreateResults<Long>>> postScaled(
             @RequestPart List<MultipartFile> images, @CurrentUsername String username) {
         validateMultipartFileImages(images);
         List<Resource> resources = images.stream()
                 .map(MultipartFile::getResource)
                 .collect(Collectors.toList());
-        List<Long> imageIds = imageService.saveImages(username, resources);
-        ApiResult<List<Long>> result = ApiResult.success(imageIds);
+        CreateResults<Long> createResults = imageService.saveImages(username, resources);
+        ApiResult<CreateResults<Long>> result = ApiResult.success(createResults);
         return ResponseEntity.ok(result);
     }
 

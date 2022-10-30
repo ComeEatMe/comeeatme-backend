@@ -1,5 +1,6 @@
 package com.comeeatme.domain.image.service;
 
+import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.image.response.RestaurantImage;
@@ -74,7 +75,7 @@ class ImageServiceTest {
         given(imageRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
 
         // when
-        List<Long> imageIds = imageService.saveImages("username", resources);
+        CreateResults<Long> result = imageService.saveImages("username", resources);
 
         // then
         String storedName = storedNameCaptor.getValue();
@@ -87,7 +88,7 @@ class ImageServiceTest {
         assertThat(images).extracting("originName").containsExactly("test-filename.jpg");
         assertThat(images).extracting("url").containsExactly("test-image-url");
 
-        assertThat(imageIds)
+        assertThat(result.getIds())
                 .hasSize(1)
                 .containsExactly(1L);
     }
