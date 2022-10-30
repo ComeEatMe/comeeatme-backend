@@ -45,3 +45,26 @@ operation::v1-bookmark-cancel-bookmark[snippets='http-response']
 == 북마크 그룹 리스트 조회
 
 operation::v1-bookmark-get-bookmark-groups[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-bookmark-get-bookmarked-list]]
+== 북마크된 게시물 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-bookmark-get-bookmarked-list[snippets='http-request,request-headers']
+
+=== 전체 그룹 조회
+
+include::{snippets}/v1-bookmark-get-bookmarked-list-group-null/path-parameters.adoc[]
+
+=== 특정 그룹 조회
+
+include::{snippets}/v1-bookmark-get-bookmarked-list/path-parameters.adoc[]
+
+=== Response
+
+operation::v1-bookmark-get-bookmarked-list[snippets='http-response,response-fields-content']
