@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequestMapping("/v1")
@@ -53,15 +53,19 @@ public class PostController {
         List<Long> postIds = posts.stream()
                 .map(PostDto::getId)
                 .collect(Collectors.toList());
-        Map<Long, Boolean> postIdToLiked = likeService.isLiked(memberId, postIds).stream()
-                .collect(Collectors.toMap(PostLiked::getPostId, PostLiked::getLiked));
-        Map<Long, Boolean> postIdToBookmarked = bookmarkService.isBookmarked(memberId, postIds).stream()
-                .collect(Collectors.toMap(PostBookmarked::getPostId, PostBookmarked::getBookmarked));
+        Set<Long> likedPostIds = likeService.isLiked(memberId, postIds).stream()
+                .filter(PostLiked::getLiked)
+                .map(PostLiked::getPostId)
+                .collect(Collectors.toSet());
+        Set<Long> bookmarkedPostIds = bookmarkService.isBookmarked(memberId, postIds).stream()
+                .filter(PostBookmarked::getBookmarked)
+                .map(PostBookmarked::getPostId)
+                .collect(Collectors.toSet());
         Slice<WithLikedBookmarked<PostDto>> postWiths = posts
                 .map(post -> WithLikedBookmarked.<PostDto>builder()
                         .post(post)
-                        .liked(postIdToLiked.get(post.getId()))
-                        .bookmarked(postIdToBookmarked.get(post.getId()))
+                        .liked(likedPostIds.contains(post.getId()))
+                        .bookmarked(bookmarkedPostIds.contains(post.getId()))
                         .build()
                 );
         ApiResult<Slice<WithLikedBookmarked<PostDto>>> apiResult = ApiResult.success(postWiths);
