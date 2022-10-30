@@ -57,7 +57,7 @@ public class PostController {
                 .filter(PostLiked::getLiked)
                 .map(PostLiked::getPostId)
                 .collect(Collectors.toSet());
-        Set<Long> bookmarkedPostIds = bookmarkService.isBookmarked(memberId, postIds).stream()
+        Set<Long> bookmarkedPostIds = bookmarkService.areBookmarked(memberId, postIds).stream()
                 .filter(PostBookmarked::getBookmarked)
                 .map(PostBookmarked::getPostId)
                 .collect(Collectors.toSet());

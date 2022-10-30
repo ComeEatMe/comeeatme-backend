@@ -192,7 +192,7 @@ class BookmarkServiceTest {
     }
 
     @Test
-    void isBookmarked() {
+    void areBookmarked() {
         // given
         Post post1 = mock(Post.class);
         given(post1.getId()).willReturn(1L);
@@ -209,7 +209,7 @@ class BookmarkServiceTest {
                 .willReturn(bookmarks);
 
         // when
-        List<PostBookmarked> result = bookmarkService.isBookmarked(3L, List.of(1L, 2L, 3L));
+        List<PostBookmarked> result = bookmarkService.areBookmarked(3L, List.of(1L, 2L, 3L));
 
         // then
         assertThat(result).hasSize(3);

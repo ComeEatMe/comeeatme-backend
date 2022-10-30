@@ -303,7 +303,7 @@ class PostControllerTest {
                 .postId(1L)
                 .bookmarked(false)
                 .build();
-        given(bookmarkService.isBookmarked(10L, List.of(1L))).willReturn(List.of(postBookmarked));
+        given(bookmarkService.areBookmarked(10L, List.of(1L))).willReturn(List.of(postBookmarked));
 
         // expected
         mockMvc.perform(get("/v1/posts")

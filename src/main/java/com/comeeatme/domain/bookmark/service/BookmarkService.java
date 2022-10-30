@@ -119,7 +119,7 @@ public class BookmarkService {
                 );
     }
 
-    public List<PostBookmarked> isBookmarked(Long memberId, List<Long> postIds) {
+    public List<PostBookmarked> areBookmarked(Long memberId, List<Long> postIds) {
         List<Bookmark> bookmarks = bookmarkRepository.findByMemberIdAndPostIds(memberId, postIds);
         Set<Long> existentPostIds = bookmarks.stream()
                 .map(bookmark -> bookmark.getPost().getId())

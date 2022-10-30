@@ -289,7 +289,7 @@ class BookmarkControllerTest {
                 .postId(2L)
                 .bookmarked(true)
                 .build();
-        given(bookmarkService.isBookmarked(myMemberId, List.of(2L))).willReturn(List.of(postBookmarked));
+        given(bookmarkService.areBookmarked(myMemberId, List.of(2L))).willReturn(List.of(postBookmarked));
 
         // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")

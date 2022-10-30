@@ -71,7 +71,7 @@ public class BookmarkController {
                 .collect(Collectors.toSet());
         Set<Long> bookmarkedPostIds = Objects.equals(myMemberId, memberId) ?
                 new HashSet<>(postIds) :
-                bookmarkService.isBookmarked(myMemberId, postIds).stream()
+                bookmarkService.areBookmarked(myMemberId, postIds).stream()
                         .filter(PostBookmarked::getBookmarked)
                         .map(PostBookmarked::getPostId)
                         .collect(Collectors.toSet());
