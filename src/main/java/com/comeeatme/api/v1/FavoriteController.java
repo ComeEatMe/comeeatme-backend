@@ -64,7 +64,7 @@ public class FavoriteController {
                 .collect(Collectors.toList());
         Set<Long> favoriteRestaurantIds = Objects.equals(myMemberId, memberId) ?
                 new HashSet<>(restaurantIds) :
-                favoriteService.isFavorite(myMemberId, restaurantIds).stream()
+                favoriteService.areFavorite(myMemberId, restaurantIds).stream()
                         .filter(RestaurantFavorited::getFavorited)
                         .map(RestaurantFavorited::getRestaurantId)
                         .collect(Collectors.toSet());

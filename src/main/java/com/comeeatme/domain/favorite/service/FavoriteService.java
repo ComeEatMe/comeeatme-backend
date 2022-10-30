@@ -96,7 +96,7 @@ public class FavoriteService {
         return groupDtos;
     }
 
-    public List<RestaurantFavorited> isFavorite(Long memberId, List<Long> restaurantIds) {
+    public List<RestaurantFavorited> areFavorite(Long memberId, List<Long> restaurantIds) {
         List<Favorite> favorites = favoriteRepository.findAllByMemberIdAndRestaurantIds(memberId, restaurantIds);
         Set<Long> favoriteRestaurantIds = favorites.stream()
                 .map(favorite -> favorite.getRestaurant().getId())

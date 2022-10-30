@@ -240,7 +240,7 @@ class FavoriteControllerTest {
                 .restaurantId(2L)
                 .favorited(true)
                 .build();
-        given(favoriteService.isFavorite(myMemberId, List.of(2L))).willReturn(List.of(restaurantFavorited));
+        given(favoriteService.areFavorite(myMemberId, List.of(2L))).willReturn(List.of(restaurantFavorited));
 
         // expected
         mockMvc.perform(get("/v1/members/{memberId}/favorite/{groupName}", memberId, "그루비룸")

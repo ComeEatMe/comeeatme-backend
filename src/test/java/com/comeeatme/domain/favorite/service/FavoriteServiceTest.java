@@ -210,7 +210,7 @@ class FavoriteServiceTest {
     }
 
     @Test
-    void isFavorite() {
+    void areFavorite() {
         // given
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
@@ -221,7 +221,7 @@ class FavoriteServiceTest {
                 .willReturn(List.of(favorite));
 
         // when
-        List<RestaurantFavorited> result = favoriteService.isFavorite(3L, List.of(1L, 2L));
+        List<RestaurantFavorited> result = favoriteService.areFavorite(3L, List.of(1L, 2L));
 
         // then
         assertThat(result).hasSize(2);
