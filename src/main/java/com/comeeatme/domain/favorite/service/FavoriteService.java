@@ -5,6 +5,7 @@ import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.favorite.repository.FavoriteGroupRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
+import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -13,6 +14,8 @@ import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.error.exception.AlreadyFavoriteException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +107,23 @@ public class FavoriteService {
                         .favorited(favoriteRestaurantIds.contains(restaurantId))
                         .build()
                 ).collect(Collectors.toList());
+    }
+
+    public Slice<FavoriteRestaurantDto> getFavoriteRestaurants(
+            Pageable pageable, Long memberId, @Nullable String groupName) {
+        Member member = getMemberById(memberId);
+        FavoriteGroup group = Optional.ofNullable(groupName)
+                .map(name -> getFavoriteGroupByMemberAndName(member, name))
+                .orElse(null);
+        Slice<Restaurant> favoriteRestaurants = favoriteRepository.findSliceWithByMemberAndGroup(
+                        pageable, member, group)
+                .map(Favorite::getRestaurant);
+        return favoriteRestaurants
+                .map(restaurant -> FavoriteRestaurantDto.builder()
+                        .id(restaurant.getId())
+                        .name(restaurant.getName())
+                        .build()
+                );
     }
 
     private Restaurant getRestaurantById(Long id) {
