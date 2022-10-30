@@ -217,7 +217,7 @@ class BookmarkControllerTest {
                 .build();
         given(likeService.isLiked(memberId, List.of(2L))).willReturn(List.of(postLiked));
 
-        // then
+        // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -262,7 +262,7 @@ class BookmarkControllerTest {
         // given
         long memberId = 1L;
         long myMemberId = 5L;
-        given(accountService.getMemberId(anyString())).willReturn(memberId);
+        given(accountService.getMemberId(anyString())).willReturn(myMemberId);
 
         BookmarkedPostDto bookmarkedPostDto = BookmarkedPostDto.builder()
                 .id(2L)
@@ -291,7 +291,7 @@ class BookmarkControllerTest {
                 .build();
         given(bookmarkService.isBookmarked(myMemberId, List.of(2L))).willReturn(List.of(postBookmarked));
 
-        // then
+        // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -304,7 +304,7 @@ class BookmarkControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("북마크된 게시물 조회 - 그룹 지정 X")
+    @DisplayName("북마크된 게시물 조회 - 전체 그룹 조회")
     void getBookmarkedList_GroupNull() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(1L);
@@ -330,7 +330,7 @@ class BookmarkControllerTest {
                 .build();
         given(likeService.isLiked(1L, List.of(2L))).willReturn(List.of(postLiked));
 
-        // then
+        // expected
         mockMvc.perform(get("/v1/members/{memberId}/bookmarked", 1L)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
