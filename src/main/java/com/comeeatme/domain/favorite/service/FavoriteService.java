@@ -109,6 +109,12 @@ public class FavoriteService {
                 ).collect(Collectors.toList());
     }
 
+    public boolean isFavorite(Long memberId, Long restaurantId) {
+        Member member = getMemberById(memberId);
+        Restaurant restaurant = getRestaurantById(restaurantId);
+        return favoriteRepository.existsByMemberAndRestaurant(member, restaurant);
+    }
+
     public Slice<FavoriteRestaurantDto> getFavoriteRestaurants(
             Pageable pageable, Long memberId, @Nullable String groupName) {
         Member member = getMemberById(memberId);

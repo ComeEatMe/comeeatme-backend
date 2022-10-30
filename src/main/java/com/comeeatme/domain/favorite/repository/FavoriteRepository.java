@@ -16,4 +16,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>, Favor
 
     int countByMember(Member member);
 
+    boolean existsByMemberAndRestaurant(Member member, Restaurant restaurant);
+
 }
