@@ -1,6 +1,8 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
@@ -47,6 +49,12 @@ class RestaurantControllerTest {
 
     @MockBean
     private RestaurantService restaurantService;
+
+    @MockBean
+    private AccountService accountService;
+
+    @MockBean
+    private FavoriteService favoriteService;
 
     @Test
     @WithMockUser
@@ -97,6 +105,8 @@ class RestaurantControllerTest {
     @DisplayName("음식점 상세 조회 - DOCS")
     void get_Docs() throws Exception {
         // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
         RestaurantDetailDto dto = RestaurantDetailDto.builder()
                 .id(1L)
                 .name("음식점")
@@ -107,6 +117,8 @@ class RestaurantControllerTest {
                 .addressY(2.0)
                 .build();
         given(restaurantService.get(1L)).willReturn(dto);
+
+        given(favoriteService.isFavorite(10L, 1L)).willReturn(true);
 
         // expected
         mockMvc.perform(get("/v1/restaurants/{restaurantId}", 1L)
@@ -129,7 +141,8 @@ class RestaurantControllerTest {
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
                                 fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
-                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표")
+                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표"),
+                                fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));
     }

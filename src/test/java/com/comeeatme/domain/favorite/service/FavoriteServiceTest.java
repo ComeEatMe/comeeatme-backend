@@ -288,4 +288,38 @@ class FavoriteServiceTest {
         assertThat(content).extracting("name").containsExactly("지그재그");
     }
 
+    @Test
+    void isFavorite_True() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(2L)).willReturn(Optional.of(restaurant));
+
+        given(favoriteRepository.existsByMemberAndRestaurant(member, restaurant)).willReturn(true);
+
+        // expected
+        assertThat(favoriteService.isFavorite(1L, 2L)).isTrue();
+    }
+
+    @Test
+    void isFavorite_False() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(2L)).willReturn(Optional.of(restaurant));
+
+        given(favoriteRepository.existsByMemberAndRestaurant(member, restaurant)).willReturn(false);
+
+        // expected
+        assertThat(favoriteService.isFavorite(1L, 2L)).isFalse();
+    }
+
 }
