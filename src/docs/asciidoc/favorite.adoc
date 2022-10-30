@@ -45,3 +45,26 @@ operation::v1-favorite-delete[snippets='http-response']
 == 북마크 그룹 리스트 조회
 
 operation::v1-favorite-get-favorite-groups[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-favorite-get-favorite-list]]
+== 즐겨찾기된 음식점 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-favorite-get-favorite-list[snippets='http-request,request-headers']
+
+=== 전체 그룹 조회
+
+include::{snippets}/v1-favorite-get-favorite-list-group-null/path-parameters.adoc[]
+
+=== 특정 그룹 조회
+
+include::{snippets}/v1-favorite-get-favorite-list/path-parameters.adoc[]
+
+=== Response
+
+operation::v1-favorite-get-favorite-list[snippets='http-response,response-fields-content']
