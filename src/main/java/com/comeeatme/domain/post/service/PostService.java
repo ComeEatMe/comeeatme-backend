@@ -25,6 +25,7 @@ import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
@@ -158,6 +159,31 @@ public class PostService {
                 .restaurantId(post.getRestaurant().getId())
                 .restaurantName(post.getRestaurant().getName())
                 .build());
+    }
+
+    public Slice<RestaurantPostDto> getListOfRestaurant(Pageable pageable, Long restaurantId) {
+        Restaurant restaurant = getRestaurantById(restaurantId);
+        Slice<Post> posts = postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(pageable, restaurant);
+        Map<Long, List<PostImage>> postIdToPostImages = getPostIdToPostImages(posts.getContent());
+
+        return posts
+                .map(post -> RestaurantPostDto.builder()
+                        .id(post.getId())
+                        .imageUrls(postIdToPostImages.getOrDefault(post.getId(), Collections.emptyList())
+                                .stream()
+                                .map(PostImage::getImage)
+                                .map(Image::getUrl)
+                                .collect(Collectors.toList()))
+                        .content(post.getContent())
+                        .createdAt(post.getCreatedAt())
+                        .memberId(post.getMember().getId())
+                        .memberNickname(post.getMember().getNickname())
+                        .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
+                                .filter(Image::getUseYn)
+                                .map(Image::getUrl)
+                                .orElse(null))
+                        .build()
+                );
     }
 
     public PostDetailDto get(Long postId) {

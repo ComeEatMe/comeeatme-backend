@@ -17,6 +17,7 @@ import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.InvalidImageIdception;
@@ -86,6 +87,14 @@ public class PostController {
                         .build()
                 );
         ApiResult<Slice<WithLikedBookmarked<MemberPostDto>>> apiResult = ApiResult.success(postWiths);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/restaurants/{restaurantId}/posts")
+    public ResponseEntity<ApiResult<Slice<RestaurantPostDto>>> getListOfRestaurant(
+            Pageable pageable, @PathVariable Long restaurantId, @CurrentUsername String username) {
+        Slice<RestaurantPostDto> posts = postService.getListOfRestaurant(pageable, restaurantId);
+        ApiResult<Slice<RestaurantPostDto>> apiResult = ApiResult.success(posts);
         return ResponseEntity.ok(apiResult);
     }
 
