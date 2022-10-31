@@ -17,6 +17,7 @@ import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
@@ -422,6 +423,67 @@ class PostControllerTest {
                                 fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
                                         .description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("음식점 게시물 리스트 조회 - DOCS")
+    void getListOfRestaurant() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
+        RestaurantPostDto restaurantPostDto = RestaurantPostDto.builder()
+                .id(1L)
+                .imageUrls(List.of("image-url-1", "image-url-2"))
+                .content("post-content")
+                .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .memberId(2L)
+                .memberNickname("nickname")
+                .memberImageUrl("member-image-url")
+                .build();
+        given(postService.getListOfRestaurant(any(Pageable.class), eq(3L)))
+                .willReturn(new SliceImpl<>(List.of(restaurantPostDto)));
+
+        PostLiked postLiked = PostLiked.builder()
+                .postId(1L)
+                .liked(true)
+                .build();
+        given(likeService.areLiked(10L, List.of(1L))).willReturn(List.of(postLiked));
+
+        PostBookmarked postBookmarked = PostBookmarked.builder()
+                .postId(1L)
+                .bookmarked(false)
+                .build();
+        given(bookmarkService.areBookmarked(10L, List.of(1L))).willReturn(List.of(postBookmarked));
+
+        // expected
+        mockMvc.perform(get("/v1/restaurants/{restaurantId}/posts", 3L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-post-get-list-of-restaurant",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("member.id").type(Long.class.getSimpleName())
+                                        .description("게시물 작성자 회원 ID"),
+                                fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
+                                fieldWithPath("member.imageUrl").optional()
+                                        .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null")
                         )
                 ))
         ;
