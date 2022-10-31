@@ -1,7 +1,7 @@
 package com.comeeatme.domain.restaurant.service;
 
 import com.comeeatme.domain.address.Address;
-import com.comeeatme.domain.restaurant.OpenInfo;
+import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
@@ -34,6 +34,9 @@ class RestaurantServiceTest {
 
     @Mock
     private RestaurantRepository restaurantRepository;
+
+    @Mock
+    private FavoriteRepository favoriteRepository;
 
     @Test
     void getSimpleList() {
@@ -75,15 +78,16 @@ class RestaurantServiceTest {
         given(address.getName()).willReturn("소재지주소");
         given(address.getRoadName()).willReturn("도로명주소");
         given(address.getPoint()).willReturn(new Point(1.0, 2.0));
-        OpenInfo openInfo = mock(OpenInfo.class);
-        given(openInfo.getCategory()).willReturn("한식");
+
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("음식점");
         given(restaurant.getAddress()).willReturn(address);
-        given(restaurant.getOpenInfo()).willReturn(openInfo);
+
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
+
+        given(favoriteRepository.countByRestaurant(restaurant)).willReturn(10L);
 
         // when
         RestaurantDetailDto result = restaurantService.get(1L);
@@ -91,34 +95,7 @@ class RestaurantServiceTest {
         // then
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("음식점");
-        assertThat(result.getCategory()).isEqualTo("한식");
-        assertThat(result.getAddress().getName()).isEqualTo("소재지주소");
-        assertThat(result.getAddress().getRoadName()).isEqualTo("도로명주소");
-        assertThat(result.getAddress().getX()).isEqualTo(1.0);
-        assertThat(result.getAddress().getY()).isEqualTo(2.0);
-    }
-
-    @Test
-    void get_OpenInfoNull() {
-        // given
-        Address address = mock(Address.class);
-        given(address.getName()).willReturn("소재지주소");
-        given(address.getRoadName()).willReturn("도로명주소");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
-        Restaurant restaurant = mock(Restaurant.class);
-        given(restaurant.getUseYn()).willReturn(true);
-        given(restaurant.getId()).willReturn(1L);
-        given(restaurant.getName()).willReturn("음식점");
-        given(restaurant.getAddress()).willReturn(address);
-        given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
-
-        // when
-        RestaurantDetailDto result = restaurantService.get(1L);
-
-        // then
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getName()).isEqualTo("음식점");
-        assertThat(result.getCategory()).isNull();
+        assertThat(result.getFavoriteCount()).isEqualTo(10);
         assertThat(result.getAddress().getName()).isEqualTo("소재지주소");
         assertThat(result.getAddress().getRoadName()).isEqualTo("도로명주소");
         assertThat(result.getAddress().getX()).isEqualTo(1.0);

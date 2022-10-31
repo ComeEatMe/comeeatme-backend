@@ -110,7 +110,7 @@ class RestaurantControllerTest {
         RestaurantDetailDto dto = RestaurantDetailDto.builder()
                 .id(1L)
                 .name("음식점")
-                .category("업태구분(카테고리)")
+                .favoriteCount(23)
                 .addressName("주소")
                 .addressRoadName("도로명주소")
                 .addressX(1.0)
@@ -137,7 +137,8 @@ class RestaurantControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
-                                fieldWithPath("category").description("음식점 이름"),
+                                fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
                                 fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
