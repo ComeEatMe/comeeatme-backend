@@ -75,6 +75,12 @@ public class LikeService {
                 ).collect(Collectors.toList());
     }
 
+    public boolean isLiked(Long memberId, Long postId) {
+        Member member = getMemberById(memberId);
+        Post post = getPostById(postId);
+        return likeRepository.existsByPostAndMember(post, member);
+    }
+
     public Slice<LikedPostDto> getLikedPosts(Pageable pageable, Long memberId) {
         Member member = getMemberById(memberId);
         Slice<Post> likedPosts = likeRepository.findSliceWithPostByMember(pageable, member)

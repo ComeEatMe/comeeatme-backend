@@ -16,4 +16,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, Bookm
 
     int countByMember(Member member);
 
+    boolean existsByMemberAndPost(Member member, Post post);
+
 }

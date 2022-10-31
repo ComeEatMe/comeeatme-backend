@@ -14,6 +14,7 @@ import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
@@ -69,6 +70,21 @@ public class PostController {
                         .build()
                 );
         ApiResult<Slice<WithLikedBookmarked<PostDto>>> apiResult = ApiResult.success(postWiths);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ApiResult<WithLikedBookmarked<PostDetailDto>>> get(@PathVariable Long postId, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
+        PostDetailDto post = postService.get(postId);
+        boolean bookmarked = bookmarkService.isBookmarked(memberId, postId);
+        boolean liked = likeService.isLiked(memberId, postId);
+        WithLikedBookmarked<PostDetailDto> postWith = WithLikedBookmarked.<PostDetailDto>builder()
+                .post(post)
+                .bookmarked(bookmarked)
+                .liked(liked)
+                .build();
+        ApiResult<WithLikedBookmarked<PostDetailDto>> apiResult = ApiResult.success(postWith);
         return ResponseEntity.ok(apiResult);
     }
 
