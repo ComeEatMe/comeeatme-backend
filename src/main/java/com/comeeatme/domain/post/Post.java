@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,9 +81,9 @@ public class Post extends BaseTimeEntity {
         postHashtags.add(postHashtag);
     }
 
-    public Set<Hashtag> getHashtags() {
+    public List<Hashtag> getHashtags() {
         return postHashtags.stream()
                 .map(PostHashtag::getHashtag)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 }

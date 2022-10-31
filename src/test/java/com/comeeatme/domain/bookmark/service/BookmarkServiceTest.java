@@ -218,6 +218,46 @@ class BookmarkServiceTest {
     }
 
     @Test
+    void isBookmarked_True() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(2L)).willReturn(Optional.of(post));
+
+        given(bookmarkRepository.existsByMemberAndPost(member, post)).willReturn(true);
+
+        // when
+        boolean result = bookmarkService.isBookmarked(1L, 2L);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void isBookmarked_False() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(2L)).willReturn(Optional.of(post));
+
+        given(bookmarkRepository.existsByMemberAndPost(member, post)).willReturn(false);
+
+        // when
+        boolean result = bookmarkService.isBookmarked(1L, 2L);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void getBookmarkedPosts_DeletedImageContain() {
         // given
         Image memberImage = mock(Image.class);

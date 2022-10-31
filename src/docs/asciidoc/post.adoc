@@ -20,6 +20,12 @@ include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 operation::v1-post-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 
+[[v1-post-get]]
+== 게시물 상세 조회
+
+operation::v1-post-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
 [[v1-post-post]]
 == 게시물 작성
 

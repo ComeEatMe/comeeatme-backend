@@ -97,4 +97,33 @@ class CommentRepositoryTest {
                 .extracting("id").containsExactly(comments.get(0).getId());
     }
 
+    @Test
+    void countByPost() {
+        // given
+        List<Comment> comments = commentRepository.saveAll(List.of(
+                Comment.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(1L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(1L).build())
+                        .member(Member.builder().id(2L).build())
+                        .content("content")
+                        .build(),
+                Comment.builder()
+                        .post(Post.builder().id(2L).build())
+                        .member(Member.builder().id(1L).build())
+                        .content("content")
+                        .build()
+        ));
+        comments.get(0).delete();
+
+        // when
+        long result = commentRepository.countByPostAndUseYnIsTrue(Post.builder().id(1L).build());
+
+        // then
+        assertThat(result).isEqualTo(1L);
+    }
+
 }

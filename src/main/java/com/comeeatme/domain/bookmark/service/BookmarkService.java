@@ -132,6 +132,12 @@ public class BookmarkService {
                 ).collect(Collectors.toList());
     }
 
+    public boolean isBookmarked(Long memberId, Long postId) {
+        Member member = getMemberById(memberId);
+        Post post = getPostById(postId);
+        return bookmarkRepository.existsByMemberAndPost(member, post);
+    }
+
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)

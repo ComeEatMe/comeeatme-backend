@@ -22,6 +22,7 @@ import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
@@ -32,10 +33,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -127,6 +125,37 @@ public class PostService {
                 postIdToCommentCount.get(post.getId()),
                 postIdToLikeCount.get(post.getId())
         ));
+    }
+
+    public PostDetailDto get(Long postId) {
+        Post post = getPostById(postId);
+        List<String> postImageUrls = postImageRepository.findAllWithImageByPost(post).stream()
+                .filter(postImage -> postImage.getImage().getUseYn())
+                .map(postImage -> postImage.getImage().getUrl())
+                .collect(Collectors.toList());
+        long commentCount = commentRepository.countByPostAndUseYnIsTrue(post);
+        long likeCount = likeRepository.countByPost(post);
+
+        return PostDetailDto.builder()
+                .id(post.getId())
+                .imageUrls(postImageUrls)
+                .content(post.getContent())
+                .hashtags(post.getHashtags())
+                .createdAt(post.getCreatedAt())
+                .commentCount(commentCount)
+                .likeCount(likeCount)
+                .memberId(post.getMember().getId())
+                .memberNickname(post.getMember().getNickname())
+                .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
+                        .filter(Image::getUseYn)
+                        .map(Image::getUrl)
+                        .orElse(null))
+                .restaurantId(post.getRestaurant().getId())
+                .restaurantName(post.getRestaurant().getName())
+                .restaurantAddressName(post.getRestaurant().getAddress().getName())
+                .restaurantAddressX(post.getRestaurant().getAddress().getPoint().getX())
+                .restaurantAddressY(post.getRestaurant().getAddress().getPoint().getY())
+                .build();
     }
 
     public boolean isNotOwnedByMember(Long postId, String username) {

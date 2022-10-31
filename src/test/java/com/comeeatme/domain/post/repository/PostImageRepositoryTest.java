@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceUnitUtil;
 
 import java.util.List;
 
@@ -104,9 +105,54 @@ class PostImageRepositoryTest {
         List<PostImage> postImages = postImageRepository.findAllWithImageByPostIn(List.of(post1, post2));
 
         // then
+        PersistenceUnitUtil persistenceUnitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();
         assertThat(postImages).hasSize(3);
         assertThat(postImages).extracting("id")
                 .containsOnly(postImage1.getId(), postImage2_1.getId(), postImage2_2.getId());
+        for (PostImage postImage : postImages) {
+            assertThat(persistenceUnitUtil.isLoaded(postImage.getImage())).isTrue();
+        }
+    }
+
+    @Test
+    void findAllWithImageByPost() {
+        // given
+        Image image1 = imageRepository.save(Image.builder()
+                .member(Member.builder().id(1L).build())
+                .originName("origin-name-1")
+                .storedName("stored-name-1")
+                .url("image-url-1")
+                .build());
+        PostImage postImage1 = postImageRepository.save(PostImage.builder()
+                .post(Post.builder().id(2L).build())
+                .image(image1)
+                .build());
+
+        Image image2 = imageRepository.save(Image.builder()
+                .member(Member.builder().id(1L).build())
+                .originName("origin-name-1")
+                .storedName("stored-name-1")
+                .url("image-url-1")
+                .build());
+        PostImage postImage2 = postImageRepository.save(PostImage.builder()
+                .post(Post.builder().id(3L).build())
+                .image(image2)
+                .build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        List<PostImage> result = postImageRepository.findAllWithImageByPost(Post.builder().id(2L).build());
+
+        // then
+        PersistenceUnitUtil unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();
+        assertThat(result)
+                .hasSize(1)
+                .extracting("id").containsExactly(postImage1.getId());
+        result.stream()
+                .map(PostImage::getImage)
+                .forEach(image -> assertThat(unitUtil.isLoaded(image)).isTrue());
     }
 
 }
