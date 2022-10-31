@@ -14,6 +14,7 @@ import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.service.PostService;
@@ -51,7 +52,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -315,8 +315,9 @@ class PostControllerTest {
                         .param("memberId", "2")
                         .param("hashtags", Hashtag.EATING_ALON.name(), Hashtag.COST_EFFECTIVENESS.name())
                 )
-                .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[0].liked").value(true))
+                .andExpect(jsonPath("$.data.content[0].bookmarked").value(false))
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("v1-post-get-list",
                         requestHeaders(
@@ -348,6 +349,76 @@ class PostControllerTest {
                                 fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
                                 fieldWithPath("member.imageUrl")
                                         .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
+                                fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
+                                        .description("게시물 음식점 ID"),
+                                fieldWithPath("restaurant.name").description("게시물 음식점 이름")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 게시물 리스트 조회 - DOCS")
+    void getListOfMember_Docs() throws Exception {
+        // given
+        long memberId = 10L;
+        long myMemberId = 11L;
+        given(accountService.getMemberId(anyString())).willReturn(myMemberId);
+
+        MemberPostDto memberPostDto = MemberPostDto.builder()
+                .id(1L)
+                .imageUrls(List.of("image-url-1", "image-url-2"))
+                .content("post-content")
+                .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .commentCount(10)
+                .likeCount(20)
+                .restaurantId(3L)
+                .restaurantName("restaurant-name")
+                .build();
+        given(postService.getListOfMember(any(Pageable.class), eq(memberId)))
+                .willReturn(new SliceImpl<>(List.of(memberPostDto)));
+
+        PostLiked postLiked = PostLiked.builder()
+                .postId(1L)
+                .liked(true)
+                .build();
+        given(likeService.areLiked(myMemberId, List.of(1L))).willReturn(List.of(postLiked));
+
+        PostBookmarked postBookmarked = PostBookmarked.builder()
+                .postId(1L)
+                .bookmarked(false)
+                .build();
+        given(bookmarkService.areBookmarked(myMemberId, List.of(1L))).willReturn(List.of(postBookmarked));
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}/posts", 10L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content[0].liked").value(true))
+                .andExpect(jsonPath("$.data.content[0].bookmarked").value(false))
+                .andDo(document("v1-post-get-list-of-member",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
+                                        .description("게시물 댓글 개수"),
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
+                                        .description("게시물 좋아요 개수"),
+                                fieldWithPath("liked").description("좋아요 여부"),
+                                fieldWithPath("bookmarked").description("북마크 여부"),
                                 fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
                                         .description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
