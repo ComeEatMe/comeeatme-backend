@@ -28,9 +28,9 @@ public class PostDto {
 
     private LocalDateTime createdAt;
 
-    private Long commentCount;
+    private Integer commentCount;
 
-    private Long likeCount;
+    private Integer likeCount;
 
     private MemberDto member;
 
@@ -45,8 +45,8 @@ public class PostDto {
                         .collect(Collectors.toList()))
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
-                .commentCount(commentCount.getCount())
-                .likeCount(likeCount.getCount())
+                .commentCount(commentCount.getCount().intValue())
+                .likeCount(likeCount.getCount().intValue())
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
                 .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
@@ -64,8 +64,8 @@ public class PostDto {
             List<String> imageUrls,
             String content,
             LocalDateTime createdAt,
-            Long commentCount,
-            Long likeCount,
+            Integer commentCount,
+            Integer likeCount,
             Long memberId,
             String memberNickname,
             @Nullable String memberImageUrl,

@@ -283,8 +283,8 @@ class PostControllerTest {
                 .imageUrls(List.of("image-url-1", "image-url-2"))
                 .content("post-content")
                 .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
-                .commentCount(10L)
-                .likeCount(20L)
+                .commentCount(10)
+                .likeCount(20)
                 .memberId(2L)
                 .memberNickname("nickname")
                 .memberImageUrl("member-image-url")
@@ -337,9 +337,9 @@ class PostControllerTest {
                                 fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
-                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
                                         .description("게시물 댓글 개수"),
-                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
                                         .description("게시물 좋아요 개수"),
                                 fieldWithPath("liked").description("좋아요 여부"),
                                 fieldWithPath("bookmarked").description("북마크 여부"),
