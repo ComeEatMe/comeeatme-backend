@@ -14,6 +14,7 @@ import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
@@ -350,6 +351,80 @@ class PostControllerTest {
                                 fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
                                         .description("게시물 음식점 ID"),
                                 fieldWithPath("restaurant.name").description("게시물 음식점 이름")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("게시물 상세 조회 - DOCS")
+    void get_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(1L);
+
+        PostDetailDto postDetailDto = PostDetailDto.builder()
+                .id(2L)
+                .imageUrls(List.of("image-url-1", "image-url-1"))
+                .content("content")
+                .hashtags(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS))
+                .createdAt(LocalDateTime.of(2022, 10, 31, 17, 53))
+                .commentCount(10L)
+                .likeCount(20L)
+                .memberId(3L)
+                .memberNickname("nickname")
+                .memberImageUrl("member-image-url")
+                .restaurantId(4L)
+                .restaurantName("지그재그")
+                .restaurantAddressName("화양동")
+                .restaurantAddressX(1.0)
+                .restaurantAddressY(2.0)
+                .build();
+        given(postService.get(2L)).willReturn(postDetailDto);
+
+        given(bookmarkService.isBookmarked(1L, 2L)).willReturn(false);
+        given(likeService.isLiked(1L, 2L)).willReturn(true);
+
+        // expected
+        mockMvc.perform(get("/v1/posts/{postId}", 2L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-post-get",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("hashtags").description("게시물 해쉬태그 리스트"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                        .description("게시물 댓글 개수"),
+                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                        .description("게시물 좋아요 개수"),
+                                fieldWithPath("liked").description("좋아요 여부"),
+                                fieldWithPath("bookmarked").description("북마크 여부"),
+                                fieldWithPath("member.id").type(Long.class.getSimpleName())
+                                        .description("게시물 작성자 회원 ID"),
+                                fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
+                                fieldWithPath("member.imageUrl")
+                                        .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null").optional(),
+                                fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
+                                        .description("게시물 음식점 ID"),
+                                fieldWithPath("restaurant.name").description("게시물 음식점 이름"),
+                                fieldWithPath("restaurant.address.name").description("게시물 음식점 주소"),
+                                fieldWithPath("restaurant.address.x").type(Double.class.getSimpleName())
+                                        .description("게시물 음식점 X 좌표"),
+                                fieldWithPath("restaurant.address.y").type(Double.class.getSimpleName())
+                                        .description("게시물 음식점 Y 좌표")
                         )
                 ))
         ;

@@ -164,6 +164,46 @@ class LikeServiceTest {
     }
 
     @Test
+    void isLiked_True() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(2L)).willReturn(Optional.of(post));
+
+        given(likeRepository.existsByPostAndMember(post, member)).willReturn(true);
+
+        // when
+        boolean result = likeService.isLiked(1L, 2L);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void isLiked_False() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post = mock(Post.class);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(2L)).willReturn(Optional.of(post));
+
+        given(likeRepository.existsByPostAndMember(post, member)).willReturn(false);
+
+        // when
+        boolean result = likeService.isLiked(1L, 2L);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void getLikedPosts() {
         // given
         Member member = mock(Member.class);

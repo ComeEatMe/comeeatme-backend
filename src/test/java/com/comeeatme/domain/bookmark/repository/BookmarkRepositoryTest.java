@@ -165,4 +165,49 @@ class BookmarkRepositoryTest {
         assertThat(result).isEqualTo(2);
     }
 
+    @Test
+    void existsByMemberAndPost() {
+        // given
+        bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(1L).build())
+                .post(Post.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(bookmarkRepository.existsByMemberAndPost(
+                Member.builder().id(1L).build(),
+                Post.builder().id(2L).build()
+        )).isTrue();
+    }
+
+    @Test
+    void existsByMemberAndPost_MemberNotEqual() {
+        // given
+        bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(1L).build())
+                .post(Post.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(bookmarkRepository.existsByMemberAndPost(
+                Member.builder().id(3L).build(),
+                Post.builder().id(2L).build()
+        )).isFalse();
+    }
+
+    @Test
+    void existsByMemberAndPost_PostNotEqual() {
+        // given
+        bookmarkRepository.save(Bookmark.builder()
+                .member(Member.builder().id(1L).build())
+                .post(Post.builder().id(2L).build())
+                .build());
+
+        // expected
+        assertThat(bookmarkRepository.existsByMemberAndPost(
+                Member.builder().id(1L).build(),
+                Post.builder().id(3L).build()
+        )).isFalse();
+    }
+
 }
