@@ -196,7 +196,7 @@ class FavoriteServiceTest {
 
         given(favoriteGroupRepository.findAllByMember(member)).willReturn(List.of(group1, group2));
 
-        given(favoriteRepository.countByMember(member)).willReturn(10);
+        given(favoriteRepository.countByMember(member)).willReturn(10L);
 
         // when
         List<FavoriteGroupDto> result = favoriteService.getAllGroupsOfMember(1L);

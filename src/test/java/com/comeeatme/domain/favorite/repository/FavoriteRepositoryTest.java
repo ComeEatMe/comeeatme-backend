@@ -141,10 +141,10 @@ class FavoriteRepositoryTest {
         ));
 
         // when
-        int result = favoriteRepository.countByMember(Member.builder().id(1L).build());
+        long result = favoriteRepository.countByMember(Member.builder().id(1L).build());
 
         // then
-        assertThat(result).isEqualTo(2);
+        assertThat(result).isEqualTo(2L);
     }
 
     @Test
