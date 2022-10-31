@@ -23,12 +23,19 @@ operation::v1-post-get-list[snippets='http-request,request-headers,request-param
 [[v1-post-get-list-of-member]]
 == 회원 게시물 리스트 조회
 
-sort 파라미터 사용 불가능
-
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
 operation::v1-post-get-list-of-member[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+
+
+[[v1-post-get-list-of-restaurant]]
+== 음식점 게시물 리스트 조회
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-post-get-list-of-restaurant[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
 
 
 [[v1-post-get]]
