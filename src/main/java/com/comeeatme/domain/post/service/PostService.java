@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,17 +113,35 @@ public class PostService {
                 .stream()
                 .filter(postImage -> postImage.getImage().getUseYn())
                 .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
-        Map<Long, CommentCount> postIdToCommentCount = commentRepository.countsGroupByPosts(posts.getContent())
+        Map<Long, Long> postIdToCommentCount = commentRepository.countsGroupByPosts(posts.getContent())
                 .stream()
-                .collect(Collectors.toMap(CommentCount::getPostId, Function.identity()));
-        Map<Long, LikeCount> postIdToLikeCount = likeRepository.countsGroupByPosts(posts.getContent())
+                .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCount));
+        Map<Long, Long> postIdToLikeCount = likeRepository.countsGroupByPosts(posts.getContent())
                 .stream()
-                .collect(Collectors.toMap(LikeCount::getPostId, Function.identity()));
-        return posts.map(post -> PostDto.of(post,
-                postIdToPostImages.get(post.getId()),
-                postIdToCommentCount.get(post.getId()),
-                postIdToLikeCount.get(post.getId())
-        ));
+                .collect(Collectors.toMap(LikeCount::getPostId, LikeCount::getCount));
+
+        return posts.map(
+                post -> PostDto.builder()
+                        .id(post.getId())
+                        .imageUrls(postIdToPostImages.getOrDefault(post.getId(), Collections.emptyList())
+                                .stream()
+                                .map(PostImage::getImage)
+                                .map(Image::getUrl)
+                                .collect(Collectors.toList()))
+                        .content(post.getContent())
+                        .createdAt(post.getCreatedAt())
+                        .commentCount(postIdToCommentCount.getOrDefault(post.getId(), 0L).intValue())
+                        .likeCount(postIdToLikeCount.getOrDefault(post.getId(), 0L).intValue())
+                        .memberId(post.getMember().getId())
+                        .memberNickname(post.getMember().getNickname())
+                        .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
+                                .filter(Image::getUseYn)
+                                .map(Image::getUrl)
+                                .orElse(null))
+                        .restaurantId(post.getRestaurant().getId())
+                        .restaurantName(post.getRestaurant().getName())
+                        .build()
+        );
     }
 
     public PostDetailDto get(Long postId) {

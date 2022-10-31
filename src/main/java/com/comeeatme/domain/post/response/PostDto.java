@@ -1,10 +1,5 @@
 package com.comeeatme.domain.post.response;
 
-import com.comeeatme.domain.comment.response.CommentCount;
-import com.comeeatme.domain.image.Image;
-import com.comeeatme.domain.like.response.LikeCount;
-import com.comeeatme.domain.post.Post;
-import com.comeeatme.domain.post.PostImage;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,8 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,28 +28,6 @@ public class PostDto {
     private MemberDto member;
 
     private RestaurantDto restaurant;
-
-    public static PostDto of(Post post, List<PostImage> postImages, CommentCount commentCount, LikeCount likeCount) {
-        return PostDto.builder()
-                .id(post.getId())
-                .imageUrls(postImages.stream()
-                        .map(PostImage::getImage)
-                        .map(Image::getUrl)
-                        .collect(Collectors.toList()))
-                .content(post.getContent())
-                .createdAt(post.getCreatedAt())
-                .commentCount(commentCount.getCount().intValue())
-                .likeCount(likeCount.getCount().intValue())
-                .memberId(post.getMember().getId())
-                .memberNickname(post.getMember().getNickname())
-                .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
-                        .filter(Image::getUseYn)
-                        .map(Image::getUrl)
-                        .orElse(null))
-                .restaurantId(post.getRestaurant().getId())
-                .restaurantName(post.getRestaurant().getName())
-                .build();
-    }
 
     @Builder
     private PostDto(
