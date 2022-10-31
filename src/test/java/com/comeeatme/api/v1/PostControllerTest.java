@@ -369,8 +369,8 @@ class PostControllerTest {
                 .content("content")
                 .hashtags(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS))
                 .createdAt(LocalDateTime.of(2022, 10, 31, 17, 53))
-                .commentCount(10L)
-                .likeCount(20L)
+                .commentCount(10)
+                .likeCount(20)
                 .memberId(3L)
                 .memberNickname("nickname")
                 .memberImageUrl("member-image-url")
@@ -406,9 +406,9 @@ class PostControllerTest {
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("hashtags").description("게시물 해쉬태그 리스트"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
-                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
                                         .description("게시물 댓글 개수"),
-                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
                                         .description("게시물 좋아요 개수"),
                                 fieldWithPath("liked").description("좋아요 여부"),
                                 fieldWithPath("bookmarked").description("북마크 여부"),

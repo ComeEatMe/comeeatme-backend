@@ -133,8 +133,8 @@ public class PostService {
                 .filter(postImage -> postImage.getImage().getUseYn())
                 .map(postImage -> postImage.getImage().getUrl())
                 .collect(Collectors.toList());
-        long commentCount = commentRepository.countByPostAndUseYnIsTrue(post);
-        long likeCount = likeRepository.countByPost(post);
+        int commentCount = (int) commentRepository.countByPostAndUseYnIsTrue(post);
+        int likeCount = (int) likeRepository.countByPost(post);
 
         return PostDetailDto.builder()
                 .id(post.getId())
