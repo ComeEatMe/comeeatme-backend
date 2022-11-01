@@ -81,7 +81,7 @@ public class FavoriteService {
     public List<FavoriteGroupDto> getAllGroupsOfMember(Long memberId) {
         Member member = getMemberById(memberId);
         List<FavoriteGroup> groups = favoriteGroupRepository.findAllByMember(member);
-        int allCount = favoriteRepository.countByMember(member);
+        int allCount = (int) favoriteRepository.countByMember(member);
         List<FavoriteGroupDto> groupDtos = new ArrayList<>();
         groupDtos.add(FavoriteGroupDto.builder()
                 .name(FavoriteGroup.ALL_NAME)

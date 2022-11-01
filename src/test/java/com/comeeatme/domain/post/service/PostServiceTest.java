@@ -22,8 +22,10 @@ import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -254,14 +256,159 @@ class PostServiceTest {
     @Test
     void getList() {
         // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getUrl()).willReturn("member-image-url");
+
         Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(memberImage);
+
         Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(3L);
+        given(restaurant.getName()).willReturn("지그재그");
+
         Post post = mock(Post.class);
         given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
+
         SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
-        given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
+                .willReturn(postSlice);
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
+                .willReturn(List.of(postImage1, postImage2));
+        given(commentRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new CommentCount(1L, 10L)));
+        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new LikeCount(1L, 20L)));
+
+        // when
+        Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
+
+        // then
+        List<PostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 1, 12));
+        assertThat(content).extracting("commentCount").containsExactly(10);
+        assertThat(content).extracting("likeCount").containsExactly(20);
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly("member-image-url");
+        assertThat(content).extracting("restaurant.id").containsExactly(3L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+    }
+
+    @Test
+    void getList_MemberImageNull() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(3L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
+        given(post.getMember()).willReturn(member);
+        given(post.getRestaurant()).willReturn(restaurant);
+
+        SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
+                .willReturn(postSlice);
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
+                .willReturn(List.of(postImage1, postImage2));
+        given(commentRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new CommentCount(1L, 10L)));
+        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
+                .willReturn(List.of(new LikeCount(1L, 20L)));
+
+        // when
+        Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
+
+        // then
+        List<PostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 1, 12));
+        assertThat(content).extracting("commentCount").containsExactly(10);
+        assertThat(content).extracting("likeCount").containsExactly(20);
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly((Object) null);
+        assertThat(content).extracting("restaurant.id").containsExactly(3L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+    }
+
+    @Test
+    void getList_DeletedPostImageContain() {
+        // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getUrl()).willReturn("member-image-url");
+
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(memberImage);
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(3L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
+        given(post.getMember()).willReturn(member);
+        given(post.getRestaurant()).willReturn(restaurant);
+
+        SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(postSlice);
 
         Image image1 = mock(Image.class);
@@ -290,6 +437,299 @@ class PostServiceTest {
         List<PostDto> content = result.getContent();
         assertThat(content).hasSize(1);
         assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 1, 12));
+        assertThat(content).extracting("commentCount").containsExactly(10);
+        assertThat(content).extracting("likeCount").containsExactly(20);
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly("member-image-url");
+        assertThat(content).extracting("restaurant.id").containsExactly(3L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1");
+    }
+
+    @Test
+    void getListOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(3L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 2, 6));
+        given(post.getRestaurant()).willReturn(restaurant);
+
+        given(postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(any(Pageable.class), eq(member)))
+                .willReturn(new SliceImpl<>(List.of(post)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+        given(commentRepository.countsGroupByPosts(List.of(post)))
+                .willReturn(List.of(new CommentCount(1L, 10L)));
+        given(likeRepository.countsGroupByPosts(List.of(post)))
+                .willReturn(List.of(new LikeCount(1L, 20L)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<MemberPostDto> result = postService.getListOfMember(pageRequest, 2L);
+
+        // then
+        List<MemberPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 2, 6));
+        assertThat(content).extracting("commentCount").containsExactly(10);
+        assertThat(content).extracting("likeCount").containsExactly(20);
+        assertThat(content).extracting("restaurant.id").containsExactly(3L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+    }
+
+    @Test
+    void getListOfMember_DeletedPostImageContain() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(3L);
+        given(restaurant.getName()).willReturn("지그재그");
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 2, 6));
+        given(post.getRestaurant()).willReturn(restaurant);
+
+        given(postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(any(Pageable.class), eq(member)))
+                .willReturn(new SliceImpl<>(List.of(post)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(false);
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+        given(commentRepository.countsGroupByPosts(List.of(post)))
+                .willReturn(List.of(new CommentCount(1L, 10L)));
+        given(likeRepository.countsGroupByPosts(List.of(post)))
+                .willReturn(List.of(new LikeCount(1L, 20L)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<MemberPostDto> result = postService.getListOfMember(pageRequest, 2L);
+
+        // then
+        List<MemberPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 2, 6));
+        assertThat(content).extracting("commentCount").containsExactly(10);
+        assertThat(content).extracting("likeCount").containsExactly(20);
+        assertThat(content).extracting("restaurant.id").containsExactly(3L);
+        assertThat(content).extracting("restaurant.name").containsExactly("지그재그");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1");
+    }
+
+    @Test
+    void getListOfRestaurant() {
+        // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getUrl()).willReturn("member-image-url");
+
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(memberImage);
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(3L)).willReturn(Optional.of(restaurant));
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 3, 25));
+        given(post.getMember()).willReturn(member);
+
+        given(postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(any(Pageable.class), eq(restaurant)))
+                .willReturn(new SliceImpl<>(List.of(post)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        Slice<RestaurantPostDto> result = postService.getListOfRestaurant(PageRequest.of(0, 10), 3L);
+
+        // then
+        List<RestaurantPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 3, 25));
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly("member-image-url");
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+    }
+
+    @Test
+    void getListOfRestaurant_MemberImageNull() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(3L)).willReturn(Optional.of(restaurant));
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 3, 25));
+        given(post.getMember()).willReturn(member);
+
+        given(postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(any(Pageable.class), eq(restaurant)))
+                .willReturn(new SliceImpl<>(List.of(post)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        Slice<RestaurantPostDto> result = postService.getListOfRestaurant(PageRequest.of(0, 10), 3L);
+
+        // then
+        List<RestaurantPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 3, 25));
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly((Object) null);
+
+        assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1", "image-url-2");
+    }
+
+    @Test
+    void getListOfRestaurant_DeletedImageContain() {
+        // given
+        Image memberImage = mock(Image.class);
+        given(memberImage.getUseYn()).willReturn(true);
+        given(memberImage.getUrl()).willReturn("member-image-url");
+
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(2L);
+        given(member.getNickname()).willReturn("nickname");
+        given(member.getImage()).willReturn(memberImage);
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(3L)).willReturn(Optional.of(restaurant));
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getContent()).willReturn("content");
+        given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 3, 25));
+        given(post.getMember()).willReturn(member);
+
+        given(postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(any(Pageable.class), eq(restaurant)))
+                .willReturn(new SliceImpl<>(List.of(post)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(true);
+        given(image1.getUrl()).willReturn("image-url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(false);
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getImage()).willReturn(image2);
+
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2));
+
+        // when
+        Slice<RestaurantPostDto> result = postService.getListOfRestaurant(PageRequest.of(0, 10), 3L);
+
+        // then
+        List<RestaurantPostDto> content = result.getContent();
+        assertThat(content).hasSize(1);
+        assertThat(content).extracting("id").containsExactly(1L);
+        assertThat(content).extracting("content").containsExactly("content");
+        assertThat(content).extracting("createdAt").containsExactly(LocalDateTime.of(2022, 11, 1, 3, 25));
+        assertThat(content).extracting("member.id").containsExactly(2L);
+        assertThat(content).extracting("member.nickname").containsExactly("nickname");
+        assertThat(content).extracting("member.imageUrl").containsExactly("member-image-url");
+
         assertThat(content.get(0).getImageUrls()).containsExactly("image-url-1");
     }
 
@@ -350,8 +790,8 @@ class PostServiceTest {
         assertThat(result.getContent()).isEqualTo("content");
         assertThat(result.getHashtags()).containsExactly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
         assertThat(result.getCreatedAt()).isEqualTo(LocalDateTime.of(2022, 10, 31, 16, 36));
-        assertThat(result.getCommentCount()).isEqualTo(10L);
-        assertThat(result.getLikeCount()).isEqualTo(20L);
+        assertThat(result.getCommentCount()).isEqualTo(10);
+        assertThat(result.getLikeCount()).isEqualTo(20);
         assertThat(result.getMember().getId()).isEqualTo(2L);
         assertThat(result.getMember().getNickname()).isEqualTo("nickname");
         assertThat(result.getMember().getImageUrl()).isEqualTo("member-image-url");

@@ -14,8 +14,10 @@ import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
@@ -51,7 +53,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -283,8 +284,8 @@ class PostControllerTest {
                 .imageUrls(List.of("image-url-1", "image-url-2"))
                 .content("post-content")
                 .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
-                .commentCount(10L)
-                .likeCount(20L)
+                .commentCount(10)
+                .likeCount(20)
                 .memberId(2L)
                 .memberNickname("nickname")
                 .memberImageUrl("member-image-url")
@@ -311,22 +312,17 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("restaurantId", "3")
-                        .param("memberId", "2")
                         .param("hashtags", Hashtag.EATING_ALON.name(), Hashtag.COST_EFFECTIVENESS.name())
                 )
-                .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[0].liked").value(true))
+                .andExpect(jsonPath("$.data.content[0].bookmarked").value(false))
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("v1-post-get-list",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         requestParameters(
-                                parameterWithName("restaurantId")
-                                        .description("게시물의 음식점 ID. null 이면 전체.").optional(),
-                                parameterWithName("memberId")
-                                        .description("게시물의 작성자 회원 ID. null 이면 전체.").optional(),
                                 parameterWithName("hashtags")
                                         .description("게시물의 hashtag 리스트. " +
                                                 "리스트의 해쉬태그를 모두 포함하는 게시글. null 이면 전체.").optional()
@@ -337,9 +333,9 @@ class PostControllerTest {
                                 fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
-                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
                                         .description("게시물 댓글 개수"),
-                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
                                         .description("게시물 좋아요 개수"),
                                 fieldWithPath("liked").description("좋아요 여부"),
                                 fieldWithPath("bookmarked").description("북마크 여부"),
@@ -358,6 +354,137 @@ class PostControllerTest {
 
     @Test
     @WithMockUser
+    @DisplayName("회원 게시물 리스트 조회 - DOCS")
+    void getListOfMember_Docs() throws Exception {
+        // given
+        long memberId = 10L;
+        long myMemberId = 11L;
+        given(accountService.getMemberId(anyString())).willReturn(myMemberId);
+
+        MemberPostDto memberPostDto = MemberPostDto.builder()
+                .id(1L)
+                .imageUrls(List.of("image-url-1", "image-url-2"))
+                .content("post-content")
+                .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .commentCount(10)
+                .likeCount(20)
+                .restaurantId(3L)
+                .restaurantName("restaurant-name")
+                .build();
+        given(postService.getListOfMember(any(Pageable.class), eq(memberId)))
+                .willReturn(new SliceImpl<>(List.of(memberPostDto)));
+
+        PostLiked postLiked = PostLiked.builder()
+                .postId(1L)
+                .liked(true)
+                .build();
+        given(likeService.areLiked(myMemberId, List.of(1L))).willReturn(List.of(postLiked));
+
+        PostBookmarked postBookmarked = PostBookmarked.builder()
+                .postId(1L)
+                .bookmarked(false)
+                .build();
+        given(bookmarkService.areBookmarked(myMemberId, List.of(1L))).willReturn(List.of(postBookmarked));
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}/posts", 10L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content[0].liked").value(true))
+                .andExpect(jsonPath("$.data.content[0].bookmarked").value(false))
+                .andDo(document("v1-post-get-list-of-member",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
+                                        .description("게시물 댓글 개수"),
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
+                                        .description("게시물 좋아요 개수"),
+                                fieldWithPath("liked").description("좋아요 여부"),
+                                fieldWithPath("bookmarked").description("북마크 여부"),
+                                fieldWithPath("restaurant.id").type(Long.class.getSimpleName())
+                                        .description("게시물 음식점 ID"),
+                                fieldWithPath("restaurant.name").description("게시물 음식점 이름")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("음식점 게시물 리스트 조회 - DOCS")
+    void getListOfRestaurant() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
+        RestaurantPostDto restaurantPostDto = RestaurantPostDto.builder()
+                .id(1L)
+                .imageUrls(List.of("image-url-1", "image-url-2"))
+                .content("post-content")
+                .createdAt(LocalDateTime.of(2022, 10, 10, 19, 7))
+                .memberId(2L)
+                .memberNickname("nickname")
+                .memberImageUrl("member-image-url")
+                .build();
+        given(postService.getListOfRestaurant(any(Pageable.class), eq(3L)))
+                .willReturn(new SliceImpl<>(List.of(restaurantPostDto)));
+
+        PostLiked postLiked = PostLiked.builder()
+                .postId(1L)
+                .liked(true)
+                .build();
+        given(likeService.areLiked(10L, List.of(1L))).willReturn(List.of(postLiked));
+
+        PostBookmarked postBookmarked = PostBookmarked.builder()
+                .postId(1L)
+                .bookmarked(false)
+                .build();
+        given(bookmarkService.areBookmarked(10L, List.of(1L))).willReturn(List.of(postBookmarked));
+
+        // expected
+        mockMvc.perform(get("/v1/restaurants/{restaurantId}/posts", 3L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-post-get-list-of-restaurant",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("게시물 ID"),
+                                fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
+                                fieldWithPath("content").description("게시물 내용"),
+                                fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("member.id").type(Long.class.getSimpleName())
+                                        .description("게시물 작성자 회원 ID"),
+                                fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),
+                                fieldWithPath("member.imageUrl").optional()
+                                        .description("게시물 작성자 회원 프로필 이미지 URL. 없을 경우 null")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
     @DisplayName("게시물 상세 조회 - DOCS")
     void get_Docs() throws Exception {
         // given
@@ -369,8 +496,8 @@ class PostControllerTest {
                 .content("content")
                 .hashtags(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS))
                 .createdAt(LocalDateTime.of(2022, 10, 31, 17, 53))
-                .commentCount(10L)
-                .likeCount(20L)
+                .commentCount(10)
+                .likeCount(20)
                 .memberId(3L)
                 .memberNickname("nickname")
                 .memberImageUrl("member-image-url")
@@ -406,9 +533,9 @@ class PostControllerTest {
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("hashtags").description("게시물 해쉬태그 리스트"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
-                                fieldWithPath("commentCount").type(Long.class.getSimpleName())
+                                fieldWithPath("commentCount").type(Integer.class.getSimpleName())
                                         .description("게시물 댓글 개수"),
-                                fieldWithPath("likeCount").type(Long.class.getSimpleName())
+                                fieldWithPath("likeCount").type(Integer.class.getSimpleName())
                                         .description("게시물 좋아요 개수"),
                                 fieldWithPath("liked").description("좋아요 여부"),
                                 fieldWithPath("bookmarked").description("북마크 여부"),

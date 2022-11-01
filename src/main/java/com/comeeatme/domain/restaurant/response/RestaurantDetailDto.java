@@ -1,14 +1,9 @@
 package com.comeeatme.domain.restaurant.response;
 
-import com.comeeatme.domain.restaurant.OpenInfo;
-import com.comeeatme.domain.restaurant.Restaurant;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.annotation.Nullable;
-import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,35 +13,22 @@ public class RestaurantDetailDto {
 
     private String name;
 
-    private String category;
-
     private AddressDto address;
 
-    public static RestaurantDetailDto of(Restaurant restaurant) {
-        return RestaurantDetailDto.builder()
-                .id(restaurant.getId())
-                .name(restaurant.getName())
-                .category(Optional.ofNullable(restaurant.getOpenInfo())
-                        .map(OpenInfo::getCategory).orElse(null))
-                .addressName(restaurant.getAddress().getName())
-                .addressRoadName(restaurant.getAddress().getRoadName())
-                .addressX(restaurant.getAddress().getPoint().getX())
-                .addressY(restaurant.getAddress().getPoint().getY())
-                .build();
-    }
+    private Integer favoriteCount;
 
     @Builder
     public RestaurantDetailDto(
             Long id,
             String name,
-            @Nullable String category,
-            @Nullable String addressName,
-            @Nullable String addressRoadName,
-            @Nullable Double addressX,
-            @Nullable Double addressY) {
+            Integer favoriteCount,
+            String addressName,
+            String addressRoadName,
+            Double addressX,
+            Double addressY) {
         this.id = id;
         this.name = name;
-        this.category = category;
+        this.favoriteCount = favoriteCount;
         this.address = AddressDto.builder()
                 .name(addressName)
                 .roadName(addressRoadName)

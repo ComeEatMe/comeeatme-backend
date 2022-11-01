@@ -1,5 +1,6 @@
 package com.comeeatme.domain.restaurant.service;
 
+import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
@@ -18,6 +19,8 @@ public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
 
+    private final FavoriteRepository favoriteRepository;
+
     public Slice<RestaurantSimpleDto> getSimpleList(Pageable pageable, String name) {
         return restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(pageable, name)
                 .map(restaurant -> RestaurantSimpleDto.builder()
@@ -30,7 +33,16 @@ public class RestaurantService {
 
     public RestaurantDetailDto get(Long restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
-        return RestaurantDetailDto.of(restaurant);
+        int favoriteCount = (int) favoriteRepository.countByRestaurant(restaurant);
+        return RestaurantDetailDto.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .favoriteCount(favoriteCount)
+                .addressName(restaurant.getAddress().getName())
+                .addressRoadName(restaurant.getAddress().getRoadName())
+                .addressX(restaurant.getAddress().getPoint().getX())
+                .addressY(restaurant.getAddress().getPoint().getY())
+                .build();
     }
 
     private Restaurant getRestaurantById(Long id) {

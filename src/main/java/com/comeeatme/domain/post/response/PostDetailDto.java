@@ -24,9 +24,9 @@ public class PostDetailDto {
 
     private LocalDateTime createdAt;
 
-    private Long commentCount;
+    private Integer commentCount;
 
-    private Long likeCount;
+    private Integer likeCount;
 
     private MemberDto member;
 
@@ -39,8 +39,8 @@ public class PostDetailDto {
             String content,
             List<Hashtag> hashtags,
             LocalDateTime createdAt,
-            Long commentCount,
-            Long likeCount,
+            Integer commentCount,
+            Integer likeCount,
             Long memberId,
             String memberNickname,
             @Nullable String memberImageUrl,

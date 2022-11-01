@@ -14,8 +14,10 @@ import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.post.request.PostCreate;
 import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
+import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.InvalidImageIdception;
@@ -54,14 +56,8 @@ public class PostController {
         List<Long> postIds = posts.stream()
                 .map(PostDto::getId)
                 .collect(Collectors.toList());
-        Set<Long> likedPostIds = likeService.areLiked(memberId, postIds).stream()
-                .filter(PostLiked::getLiked)
-                .map(PostLiked::getPostId)
-                .collect(Collectors.toSet());
-        Set<Long> bookmarkedPostIds = bookmarkService.areBookmarked(memberId, postIds).stream()
-                .filter(PostBookmarked::getBookmarked)
-                .map(PostBookmarked::getPostId)
-                .collect(Collectors.toSet());
+        Set<Long> likedPostIds = getLikedPostIds(memberId, postIds);
+        Set<Long> bookmarkedPostIds = getBookmarkedPostIds(memberId, postIds);
         Slice<WithLikedBookmarked<PostDto>> postWiths = posts
                 .map(post -> WithLikedBookmarked.<PostDto>builder()
                         .post(post)
@@ -71,6 +67,49 @@ public class PostController {
                 );
         ApiResult<Slice<WithLikedBookmarked<PostDto>>> apiResult = ApiResult.success(postWiths);
         return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/members/{memberId}/posts")
+    public ResponseEntity<ApiResult<Slice<WithLikedBookmarked<MemberPostDto>>>> getListOfMember(
+            Pageable pageable, @PathVariable Long memberId, @CurrentUsername String username) {
+        Long myMemberId = accountService.getMemberId(username);
+        Slice<MemberPostDto> posts = postService.getListOfMember(pageable, memberId);
+        List<Long> postIds = posts.stream()
+                .map(MemberPostDto::getId)
+                .collect(Collectors.toList());
+        Set<Long> likedPostIds = getLikedPostIds(myMemberId, postIds);
+        Set<Long> bookmarkedPostIds = getBookmarkedPostIds(myMemberId, postIds);
+        Slice<WithLikedBookmarked<MemberPostDto>> postWiths = posts
+                .map(post -> WithLikedBookmarked.<MemberPostDto>builder()
+                        .post(post)
+                        .liked(likedPostIds.contains(post.getId()))
+                        .bookmarked(bookmarkedPostIds.contains(post.getId()))
+                        .build()
+                );
+        ApiResult<Slice<WithLikedBookmarked<MemberPostDto>>> apiResult = ApiResult.success(postWiths);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/restaurants/{restaurantId}/posts")
+    public ResponseEntity<ApiResult<Slice<RestaurantPostDto>>> getListOfRestaurant(
+            Pageable pageable, @PathVariable Long restaurantId, @CurrentUsername String username) {
+        Slice<RestaurantPostDto> posts = postService.getListOfRestaurant(pageable, restaurantId);
+        ApiResult<Slice<RestaurantPostDto>> apiResult = ApiResult.success(posts);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    private Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
+        return likeService.areLiked(memberId, postIds).stream()
+                .filter(PostLiked::getLiked)
+                .map(PostLiked::getPostId)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Long> getBookmarkedPostIds(Long memberId, List<Long> postIds) {
+        return bookmarkService.areBookmarked(memberId, postIds).stream()
+                .filter(PostBookmarked::getBookmarked)
+                .map(PostBookmarked::getPostId)
+                .collect(Collectors.toSet());
     }
 
     @GetMapping("/posts/{postId}")
