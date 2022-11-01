@@ -50,7 +50,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Slice<Post> findAllWithMemberAndRestaurant(Pageable pageable, PostSearch postSearch) {
+    public Slice<Post> findSliceWithMemberAndRestaurantBy(Pageable pageable, PostSearch postSearch) {
         JPAQuery<Post> contentQuery = query
                 .selectFrom(post)
                 .join(post.member, member).fetchJoin()
@@ -80,18 +80,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         .from(postHashtag)
                         .where(postHashtag.hashtag.eq(h))
                 ))
-                .orElse(null);
-    }
-
-    private BooleanExpression memberIdEq(Long memberId) {
-        return Optional.ofNullable(memberId)
-                .map(member.id::eq)
-                .orElse(null);
-    }
-
-    private BooleanExpression restaurantIdEq(Long restaurantId) {
-        return Optional.ofNullable(restaurantId)
-                .map(restaurant.id::eq)
                 .orElse(null);
     }
 

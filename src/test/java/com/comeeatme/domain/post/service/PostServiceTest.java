@@ -277,7 +277,7 @@ class PostServiceTest {
         given(post.getRestaurant()).willReturn(restaurant);
 
         SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
-        given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(postSlice);
 
         Image image1 = mock(Image.class);
@@ -340,7 +340,7 @@ class PostServiceTest {
         given(post.getRestaurant()).willReturn(restaurant);
 
         SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
-        given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(postSlice);
 
         Image image1 = mock(Image.class);
@@ -408,7 +408,7 @@ class PostServiceTest {
         given(post.getRestaurant()).willReturn(restaurant);
 
         SliceImpl<Post> postSlice = new SliceImpl<>(List.of(post));
-        given(postRepository.findAllWithMemberAndRestaurant(any(Pageable.class), any(PostSearch.class)))
+        given(postRepository.findSliceWithMemberAndRestaurantBy(any(Pageable.class), any(PostSearch.class)))
                 .willReturn(postSlice);
 
         Image image1 = mock(Image.class);

@@ -109,7 +109,7 @@ public class PostService {
     }
 
     public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {
-        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+        Slice<Post> posts = postRepository.findSliceWithMemberAndRestaurantBy(pageable, postSearch);
         Map<Long, List<PostImage>> postIdToPostImages = getPostIdToPostImages(posts.getContent());
         Map<Long, Long> postIdToCommentCount = getPostIdToCommentCount(posts.getContent());
         Map<Long, Long> postIdToLikeCount = getPostIdToLikeCount(posts.getContent());

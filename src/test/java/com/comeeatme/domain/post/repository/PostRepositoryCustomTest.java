@@ -71,7 +71,7 @@ class PostRepositoryCustomTest {
     }
 
     @Test
-    void findAllWithMemberAndRestaurant_IdDescOrder() {
+    void findSliceWithMemberAndRestaurantBy_IdDescOrder() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -101,7 +101,7 @@ class PostRepositoryCustomTest {
         // when
         PostSearch postSearch = PostSearch.builder().build();
         PageRequest pageable = PageRequest.of(0, 10);
-        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+        Slice<Post> posts = postRepository.findSliceWithMemberAndRestaurantBy(pageable, postSearch);
 
         // then
         List<Post> content = posts.getContent();
@@ -110,7 +110,7 @@ class PostRepositoryCustomTest {
     }
 
     @Test
-    void findAllWithMemberAndRestaurant_Deleted() {
+    void findSliceWithMemberAndRestaurantBy_Deleted() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -136,7 +136,7 @@ class PostRepositoryCustomTest {
         // when
         PostSearch postSearch = PostSearch.builder().build();
         PageRequest pageable = PageRequest.of(0, 10);
-        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+        Slice<Post> posts = postRepository.findSliceWithMemberAndRestaurantBy(pageable, postSearch);
 
         // then
         List<Post> content = posts.getContent();
@@ -144,7 +144,7 @@ class PostRepositoryCustomTest {
     }
 
     @Test
-    void findAllWithMemberAndRestaurant_Hashtag() {
+    void findSliceWithMemberAndRestaurantBy_Hashtag() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -178,7 +178,7 @@ class PostRepositoryCustomTest {
         PostSearch postSearch = PostSearch.builder()
                 .hashtags(Set.of(Hashtag.EATING_ALON, Hashtag.COST_EFFECTIVENESS)).build();
         PageRequest pageable = PageRequest.of(0, 10);
-        Slice<Post> posts = postRepository.findAllWithMemberAndRestaurant(pageable, postSearch);
+        Slice<Post> posts = postRepository.findSliceWithMemberAndRestaurantBy(pageable, postSearch);
 
         // then
         List<Post> content = posts.getContent();

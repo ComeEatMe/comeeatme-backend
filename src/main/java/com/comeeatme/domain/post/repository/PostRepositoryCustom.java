@@ -9,5 +9,5 @@ public interface PostRepositoryCustom {
 
     boolean existsByIdAndUsernameAndUseYnIsTrue(Long postId, String username);
 
-    Slice<Post> findAllWithMemberAndRestaurant(Pageable pageable, PostSearch postSearch);
+    Slice<Post> findSliceWithMemberAndRestaurantBy(Pageable pageable, PostSearch postSearch);
 }
