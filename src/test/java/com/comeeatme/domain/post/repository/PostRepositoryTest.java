@@ -132,45 +132,6 @@ class PostRepositoryTest {
     }
 
     @Test
-    void findSliceWithRestaurantByMember_Deleted() {
-        // given
-        Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
-                .name("모노끼 야탑점")
-                .phone("031-702-2929")
-                .address(Address.builder()
-                        .name("경기 성남시 분당구 야탑동 353-4")
-                        .roadName("경기 성남시 분당구 야탑로69번길 24-6")
-                        .x(211199.96154825)
-                        .y(434395.793544651)
-                        .build())
-                .openInfo(OpenInfo.builder()
-                        .id(2L)
-                        .build())
-                .build());
-
-        Post post = postRepository.save(
-                Post.builder()
-                        .member(Member.builder().id(1L).build())
-                        .restaurant(restaurant)
-                        .content("content-1")
-                        .build()
-        );
-        post.delete();
-
-        em.flush();
-        em.clear();
-
-        // when
-        PageRequest pageRequest = PageRequest.of(0, 10);
-        Slice<Post> result = postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(
-                pageRequest, Member.builder().id(1L).build());
-
-        // then
-        List<Post> content = result.getContent();
-        assertThat(content).isEmpty();
-    }
-
-    @Test
     void findSliceWithMemberByRestaurantAndUseYnIsTrue() {
         // given
         Member member = memberRepository.save(Member.builder()
