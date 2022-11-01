@@ -312,8 +312,6 @@ class PostControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("restaurantId", "3")
-                        .param("memberId", "2")
                         .param("hashtags", Hashtag.EATING_ALON.name(), Hashtag.COST_EFFECTIVENESS.name())
                 )
                 .andExpect(status().isOk())
@@ -325,10 +323,6 @@ class PostControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         requestParameters(
-                                parameterWithName("restaurantId")
-                                        .description("게시물의 음식점 ID. null 이면 전체.").optional(),
-                                parameterWithName("memberId")
-                                        .description("게시물의 작성자 회원 ID. null 이면 전체.").optional(),
                                 parameterWithName("hashtags")
                                         .description("게시물의 hashtag 리스트. " +
                                                 "리스트의 해쉬태그를 모두 포함하는 게시글. null 이면 전체.").optional()

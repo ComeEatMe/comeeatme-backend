@@ -11,9 +11,6 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostSearch {
 
-    private Long restaurantId;
-
-    private Long memberId;
-
     private Set<Hashtag> hashtags;
+
 }

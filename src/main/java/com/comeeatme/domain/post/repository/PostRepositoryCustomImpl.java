@@ -54,11 +54,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
         JPAQuery<Post> contentQuery = query
                 .selectFrom(post)
                 .join(post.member, member).fetchJoin()
-                .join(post.restaurant, restaurant).fetchJoin()
-                .where(
-                        memberIdEq(postSearch.getMemberId()),
-                        restaurantIdEq(postSearch.getRestaurantId())
-                );
+                .join(post.restaurant, restaurant).fetchJoin();
         Optional.ofNullable(postSearch.getHashtags()).ifPresent(hashtags ->
                 hashtags.forEach(hashtag -> contentQuery.where(postIdOf(hashtag))));
         contentQuery.where(post.useYn.isTrue());
