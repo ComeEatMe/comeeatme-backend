@@ -1,9 +1,12 @@
 package com.comeeatme.domain.restaurant.response;
 
+import com.comeeatme.domain.post.Hashtag;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -13,15 +16,18 @@ public class RestaurantDetailDto {
 
     private String name;
 
-    private AddressDto address;
-
     private Integer favoriteCount;
+
+    private List<Hashtag> hashtags;
+
+    private AddressDto address;
 
     @Builder
     public RestaurantDetailDto(
             Long id,
             String name,
             Integer favoriteCount,
+            List<Hashtag> hashtags,
             String addressName,
             String addressRoadName,
             Double addressX,
@@ -29,6 +35,7 @@ public class RestaurantDetailDto {
         this.id = id;
         this.name = name;
         this.favoriteCount = favoriteCount;
+        this.hashtags = hashtags;
         this.address = AddressDto.builder()
                 .name(addressName)
                 .roadName(addressRoadName)
