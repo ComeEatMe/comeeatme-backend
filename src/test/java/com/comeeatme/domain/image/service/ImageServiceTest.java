@@ -184,6 +184,7 @@ class ImageServiceTest {
         // given
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);
+        given(restaurant.getId()).willReturn(1L);
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
 
         Post post = mock(Post.class);
@@ -203,6 +204,7 @@ class ImageServiceTest {
 
         // then
         RestaurantImage restaurantImage = result.getContent().get(0);
+        assertThat(restaurantImage.getRestaurantId()).isEqualTo(1L);
         assertThat(restaurantImage.getPostId()).isEqualTo(2L);
         assertThat(restaurantImage.getImageUrl()).isEqualTo("image-url");
     }

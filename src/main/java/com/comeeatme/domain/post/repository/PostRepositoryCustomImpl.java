@@ -3,6 +3,7 @@ package com.comeeatme.domain.post.repository;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.request.PostSearch;
+import com.comeeatme.domain.restaurant.Restaurant;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -81,6 +82,19 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         .where(postHashtag.hashtag.eq(h))
                 ))
                 .orElse(null);
+    }
+
+    @Override
+    public List<Hashtag> findAllHashtagByRestaurant(Restaurant restaurant) {
+        return query
+                .select(postHashtag.hashtag).distinct()
+                .from(postHashtag)
+                .join(postHashtag.post, post)
+                .where(
+                        post.restaurant.eq(restaurant),
+                        postHashtag.post.useYn.isTrue()
+                )
+                .fetch();
     }
 
 }

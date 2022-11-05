@@ -137,6 +137,7 @@ class RestaurantControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
