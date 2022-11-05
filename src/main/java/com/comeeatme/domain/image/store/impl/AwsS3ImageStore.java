@@ -1,6 +1,6 @@
 package com.comeeatme.domain.image.store.impl;
 
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -25,9 +25,9 @@ public class AwsS3ImageStore implements ImageStore {
 
     private final String bucketName;
 
-    private final AmazonS3Client s3Client;
+    private final AmazonS3 s3Client;
 
-    public AwsS3ImageStore(@Value("${cloud.aws.s3.bucket") String bucketName, AmazonS3Client s3Client) {
+    public AwsS3ImageStore(@Value("${cloud.aws.s3.bucket}") String bucketName, AmazonS3 s3Client) {
         this.bucketName = bucketName;
         this.s3Client = s3Client;
     }
@@ -47,4 +47,5 @@ public class AwsS3ImageStore implements ImageStore {
             throw new InvalidImageException(e);
         }
     }
+
 }
