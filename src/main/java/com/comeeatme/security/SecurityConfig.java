@@ -31,11 +31,10 @@ public class SecurityConfig {
     private static final String[] GET_PERMITTED_URLS = {
             "/code",
             "/docs/**",
-            "/"
     };
 
     private static final String[] POST_PERMITTED_URLS = {
-            "/login/oauth2/token/{registrationId}"
+            "/login/oauth2/token/{registrationId}",
     };
 
     @Bean
