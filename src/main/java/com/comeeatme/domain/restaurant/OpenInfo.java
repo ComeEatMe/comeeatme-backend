@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "open_info",
-        uniqueConstraints = @UniqueConstraint(name = "UK_open_info_management_num", columnNames = "management_num")
+        uniqueConstraints = @UniqueConstraint(name = "UK_open_info_management_num", columnNames = "management_num"),
+        indexes = @Index(name = "IX_openinfo_restaurant", columnList = "restaurant_id")
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,6 +23,10 @@ public class OpenInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "open_info_id")
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "restaurant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), updatable = false)
+    private Restaurant restaurant;
 
     // 관리번호
     @Column(name = "management_num", length = 65, nullable = false, updatable = false)
@@ -50,6 +55,7 @@ public class OpenInfo {
     @Builder
     private OpenInfo(
             @Nullable Long id,
+            Restaurant restaurant,
             String serviceId,
             String name,
             @Nullable String category,
@@ -57,6 +63,7 @@ public class OpenInfo {
             LocalDate permissionDate,
             LocalDateTime lastModifiedAt) {
         this.id = id;
+        this.restaurant = restaurant;
         this.serviceId = serviceId;
         this.name = name;
         this.category = category;

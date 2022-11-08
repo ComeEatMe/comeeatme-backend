@@ -5,7 +5,6 @@ import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.favorite.Favorite;
 import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.member.Member;
-import com.comeeatme.domain.restaurant.OpenInfo;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -70,7 +69,6 @@ class FavoriteRepositoryCustomTest {
                         .x(1.0)
                         .y(2.0)
                         .build())
-                .openInfo(OpenInfo.builder().id(1L).build())
                 .build());
 
         Restaurant restaurant2 = restaurantRepository.save( Restaurant.builder()
@@ -82,7 +80,6 @@ class FavoriteRepositoryCustomTest {
                         .x(1.0)
                         .y(2.0)
                         .build())
-                .openInfo(OpenInfo.builder().id(2L).build())
                 .build());
 
         Favorite favorite1 = favoriteRepository.save(Favorite.builder()

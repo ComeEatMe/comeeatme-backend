@@ -32,9 +32,6 @@ class RestaurantTest {
                         .x(211199.96154825)
                         .y(434395.793544651)
                         .build())
-                .openInfo(OpenInfo.builder()
-                        .id(2L)
-                        .build())
                 .build()));
     }
 
