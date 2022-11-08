@@ -1,6 +1,6 @@
 package com.comeeatme.domain.address;
 
-import com.comeeatme.domain.common.core.BaseUseYnEntity;
+import com.comeeatme.domain.common.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +22,7 @@ import java.util.Optional;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AddressCode extends BaseUseYnEntity {
+public class AddressCode extends BaseTimeEntity {
 
     public static final int SIDO_CODE_LEN = 2;
     public static final int SIGUNGU_CODE_LEN = 3;

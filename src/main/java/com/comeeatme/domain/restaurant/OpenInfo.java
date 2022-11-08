@@ -12,8 +12,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "open_info",
-        uniqueConstraints = @UniqueConstraint(name = "UK_open_info_management_num", columnNames = "management_num"),
-        indexes = @Index(name = "IX_openinfo_restaurant", columnList = "restaurant_id")
+        uniqueConstraints = {
+                @UniqueConstraint(name = "UK_open_info_management_num", columnNames = "management_num"),
+                @UniqueConstraint(name = "UK_open_info_restaurant", columnNames = "restaurant_id")
+        }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

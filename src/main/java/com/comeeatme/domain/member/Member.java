@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "member",
         uniqueConstraints = @UniqueConstraint(name = "UK_member_nickname", columnNames = "nickname"),
-        indexes = @Index(name = "IX_member_image_id", columnList = "image_id")
+        indexes = @Index(name = "IX_member_image", columnList = "image_id")
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

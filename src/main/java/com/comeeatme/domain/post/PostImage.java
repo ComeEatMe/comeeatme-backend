@@ -11,9 +11,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "post_image",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "UK_post_image_image", columnNames = "image_id"),
+        },
         indexes = {
-                @Index(name = "IX_post_image_post_id", columnList = "post_id"),
-                @Index(name = "IX_post_image_image_id", columnList = "image_id")}
+                @Index(name = "IX_post_image_post", columnList = "post_id")
+        }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
