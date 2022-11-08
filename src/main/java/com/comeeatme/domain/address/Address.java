@@ -15,13 +15,13 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
 
-    @Column(name = "address_name", nullable = false, updatable = false)
+    @Column(name = "address_name", updatable = false)
     private String name;
 
-    @Column(name = "road_address_name", nullable = false, updatable = false)
+    @Column(name = "road_address_name", updatable = false)
     private String roadName;
 
-    @Column(name = "point", nullable = false, updatable = false)
+    @Column(name = "point", updatable = false)
     private Point point;
 
     @Builder
