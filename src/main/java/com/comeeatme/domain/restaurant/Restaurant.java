@@ -28,7 +28,7 @@ public class Restaurant extends BaseTimeEntity {
     @Column(name = "name", length = 45, nullable = false, updatable = false)
     private String name;
 
-    @Column(name = "phone", length = 25, updatable = false)
+    @Column(name = "phone", length = 25, nullable = false, updatable = false)
     private String phone;
 
     @Embedded
