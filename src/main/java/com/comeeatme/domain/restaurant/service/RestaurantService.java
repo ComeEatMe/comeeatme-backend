@@ -48,8 +48,8 @@ public class RestaurantService {
                 .hashtags(hashtags)
                 .addressName(restaurant.getAddress().getName())
                 .addressRoadName(restaurant.getAddress().getRoadName())
-                .addressX(restaurant.getAddress().getPoint().getX())
-                .addressY(restaurant.getAddress().getPoint().getY())
+                .addressX(restaurant.getAddress().getLocation().getX())
+                .addressY(restaurant.getAddress().getLocation().getY())
                 .build();
     }
 

@@ -82,7 +82,7 @@ class RestaurantServiceTest {
         Address address = mock(Address.class);
         given(address.getName()).willReturn("소재지주소");
         given(address.getRoadName()).willReturn("도로명주소");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(new Point(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);

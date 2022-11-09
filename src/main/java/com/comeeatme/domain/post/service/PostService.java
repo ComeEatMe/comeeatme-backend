@@ -212,8 +212,8 @@ public class PostService {
                 .restaurantId(post.getRestaurant().getId())
                 .restaurantName(post.getRestaurant().getName())
                 .restaurantAddressName(post.getRestaurant().getAddress().getName())
-                .restaurantAddressX(post.getRestaurant().getAddress().getPoint().getX())
-                .restaurantAddressY(post.getRestaurant().getAddress().getPoint().getY())
+                .restaurantAddressX(post.getRestaurant().getAddress().getLocation().getX())
+                .restaurantAddressY(post.getRestaurant().getAddress().getLocation().getY())
                 .build();
     }
 

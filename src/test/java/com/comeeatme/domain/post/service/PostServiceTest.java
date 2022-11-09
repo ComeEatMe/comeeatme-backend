@@ -738,7 +738,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(new Point(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -807,7 +807,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(new Point(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -861,7 +861,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(new Point(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
