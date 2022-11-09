@@ -1,6 +1,6 @@
 package com.comeeatme.domain.post.service;
 
-import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;

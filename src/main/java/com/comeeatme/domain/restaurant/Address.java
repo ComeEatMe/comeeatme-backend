@@ -1,4 +1,4 @@
-package com.comeeatme.domain.address;
+package com.comeeatme.domain.restaurant;
 
 import lombok.AccessLevel;
 import lombok.Builder;

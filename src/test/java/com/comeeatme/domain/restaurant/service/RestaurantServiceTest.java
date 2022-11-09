@@ -1,6 +1,6 @@
 package com.comeeatme.domain.restaurant.service;
 
-import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;

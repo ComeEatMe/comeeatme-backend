@@ -1,7 +1,6 @@
 package com.comeeatme.domain.restaurant;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.favorite.Favorite;
 import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.member.Member;

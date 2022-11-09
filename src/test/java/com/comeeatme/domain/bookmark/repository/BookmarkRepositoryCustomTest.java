@@ -1,7 +1,7 @@
 package com.comeeatme.domain.bookmark.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.bookmark.Bookmark;
 import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.member.Member;
