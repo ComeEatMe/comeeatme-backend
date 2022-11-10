@@ -21,4 +21,9 @@ public class WithFavorited<R> {
         this.restaurant = restaurant;
         this.favorited = favorited;
     }
+
+    public static <T> WithFavoritedBuilder<T> restaurant(T restaurant) {
+        return WithFavorited.<T>builder().restaurant(restaurant);
+    }
+
 }
