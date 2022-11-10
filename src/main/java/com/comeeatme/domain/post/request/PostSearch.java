@@ -7,8 +7,7 @@ import java.util.Set;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class PostSearch {
 
     private Set<Hashtag> hashtags;

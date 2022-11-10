@@ -3,9 +3,8 @@ package com.comeeatme.domain.restaurant.request;
 import lombok.*;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class RestaurantSearch {
 
     private String name;

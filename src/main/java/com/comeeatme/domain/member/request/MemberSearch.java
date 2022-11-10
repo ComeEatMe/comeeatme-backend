@@ -7,8 +7,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class MemberSearch {
 
     @NotBlank
