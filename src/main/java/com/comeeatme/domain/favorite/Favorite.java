@@ -29,7 +29,7 @@ public class Favorite extends BaseCreatedAtEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bookmark_id")
+    @Column(name = "favorite_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
