@@ -1,9 +1,11 @@
 package com.comeeatme.domain.restaurant.repository;
 
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -61,8 +63,7 @@ public class RestaurantRepositoryCustomImpl implements RestaurantRepositoryCusto
             query.setParameter("name", (search.getName() + "%"));
         }
         if (nonNull(search.getX()) && nonNull(search.getY())) {
-            String curLoc = String.format("st_pointfromtext('point(%f %f)', 4326)",
-                    search.getY(), search.getY());
+            Point curLoc = Address.createPoint(search.getX(), search.getY());
             query.setParameter("curLoc", curLoc);
         }
         if (nonNull(search.getDistance())) {
