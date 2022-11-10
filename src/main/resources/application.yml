@@ -3,7 +3,7 @@ spring:
     name: comeeatme-backend
 
   profiles:
-    active: local, private
+    active: local
 
   security:
     oauth2:
@@ -53,9 +53,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
     hibernate:
-      ddl-auto: create-drop   # validate 로 추후 변경
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -70,9 +70,9 @@ spring:
           kakao:
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
 
-#  flyway:
-#    enabled: false
-#    baseline-on-migrate: true
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
 
 cloud:
   aws:
@@ -123,14 +123,14 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
     hibernate:
-      ddl-auto: create-drop   # validate 로 추후 변경
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
-        default_batch_fetch_size: 100
+        default_batch_fetch_size: 500
     open-in-view: false
 
   security:
@@ -140,9 +140,9 @@ spring:
           kakao:
             redirect-uri: https://api.cem.zooneon.dev/login/oauth2/code/kakao
 
-#flyway:
-#  enabled: false
-#  baseline-on-migrate: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
 
 cloud:
   aws:
