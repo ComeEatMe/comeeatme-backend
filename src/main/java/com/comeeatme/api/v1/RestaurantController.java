@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.api.common.response.WithFavorited;
+import com.comeeatme.api.common.response.RestaurantWith;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.favorite.service.FavoriteService;
@@ -41,7 +41,7 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants")
-    public ResponseEntity<ApiResult<Slice<WithFavorited<RestaurantDto>>>> getList(
+    public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> getList(
             Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<RestaurantDto> restaurants = restaurantService.getList(pageable, restaurantSearch);
@@ -49,13 +49,13 @@ public class RestaurantController {
                 .map(RestaurantDto::getId)
                 .collect(Collectors.toList());
         Set<Long> favoriteRestaurantIds = getFavoriteRestaurantIds(memberId, restaurantIds);
-        Slice<WithFavorited<RestaurantDto>> restaurantWiths = restaurants
-                .map(restaurant -> WithFavorited
+        Slice<RestaurantWith<RestaurantDto>> restaurantWiths = restaurants
+                .map(restaurant -> RestaurantWith
                         .restaurant(restaurant)
                         .favorited(favoriteRestaurantIds.contains(restaurant.getId()))
                         .build()
                 );
-        ApiResult<Slice<WithFavorited<RestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);
+        ApiResult<Slice<RestaurantWith<RestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);
         return ResponseEntity.ok(apiResult);
     }
 
@@ -68,16 +68,16 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants/{restaurantId}")
-    public ResponseEntity<ApiResult<WithFavorited<RestaurantDetailDto>>> get(
+    public ResponseEntity<ApiResult<RestaurantWith<RestaurantDetailDto>>> get(
             @PathVariable Long restaurantId, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
         RestaurantDetailDto restaurant = restaurantService.get(restaurantId);
         boolean favorited = favoriteService.isFavorite(memberId, restaurant.getId());
-        WithFavorited<RestaurantDetailDto> restaurantWith = WithFavorited.<RestaurantDetailDto>builder()
+        RestaurantWith<RestaurantDetailDto> restaurantWith = RestaurantWith.<RestaurantDetailDto>builder()
                 .restaurant(restaurant)
                 .favorited(favorited)
                 .build();
-        ApiResult<WithFavorited<RestaurantDetailDto>> apiResult = ApiResult.success(restaurantWith);
+        ApiResult<RestaurantWith<RestaurantDetailDto>> apiResult = ApiResult.success(restaurantWith);
         return ResponseEntity.ok(apiResult);
     }
 

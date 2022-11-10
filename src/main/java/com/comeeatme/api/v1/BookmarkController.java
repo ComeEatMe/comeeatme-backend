@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.api.common.response.WithLikedBookmarked;
+import com.comeeatme.api.common.response.PostWith;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
@@ -57,7 +57,7 @@ public class BookmarkController {
     }
 
     @GetMapping({"/members/{memberId}/bookmarked/{groupName}", "/members/{memberId}/bookmarked"})
-    public ResponseEntity<ApiResult<Slice<WithLikedBookmarked<BookmarkedPostDto>>>> getBookmarkedList(
+    public ResponseEntity<ApiResult<Slice<PostWith<BookmarkedPostDto>>>> getBookmarkedList(
             Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
             @CurrentUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
@@ -75,14 +75,14 @@ public class BookmarkController {
                         .filter(PostBookmarked::getBookmarked)
                         .map(PostBookmarked::getPostId)
                         .collect(Collectors.toSet());
-        Slice<WithLikedBookmarked<BookmarkedPostDto>> postWiths = posts
-                .map(post -> WithLikedBookmarked.<BookmarkedPostDto>builder()
+        Slice<PostWith<BookmarkedPostDto>> postWiths = posts
+                .map(post -> PostWith.<BookmarkedPostDto>builder()
                         .post(post)
                         .liked(likedPostIds.contains(post.getId()))
                         .bookmarked(bookmarkedPostIds.contains(post.getId()))
                         .build()
                 );
-        ApiResult<Slice<WithLikedBookmarked<BookmarkedPostDto>>> apiResult = ApiResult.success(postWiths);
+        ApiResult<Slice<PostWith<BookmarkedPostDto>>> apiResult = ApiResult.success(postWiths);
         return ResponseEntity.ok(apiResult);
     }
 
