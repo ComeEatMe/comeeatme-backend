@@ -1,9 +1,9 @@
 package com.comeeatme.domain.restaurant.service;
 
-import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.geo.Point;
 
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +81,7 @@ class RestaurantServiceTest {
         Address address = mock(Address.class);
         given(address.getName()).willReturn("소재지주소");
         given(address.getRoadName()).willReturn("도로명주소");
-        given(address.getLocation()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);

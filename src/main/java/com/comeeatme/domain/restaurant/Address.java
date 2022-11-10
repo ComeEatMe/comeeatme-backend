@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -21,17 +23,25 @@ public class Address {
     @Column(name = "road_address_name", nullable = false, updatable = false)
     private String roadName;
 
-    @Column(name = "location", nullable = false, updatable = false)
+    // length 옵션을 주지 않으면 테스트 시 Value too long for column "LOCATION BINARY VARYING(255)" 오류 발생
+    @Column(name = "location", length = 2000, nullable = false, updatable = false)
     private Point location;
 
     @Builder
     private Address(
-            @Nullable String name,
-            @Nullable String roadName,
+            String name,
+            String roadName,
             Double x,
             Double y) {
         this.name = name;
         this.roadName = roadName;
-        this.location = new Point(x, y);
+        this.location = createPoint(x, y);
     }
+
+    public static Point createPoint(double x, double y) {
+        GeometryFactory geometryFactory = new GeometryFactory(
+                new PrecisionModel(), 4326);
+        return geometryFactory.createPoint(new Coordinate(x, y));
+    }
+
 }
