@@ -14,9 +14,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "comment",
         indexes = {
-        @Index(name = "IX_comment_member_id", columnList = "member_id"),
-        @Index(name = "IX_comment_post_id", columnList = "post_id"),
-        @Index(name = "IX_comment_parent_id", columnList = "parent_id")
+        @Index(name = "IX_comment_member", columnList = "member_id"),
+        @Index(name = "IX_comment_post", columnList = "post_id"),
+        @Index(name = "IX_comment_parent", columnList = "parent_id")
         }
 )
 @Getter

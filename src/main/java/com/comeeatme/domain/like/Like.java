@@ -14,11 +14,11 @@ import javax.persistence.*;
 @Entity
 @Table(name = "likes",
         uniqueConstraints = {
-            @UniqueConstraint(name = "UK_likes_member_post", columnNames = {"post_id", "member_id"})
+            @UniqueConstraint(name = "UK_likes_post_member", columnNames = {"post_id", "member_id"})
         },
         indexes = {
-                @Index(name = "IX_likes_post_id", columnList = "post_id"),
-                @Index(name = "IX_likes_member_id", columnList = "member_id")
+                @Index(name = "IX_likes_post", columnList = "post_id"),
+                @Index(name = "IX_likes_member", columnList = "member_id")
         }
 )
 @Getter

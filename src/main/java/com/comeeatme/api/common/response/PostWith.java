@@ -1,5 +1,6 @@
 package com.comeeatme.api.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,7 +9,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class WithLikedBookmarked<P> {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PostWith<P> {
 
     @JsonUnwrapped
     private P post;
@@ -18,10 +20,14 @@ public class WithLikedBookmarked<P> {
     private Boolean bookmarked;
 
     @Builder
-    private WithLikedBookmarked(P post, Boolean liked, Boolean bookmarked) {
+    private PostWith(P post, Boolean liked, Boolean bookmarked) {
         this.post = post;
         this.liked = liked;
         this.bookmarked = bookmarked;
+    }
+
+    public static <T> PostWithBuilder<T> post(T post) {
+        return PostWith.<T>builder().post(post);
     }
 
 }

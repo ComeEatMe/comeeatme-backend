@@ -1,14 +1,13 @@
 package com.comeeatme.domain.bookmark.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.bookmark.Bookmark;
 import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
-import com.comeeatme.domain.restaurant.OpenInfo;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -118,9 +117,6 @@ class BookmarkRepositoryCustomTest {
                         .x(211199.96154825)
                         .y(434395.793544651)
                         .build())
-                .openInfo(OpenInfo.builder()
-                        .id(2L)
-                        .build())
                 .build());
 
         List<Post> posts = postRepository.saveAll(List.of(
@@ -182,9 +178,6 @@ class BookmarkRepositoryCustomTest {
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
                         .x(211199.96154825)
                         .y(434395.793544651)
-                        .build())
-                .openInfo(OpenInfo.builder()
-                        .id(2L)
                         .build())
                 .build());
 

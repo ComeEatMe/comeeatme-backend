@@ -1,6 +1,5 @@
 package com.comeeatme.domain.post.service;
 
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
@@ -26,6 +25,7 @@ import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.response.RestaurantPostDto;
+import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -738,7 +737,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -807,7 +806,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -861,7 +860,7 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getPoint()).willReturn(new Point(1.0, 2.0));
+        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);

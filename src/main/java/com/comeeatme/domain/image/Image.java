@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "images",
         indexes = {
-                @Index(name = "IX_images_member_id", columnList = "member_id")
+                @Index(name = "IX_images_member", columnList = "member_id")
         }
 )
 @Getter

@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.api.common.response.WithLikedBookmarked;
+import com.comeeatme.api.common.response.PostWith;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
@@ -49,7 +49,7 @@ public class PostController {
     private final AccountService accountService;
 
     @GetMapping("/posts")
-    public ResponseEntity<ApiResult<Slice<WithLikedBookmarked<PostDto>>>> getList(
+    public ResponseEntity<ApiResult<Slice<PostWith<PostDto>>>> getList(
             Pageable pageable, @ModelAttribute PostSearch postSearch, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<PostDto> posts = postService.getList(pageable, postSearch);
@@ -58,19 +58,19 @@ public class PostController {
                 .collect(Collectors.toList());
         Set<Long> likedPostIds = getLikedPostIds(memberId, postIds);
         Set<Long> bookmarkedPostIds = getBookmarkedPostIds(memberId, postIds);
-        Slice<WithLikedBookmarked<PostDto>> postWiths = posts
-                .map(post -> WithLikedBookmarked.<PostDto>builder()
+        Slice<PostWith<PostDto>> postWiths = posts
+                .map(post -> PostWith.<PostDto>builder()
                         .post(post)
                         .liked(likedPostIds.contains(post.getId()))
                         .bookmarked(bookmarkedPostIds.contains(post.getId()))
                         .build()
                 );
-        ApiResult<Slice<WithLikedBookmarked<PostDto>>> apiResult = ApiResult.success(postWiths);
+        ApiResult<Slice<PostWith<PostDto>>> apiResult = ApiResult.success(postWiths);
         return ResponseEntity.ok(apiResult);
     }
 
     @GetMapping("/members/{memberId}/posts")
-    public ResponseEntity<ApiResult<Slice<WithLikedBookmarked<MemberPostDto>>>> getListOfMember(
+    public ResponseEntity<ApiResult<Slice<PostWith<MemberPostDto>>>> getListOfMember(
             Pageable pageable, @PathVariable Long memberId, @CurrentUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<MemberPostDto> posts = postService.getListOfMember(pageable, memberId);
@@ -79,14 +79,14 @@ public class PostController {
                 .collect(Collectors.toList());
         Set<Long> likedPostIds = getLikedPostIds(myMemberId, postIds);
         Set<Long> bookmarkedPostIds = getBookmarkedPostIds(myMemberId, postIds);
-        Slice<WithLikedBookmarked<MemberPostDto>> postWiths = posts
-                .map(post -> WithLikedBookmarked.<MemberPostDto>builder()
+        Slice<PostWith<MemberPostDto>> postWiths = posts
+                .map(post -> PostWith.<MemberPostDto>builder()
                         .post(post)
                         .liked(likedPostIds.contains(post.getId()))
                         .bookmarked(bookmarkedPostIds.contains(post.getId()))
                         .build()
                 );
-        ApiResult<Slice<WithLikedBookmarked<MemberPostDto>>> apiResult = ApiResult.success(postWiths);
+        ApiResult<Slice<PostWith<MemberPostDto>>> apiResult = ApiResult.success(postWiths);
         return ResponseEntity.ok(apiResult);
     }
 
@@ -113,17 +113,17 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<ApiResult<WithLikedBookmarked<PostDetailDto>>> get(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<PostWith<PostDetailDto>>> get(@PathVariable Long postId, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
         PostDetailDto post = postService.get(postId);
         boolean bookmarked = bookmarkService.isBookmarked(memberId, postId);
         boolean liked = likeService.isLiked(memberId, postId);
-        WithLikedBookmarked<PostDetailDto> postWith = WithLikedBookmarked.<PostDetailDto>builder()
+        PostWith<PostDetailDto> postWith = PostWith.<PostDetailDto>builder()
                 .post(post)
                 .bookmarked(bookmarked)
                 .liked(liked)
                 .build();
-        ApiResult<WithLikedBookmarked<PostDetailDto>> apiResult = ApiResult.success(postWith);
+        ApiResult<PostWith<PostDetailDto>> apiResult = ApiResult.success(postWith);
         return ResponseEntity.ok(apiResult);
     }
 

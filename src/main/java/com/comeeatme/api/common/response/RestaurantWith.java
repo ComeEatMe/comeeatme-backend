@@ -1,5 +1,6 @@
 package com.comeeatme.api.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +10,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class WithFavorited<R> {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class RestaurantWith<R> {
 
     @JsonUnwrapped
     private R restaurant;
@@ -17,8 +19,13 @@ public class WithFavorited<R> {
     private Boolean favorited;
 
     @Builder
-    private WithFavorited(R restaurant, Boolean favorited) {
+    private RestaurantWith(R restaurant, Boolean favorited) {
         this.restaurant = restaurant;
         this.favorited = favorited;
     }
+
+    public static <T> RestaurantWithBuilder<T> restaurant(T restaurant) {
+        return RestaurantWith.<T>builder().restaurant(restaurant);
+    }
+
 }

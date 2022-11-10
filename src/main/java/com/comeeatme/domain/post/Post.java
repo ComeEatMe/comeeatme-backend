@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "post",
         indexes = {
-        @Index(name = "IX_post_member_id", columnList = "member_id"),
-        @Index(name = "IX_post_restaurant_id", columnList = "restaurant_id")
+        @Index(name = "IX_post_member", columnList = "member_id"),
+        @Index(name = "IX_post_restaurant", columnList = "restaurant_id")
         }
 )
 @Getter

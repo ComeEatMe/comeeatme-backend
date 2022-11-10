@@ -26,6 +26,7 @@ class OpenInfoTest {
     @DisplayName("OpenInfo 생성 및 저장")
     void save() {
         assertThatNoException().isThrownBy(() -> openInfoRepository.saveAndFlush(OpenInfo.builder()
+                .restaurant(Restaurant.builder().id(1L).build())
                 .managementNum("3810000-101-2002-00170")
                 .serviceId("07_24_04_P")
                 .name("일반음식점")

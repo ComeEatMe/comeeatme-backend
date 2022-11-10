@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.api.common.response.WithFavorited;
+import com.comeeatme.api.common.response.RestaurantWith;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
@@ -53,7 +53,7 @@ public class FavoriteController {
     }
 
     @GetMapping({"/members/{memberId}/favorite/{groupName}", "/members/{memberId}/favorite"})
-    public ResponseEntity<ApiResult<Slice<WithFavorited<FavoriteRestaurantDto>>>> getFavoriteList(
+    public ResponseEntity<ApiResult<Slice<RestaurantWith<FavoriteRestaurantDto>>>> getFavoriteList(
             Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
             @CurrentUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
@@ -68,13 +68,13 @@ public class FavoriteController {
                         .filter(RestaurantFavorited::getFavorited)
                         .map(RestaurantFavorited::getRestaurantId)
                         .collect(Collectors.toSet());
-        Slice<WithFavorited<FavoriteRestaurantDto>> restaurantWiths = restaurants
-                .map(restaurant -> WithFavorited.<FavoriteRestaurantDto>builder()
+        Slice<RestaurantWith<FavoriteRestaurantDto>> restaurantWiths = restaurants
+                .map(restaurant -> RestaurantWith.<FavoriteRestaurantDto>builder()
                         .restaurant(restaurant)
                         .favorited(favoriteRestaurantIds.contains(restaurant.getId()))
                         .build()
                 );
-        ApiResult<Slice<WithFavorited<FavoriteRestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);
+        ApiResult<Slice<RestaurantWith<FavoriteRestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);
         return ResponseEntity.ok(apiResult);
     }
 

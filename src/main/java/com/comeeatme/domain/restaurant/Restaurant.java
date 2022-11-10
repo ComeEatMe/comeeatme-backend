@@ -1,6 +1,5 @@
 package com.comeeatme.domain.restaurant;
 
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,9 +11,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "restaurant",
-        uniqueConstraints = {
-        @UniqueConstraint(name = "UK_restaurant_open_info_id", columnNames = "open_info_id")
-        }, indexes = {
+        indexes = {
         @Index(name = "IX_restaurant_name", columnList = "name")
         }
 )
@@ -30,27 +27,21 @@ public class Restaurant extends BaseTimeEntity {
     @Column(name = "name", length = 45, nullable = false, updatable = false)
     private String name;
 
-    @Column(name = "phone", length = 25, updatable = false)
+    @Column(name = "phone", length = 25, nullable = false, updatable = false)
     private String phone;
 
     @Embedded
     private Address address;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "open_info_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), updatable = false)
-    private OpenInfo openInfo;
 
     @Builder
     private Restaurant(
             @Nullable Long id,
             String name,
             @Nullable String phone,
-            Address address,
-            @Nullable OpenInfo openInfo) {
+            Address address) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.address = address;
-        this.openInfo = openInfo;
     }
 }
