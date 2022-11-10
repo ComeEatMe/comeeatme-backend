@@ -1,12 +1,15 @@
 package com.comeeatme.domain.restaurant.service;
 
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
+import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
+import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
+import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +76,46 @@ class RestaurantServiceTest {
         assertThat(content).extracting("id").containsExactly(1L, 2L);
         assertThat(content).extracting("name").containsExactly("음식점1", "음식점2");
         assertThat(content).extracting("addressName").containsExactly("야탑동", "이매동");
+    }
+
+    @Test
+    void getList() {
+        // given
+        Address address = mock(Address.class);
+        given(address.getName()).willReturn("address-name");
+        given(address.getRoadName()).willReturn("address-road-name");
+        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(1L);
+        given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getAddress()).willReturn(address);
+
+        given(restaurantRepository
+                .findSliceBySearchAndUseYnIsTrue(any(Pageable.class), any(RestaurantSearch.class)))
+                .willReturn(new SliceImpl<>(List.of(restaurant)));
+
+        given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
+                .willReturn(List.of(new FavoriteCount(1L, 10L)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        RestaurantSearch restaurantSearch = RestaurantSearch.builder()
+                .name("지그재그")
+                .build();
+        Slice<RestaurantDto> result = restaurantService.getList(pageRequest, restaurantSearch);
+
+        // then
+        assertThat(result).hasSize(1);
+
+        RestaurantDto dto = result.getContent().get(0);
+        assertThat(dto.getId()).isEqualTo(1L);
+        assertThat(dto.getName()).isEqualTo("지그재그");
+        assertThat(dto.getFavoriteCount()).isEqualTo(10);
+        assertThat(dto.getAddress().getName()).isEqualTo("address-name");
+        assertThat(dto.getAddress().getRoadName()).isEqualTo("address-road-name");
+        assertThat(dto.getAddress().getX()).isEqualTo(1.0);
+        assertThat(dto.getAddress().getY()).isEqualTo(2.0);
     }
 
     @Test

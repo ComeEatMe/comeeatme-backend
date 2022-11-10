@@ -3,7 +3,9 @@ package com.comeeatme.api.v1;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.service.FavoriteService;
+import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
+import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import com.comeeatme.security.SecurityConfig;
@@ -96,6 +98,66 @@ class RestaurantControllerTest {
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
                                 fieldWithPath("addressName").description("음식점 주소")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("음식점 리스트 조회 (좌표) - DOCS")
+    void getList_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
+        RestaurantDto restaurantDto = RestaurantDto.builder()
+                .id(1L)
+                .name("지그재그")
+                .favoriteCount(10)
+                .addressName("서울 광진구 화양동 111-27")
+                .addressRoadName("서울 광진구 능동로19길 21-2")
+                .addressY(37.5469873026613)
+                .addressX(127.07255855087)
+                .build();
+        given(restaurantService.getList(any(Pageable.class), any(RestaurantSearch.class)))
+                .willReturn(new SliceImpl<>(List.of(restaurantDto)));
+
+        // expected
+        mockMvc.perform(get("/v1/restaurants")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("name", "지그재그")
+                        .param("x", "127.07255855087")
+                        .param("y", "37.5469873026613")
+                        .param("distance", "1000")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-restaurant-get-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("name").optional()
+                                        .description("검색하려는 음식점 이름"),
+                                parameterWithName("x").optional()
+                                        .description("x 좌표 기준 검색"),
+                                parameterWithName("y").optional()
+                                        .description("y 좌표 기준 검색"),
+                                parameterWithName("distance").optional()
+                                        .description("해당 거리 이내만 검색.")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
+                                fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 즐겨찾기 개수"),
+                                fieldWithPath("address.name").description("주소"),
+                                fieldWithPath("address.roadName").description("도로명 주소"),
+                                fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
+                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표"),
+                                fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));
     }
