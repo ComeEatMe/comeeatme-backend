@@ -94,6 +94,7 @@ class ImageControllerTest {
     @DisplayName("음식점 이미지 조회 - DOCS")
     void getRestaurantImages_Docs() throws Exception {
         List<RestaurantImage> content = List.of(RestaurantImage.builder()
+                .restaurantId(1L)
                 .postId(2L)
                 .imageUrl("image-url")
                 .build());
@@ -101,7 +102,7 @@ class ImageControllerTest {
         given(imageService.getRestaurantImages(eq(1L), any(Pageable.class))).willReturn(slice);
 
         // expected
-        mockMvc.perform(get("/v1//restaurants/{restaurantId}/images", 1L)
+        mockMvc.perform(get("/v1/restaurants/{restaurantId}/images", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
