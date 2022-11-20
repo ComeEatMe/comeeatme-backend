@@ -22,7 +22,7 @@ operation::v1-favorite-put-group-null[snippets='http-request,request-headers,pat
 
 === Response
 
-operation::v1-favorite-put[snippets='http-response']
+operation::v1-favorite-put[snippets='http-response,response-fields']
 
 
 [[v1-favorite-delete]]
@@ -38,7 +38,7 @@ operation::v1-favorite-delete-group-null[snippets='http-request,request-headers,
 
 === Response
 
-operation::v1-favorite-delete[snippets='http-response']
+operation::v1-favorite-delete[snippets='http-response,response-fields']
 
 
 [[v1-favorite-get-favorite-groups]]

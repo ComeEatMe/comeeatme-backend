@@ -22,7 +22,7 @@ operation::v1-bookmark-bookmark-group-null[snippets='http-request,request-header
 
 === Response
 
-operation::v1-bookmark-bookmark[snippets='http-response']
+operation::v1-bookmark-bookmark[snippets='http-response,response-fields']
 
 
 [[v1-bookmark-cancel-bookmark]]
@@ -38,7 +38,7 @@ operation::v1-bookmark-cancel-bookmark-group-null[snippets='http-request,request
 
 === Response
 
-operation::v1-bookmark-cancel-bookmark[snippets='http-response']
+operation::v1-bookmark-cancel-bookmark[snippets='http-response,response-fields']
 
 
 [[v1-bookmark-get-bookmark-groups]]
