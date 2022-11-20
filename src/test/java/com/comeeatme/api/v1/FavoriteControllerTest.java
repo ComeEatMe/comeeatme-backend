@@ -63,7 +63,7 @@ class FavoriteControllerTest {
         mockMvc.perform(put("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-favorite-put",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -71,6 +71,9 @@ class FavoriteControllerTest {
                         pathParameters(
                                 parameterWithName("groupName").description("맛집 즐겨찾기 그룹"),
                                 parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(favoriteService).should().favorite(eq(1L), anyString(), eq("그루비룸"));
@@ -83,13 +86,16 @@ class FavoriteControllerTest {
         mockMvc.perform(put("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-favorite-put-group-null",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(favoriteService).should().favorite(eq(1L), anyString(), eq(null));
@@ -102,7 +108,7 @@ class FavoriteControllerTest {
         mockMvc.perform(delete("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-favorite-delete",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -110,6 +116,9 @@ class FavoriteControllerTest {
                         pathParameters(
                                 parameterWithName("groupName").description("맛집 즐겨찾기 그룹"),
                                 parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq("그루비룸"));
@@ -122,13 +131,16 @@ class FavoriteControllerTest {
         mockMvc.perform(delete("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-favorite-delete-group-null",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("restaurantId").description("음식점 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq(null));
