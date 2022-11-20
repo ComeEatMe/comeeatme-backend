@@ -12,13 +12,13 @@
 [[v1-like-like]]
 == 게시물 좋아요
 
-operation::v1-like-like[snippets='http-request,request-headers,path-parameters,http-response']
+operation::v1-like-like[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
 
 [[v1-like-unlike]]
 == 게시물 좋아요 취소
 
-operation::v1-like-unlike[snippets='http-request,request-headers,path-parameters,http-response']
+operation::v1-like-unlike[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
 
 [[v1-like-get-liked-list]]
