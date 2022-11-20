@@ -23,9 +23,10 @@ public class ApiResult<T> {
         this.error = error;
     }
 
-    public static <R> ApiResult.ApiResultBuilder<R> success() {
-        return ApiResult.<R>builder()
-                .success(true);
+    public static ApiResult<Void> success() {
+        return ApiResult.<Void>builder()
+                .success(true)
+                .build();
     }
 
     public static <R> ApiResult<R> success(R data) {

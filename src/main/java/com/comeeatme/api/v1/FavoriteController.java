@@ -30,19 +30,19 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @PutMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
-    public ResponseEntity<Void> put(
+    public ResponseEntity<ApiResult<Void>> put(
             @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
             @CurrentUsername String username) {
         favoriteService.favorite(restaurantId, username, groupName);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @DeleteMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<ApiResult<Void>> delete(
             @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
             @CurrentUsername String username) {
         favoriteService.cancelFavorite(restaurantId, username, groupName);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @GetMapping("/members/{memberId}/favorite-groups")

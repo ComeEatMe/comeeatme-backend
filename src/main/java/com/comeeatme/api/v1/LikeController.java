@@ -33,15 +33,15 @@ public class LikeController {
     private final BookmarkService bookmarkService;
 
     @PutMapping("/member/like/{postId}")
-    public ResponseEntity<Void> like(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<Void>> like(@PathVariable Long postId, @CurrentUsername String username) {
         likeService.like(postId, username);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @DeleteMapping("/member/like/{postId}")
-    public ResponseEntity<Void> unlike(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<Void>> unlike(@PathVariable Long postId, @CurrentUsername String username) {
         likeService.unlike(postId, username);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @GetMapping("/members/{memberId}/liked")
