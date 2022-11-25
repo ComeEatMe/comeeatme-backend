@@ -21,6 +21,19 @@ operation::v1-member-get-nickname-duplicate[snippets='http-request,request-heade
 operation::v1-member-patch[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
 
 
+[[v1-member-patch-image]]
+== 회원 이미지 수정
+
+operation::v1-member-patch-image[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+
+
+
+[[v1-member-delete-image]]
+== 회원 이미지 삭제
+
+operation::v1-member-delete-image[snippets='http-request,request-headers,http-response,response-fields-data']
+
+
 [[v1-member-get-list]]
 == 회원 리스트 조회
 
