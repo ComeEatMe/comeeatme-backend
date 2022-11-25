@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
@@ -42,23 +43,22 @@ class MemberServiceTest {
     private ImageRepository imageRepository;
 
     @Test
-    void edit_EqualMemberImageAndImageNull() {
+    void edit() {
         // given
         Member member = Member.builder()
                 .id(1L)
                 .nickname("nickname")
                 .introduction("introduction")
                 .build();
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         MemberEdit memberEdit = MemberEdit.builder()
                 .nickname("edited-nickname")
                 .introduction("edited-introduction")
-                .imageId(null)
                 .build();
 
         // when
-        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
+        UpdateResult<Long> updateResult = memberService.edit(memberEdit, 1L);
 
         // then
         then(imageRepository).should(never()).findById(anyLong());
@@ -68,106 +68,49 @@ class MemberServiceTest {
     }
 
     @Test
-    void edit_EqualMemberImageAndImage() {
+    void editImage() {
         // given
         Image image = mock(Image.class);
-        given(image.getUseYn()).willReturn(true);
-        given(image.getId()).willReturn(2L);
-
         Member member = Member.builder()
                 .id(1L)
                 .nickname("nickname")
                 .introduction("introduction")
                 .image(image)
                 .build();
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
-        MemberEdit memberEdit = MemberEdit.builder()
-                .nickname("edited-nickname")
-                .introduction("edited-introduction")
-                .imageId(2L)
-                .build();
-
-        // when
-        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
-
-        // then
-        then(image).should(never()).delete();
-        then(imageRepository).should(never()).findById(anyLong());
-        assertThat(updateResult.getId()).isEqualTo(member.getId());
-        assertThat(member.getNickname()).isEqualTo("edited-nickname");
-        assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
-    }
-
-    @Test
-    void edit_DiffMemberImageAndImage() {
-        // given
-        Image memberImage = mock(Image.class);
-        given(memberImage.getUseYn()).willReturn(true);
-        given(memberImage.getId()).willReturn(2L);
-
-        Member member = Member.builder()
-                .id(1L)
-                .nickname("nickname")
-                .introduction("introduction")
-                .image(memberImage)
-                .build();
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
-
-        Member imageMember = mock(Member.class);
-        given(imageMember.getId()).willReturn(1L);
         Image editedImage = mock(Image.class);
         given(editedImage.getUseYn()).willReturn(true);
-        given(editedImage.getMember()).willReturn(imageMember);
-        given(imageRepository.findById(3L)).willReturn(Optional.of(editedImage));
-
-        MemberEdit memberEdit = MemberEdit.builder()
-                .nickname("edited-nickname")
-                .introduction("edited-introduction")
-                .imageId(3L)
-                .build();
+        given(imageRepository.findById(2L)).willReturn(Optional.of(editedImage));
 
         // when
-        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
+        UpdateResult<Long> result = memberService.editImage(1L, 2L);
 
         // then
-        then(memberImage).should().delete();
-        assertThat(updateResult.getId()).isEqualTo(member.getId());
-        assertThat(member.getNickname()).isEqualTo("edited-nickname");
-        assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
+        then(image).should().delete();
         assertThat(member.getImage()).isEqualTo(editedImage);
+        assertThat(result.getId()).isEqualTo(member.getId());
     }
 
     @Test
-    void edit_DiffMemberImageAndImage_EditedImageNull() {
+    void deleteImage() {
         // given
-        Image memberImage = mock(Image.class);
-        given(memberImage.getUseYn()).willReturn(true);
-        given(memberImage.getId()).willReturn(2L);
-
+        Image image = mock(Image.class);
         Member member = Member.builder()
                 .id(1L)
                 .nickname("nickname")
                 .introduction("introduction")
-                .image(memberImage)
+                .image(image)
                 .build();
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
-
-        MemberEdit memberEdit = MemberEdit.builder()
-                .nickname("edited-nickname")
-                .introduction("edited-introduction")
-                .imageId(null)
-                .build();
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         // when
-        UpdateResult<Long> updateResult = memberService.edit(memberEdit, "username");
+        DeleteResult<Long> result = memberService.deleteImage(1L);
 
         // then
-        then(memberImage).should().delete();
-        assertThat(updateResult.getId()).isEqualTo(member.getId());
-        assertThat(member.getNickname()).isEqualTo("edited-nickname");
-        assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
+        then(image).should().delete();
         assertThat(member.getImage()).isNull();
+        assertThat(result.getId()).isEqualTo(member.getId());
     }
 
     @Test

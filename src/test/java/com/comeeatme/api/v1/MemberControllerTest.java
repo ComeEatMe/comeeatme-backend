@@ -1,13 +1,18 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
+import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.member.request.MemberEdit;
+import com.comeeatme.domain.member.request.MemberImageEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberService;
+import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -28,14 +33,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
@@ -58,6 +61,12 @@ class MemberControllerTest {
 
     @MockBean
     private MemberService memberService;
+
+    @MockBean
+    private AccountService accountService;
+
+    @MockBean
+    private ImageService imageService;
 
     @Test
     @WithMockUser
@@ -101,12 +110,11 @@ class MemberControllerTest {
         MemberEdit memberEdit = MemberEdit.builder()
                 .nickname("nickname")
                 .introduction("introduction")
-                .imageId(1L)
                 .build();
-        given(memberService.edit(any(MemberEdit.class), anyString())).willReturn(new UpdateResult<>(2L));
+        given(memberService.edit(any(MemberEdit.class), anyLong())).willReturn(new UpdateResult<>(2L));
 
         // expected
-        mockMvc.perform(patch("/v1/member", 2L)
+        mockMvc.perform(patch("/v1/member")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -123,9 +131,98 @@ class MemberControllerTest {
                                 fieldWithPath("nickname").description("회원 닉네임")
                                         .attributes(key("constraint").value("최대 15. 공백 불가능.")),
                                 fieldWithPath("introduction").description("회원 소개")
-                                        .attributes(key("constraint").value("최대 100. 없을 경우 빈 문자열.")),
-                                fieldWithPath("imageId").type(Long.class.getSimpleName()).optional()
-                                        .description("회원 이미지 ID. 없을 경우 null.")
+                                        .attributes(key("constraint").value("최대 100. 없을 경우 빈 문자열."))
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("수정된 회원 ID")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 이미지 수정 - DOCS")
+    void patchImage_Docs() throws Exception {
+        // given
+        MemberImageEdit memberImageEdit = MemberImageEdit.builder().imageId(3L).build();
+
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+        given(imageService.isNotOwnedByMember(2L, 3L)).willReturn(false);
+        given(memberService.editImage(anyLong(), anyLong())).willReturn(new UpdateResult<>(2L));
+
+        // expected
+        mockMvc.perform(patch("/v1/member/image")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .content(objectMapper.writeValueAsString(memberImageEdit)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-member-patch-image",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestFields(
+                                fieldWithPath("imageId").type(Long.class.getSimpleName())
+                                        .description("회원 이미지 ID.")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("수정된 회원 ID")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 이미지 수정 - 본인 이미지 X")
+    void patchImage_NotOwnedImage() throws Exception {
+        // given
+        MemberImageEdit memberImageEdit = MemberImageEdit.builder().imageId(3L).build();
+
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+        given(imageService.isNotOwnedByMember(2L, 3L)).willReturn(true);
+
+        // expected
+        mockMvc.perform(patch("/v1/member/image")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .content(objectMapper.writeValueAsString(memberImageEdit)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value(ErrorCode.ENTITY_ACCESS_DENIED.name()))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 이미지 삭제 - DOCS")
+    void deleteImage_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+        given(memberService.deleteImage(anyLong())).willReturn(new DeleteResult<>(2L));
+
+        // expected
+        mockMvc.perform(delete("/v1/member/image")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-member-delete-image",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
