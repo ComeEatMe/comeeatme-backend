@@ -25,6 +25,8 @@ import com.comeeatme.security.annotation.CurrentUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,7 +73,8 @@ public class PostController {
 
     @GetMapping("/members/{memberId}/posts")
     public ResponseEntity<ApiResult<Slice<PostWith<MemberPostDto>>>> getListOfMember(
-            Pageable pageable, @PathVariable Long memberId, @CurrentUsername String username) {
+            @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @PathVariable Long memberId, @CurrentUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<MemberPostDto> posts = postService.getListOfMember(pageable, memberId);
         List<Long> postIds = posts.stream()
@@ -91,11 +94,24 @@ public class PostController {
     }
 
     @GetMapping("/restaurants/{restaurantId}/posts")
-    public ResponseEntity<ApiResult<Slice<RestaurantPostDto>>> getListOfRestaurant(
-            Pageable pageable, @PathVariable Long restaurantId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<Slice<PostWith<RestaurantPostDto>>>> getListOfRestaurant(
+            @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @PathVariable Long restaurantId, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
         Slice<RestaurantPostDto> posts = postService.getListOfRestaurant(pageable, restaurantId);
-        ApiResult<Slice<RestaurantPostDto>> apiResult = ApiResult.success(posts);
-        return ResponseEntity.ok(apiResult);
+        List<Long> postIds = posts.stream()
+                .map(RestaurantPostDto::getId)
+                .collect(Collectors.toList());
+        Set<Long> likedPostIds = getLikedPostIds(memberId, postIds);
+        Set<Long> bookmarkedPostIds = getBookmarkedPostIds(memberId, postIds);
+        Slice<PostWith<RestaurantPostDto>> postWiths = posts
+                .map(post -> PostWith.post(post)
+                        .liked(likedPostIds.contains(post.getId()))
+                        .bookmarked(bookmarkedPostIds.contains(post.getId()))
+                        .build()
+                );
+        ApiResult<Slice<PostWith<RestaurantPostDto>>> result = ApiResult.success(postWiths);
+        return ResponseEntity.ok(result);
     }
 
     private Set<Long> getLikedPostIds(Long memberId, List<Long> postIds) {
