@@ -180,6 +180,42 @@ class ImageServiceTest {
     }
 
     @Test
+    void isNotOwnedNyMember_True() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+
+        Image image = mock(Image.class);
+        given(image.getUseYn()).willReturn(true);
+        given(image.getMember()).willReturn(member);
+        given(imageRepository.findById(2L)).willReturn(Optional.of(image));
+
+        // when
+        boolean result = imageService.isNotOwnedByMember(3L, 2L);
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void isNotOwnedNyMember_False() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+
+        Image image = mock(Image.class);
+        given(image.getUseYn()).willReturn(true);
+        given(image.getMember()).willReturn(member);
+        given(imageRepository.findById(2L)).willReturn(Optional.of(image));
+
+        // when
+        boolean result = imageService.isNotOwnedByMember(1L, 2L);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void getRestaurantImages() {
         // given
         Restaurant restaurant = mock(Restaurant.class);
