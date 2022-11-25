@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
@@ -11,7 +12,6 @@ import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
-import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +19,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Optional;
-
-import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,15 +31,42 @@ public class MemberService {
     private final ImageRepository imageRepository;
 
     @Transactional
-    public UpdateResult<Long> edit(MemberEdit memberEdit, String username) {
-        Member member = getMemberByUsername(username);
-        MemberEditor.MemberEditorBuilder editorBuilder = member.toEditor()
+    public UpdateResult<Long> edit(MemberEdit memberEdit, Long memberId) {
+        Member member = getMemberById(memberId);
+        MemberEditor editor = member.toEditor()
                 .nickname(memberEdit.getNickname())
-                .introduction(memberEdit.getIntroduction());
-        editMemberImage(memberEdit, member, editorBuilder);
-        MemberEditor editor = editorBuilder.build();
+                .introduction(memberEdit.getIntroduction())
+                .build();
         member.edit(editor);
         return new UpdateResult<>(member.getId());
+    }
+
+    @Transactional
+    public UpdateResult<Long> editImage(Long memberId, Long imageId) {
+        Member member = getMemberById(memberId);
+        Optional.ofNullable(member.getImage())
+                .ifPresent(Image::delete);
+
+        Image image = getImageById(imageId);
+        MemberEditor editor = member.toEditor()
+                .image(image)
+                .build();
+        member.edit(editor);
+
+        return new UpdateResult<>(member.getId());
+    }
+
+    @Transactional
+    public DeleteResult<Long> deleteImage(Long memberId) {
+        Member member = getMemberById(memberId);
+        Optional.ofNullable(member.getImage())
+                .ifPresent(Image::delete);
+        MemberEditor editor = member.toEditor()
+                .image(null)
+                .build();
+        member.edit(editor);
+
+        return new DeleteResult<>(member.getId());
     }
 
     public Slice<MemberSimpleDto> search(Pageable pageable, MemberSearch memberSearch) {
@@ -53,37 +77,6 @@ public class MemberService {
     public MemberDetailDto get(Long id) {
         Member member = getMemberById(id);
         return MemberDetailDto.of(member);
-    }
-
-    private void editMemberImage(MemberEdit memberEdit, Member member, MemberEditor.MemberEditorBuilder editorBuilder) {
-        Long memberImageId = Optional.ofNullable(member.getImage())
-                .filter(Image::getUseYn)
-                .map(Image::getId)
-                .orElse(null);
-        if (!Objects.equals(memberImageId, memberEdit.getImageId())) {
-            if (nonNull(memberImageId)) {
-                member.getImage().delete();
-                editorBuilder.image(null);
-            }
-            if (nonNull(memberEdit.getImageId())) {
-                Image image = getImageById(memberEdit.getImageId());
-                validateImageOwner(member, image);
-                editorBuilder.image(image);
-            }
-        }
-    }
-
-    private void validateImageOwner(Member member, Image image) {
-        if (!Objects.equals(image.getMember().getId(), member.getId())) {
-            throw new EntityAccessDeniedException(String.format(
-                    "image.member.id=%s, member.id=%s", image.getMember().getId(), member.getId()));
-        }
-    }
-
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
     }
 
     private Member getMemberById(Long id) {
