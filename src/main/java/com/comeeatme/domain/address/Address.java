@@ -5,8 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 
 @Embeddable
 @Getter
@@ -22,9 +21,7 @@ public class Address {
     @Builder
     private Address(
             String name,
-            String roadName,
-            Double x,
-            Double y) {
+            String roadName) {
         this.name = name;
         this.roadName = roadName;
     }

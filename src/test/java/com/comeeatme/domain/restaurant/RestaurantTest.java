@@ -29,8 +29,6 @@ class RestaurantTest {
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
-                        .x(211199.96154825)
-                        .y(434395.793544651)
                         .build())
                 .build()));
     }

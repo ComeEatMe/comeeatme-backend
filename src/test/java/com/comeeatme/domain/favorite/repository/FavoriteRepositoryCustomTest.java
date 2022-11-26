@@ -67,8 +67,6 @@ class FavoriteRepositoryCustomTest {
                 .address(Address.builder()
                         .name("addressName")
                         .roadName("addressRoadName")
-                        .x(1.0)
-                        .y(2.0)
                         .build())
                 .build());
 
@@ -78,8 +76,6 @@ class FavoriteRepositoryCustomTest {
                 .address(Address.builder()
                         .name("addressName")
                         .roadName("addressRoadName")
-                        .x(1.0)
-                        .y(2.0)
                         .build())
                 .build());
 

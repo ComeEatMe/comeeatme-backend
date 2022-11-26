@@ -33,8 +33,6 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("경기도 성남시 분당구 야탑동")
                                 .roadName("경기도 성남시 분당구 야탑로")
-                                .x(0D)
-                                .y(0D)
                                 .build())
                         .build(),
                 Restaurant.builder()
@@ -43,8 +41,6 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("서울특별시 광진구 화양동")
                                 .roadName("서울특별시 광진구 군자로")
-                                .x(0D)
-                                .y(0D)
                                 .build())
                         .build(),
                 Restaurant.builder()
@@ -53,8 +49,6 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("경기도 성남시 분당구 야탑동")
                                 .roadName("경기도 성남시 분당구 야탑로")
-                                .x(0D)
-                                .y(0D)
                                 .build())
                         .build()
         ));
