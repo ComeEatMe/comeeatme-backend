@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -84,7 +83,6 @@ class RestaurantServiceTest {
         Address address = mock(Address.class);
         given(address.getName()).willReturn("address-name");
         given(address.getRoadName()).willReturn("address-road-name");
-        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
@@ -92,7 +90,7 @@ class RestaurantServiceTest {
         given(restaurant.getAddress()).willReturn(address);
 
         given(restaurantRepository
-                .findSliceBySearchAndUseYnIsTrue(any(Pageable.class), any(RestaurantSearch.class)))
+                .findSliceByNameStartingWithAndUseYnIsTrue(any(Pageable.class), eq("지그재그")))
                 .willReturn(new SliceImpl<>(List.of(restaurant)));
 
         given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
@@ -114,8 +112,6 @@ class RestaurantServiceTest {
         assertThat(dto.getFavoriteCount()).isEqualTo(10);
         assertThat(dto.getAddress().getName()).isEqualTo("address-name");
         assertThat(dto.getAddress().getRoadName()).isEqualTo("address-road-name");
-        assertThat(dto.getAddress().getX()).isEqualTo(1.0);
-        assertThat(dto.getAddress().getY()).isEqualTo(2.0);
     }
 
     @Test
@@ -124,7 +120,6 @@ class RestaurantServiceTest {
         Address address = mock(Address.class);
         given(address.getName()).willReturn("소재지주소");
         given(address.getRoadName()).willReturn("도로명주소");
-        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);
@@ -149,8 +144,6 @@ class RestaurantServiceTest {
         assertThat(result.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS);
         assertThat(result.getAddress().getName()).isEqualTo("소재지주소");
         assertThat(result.getAddress().getRoadName()).isEqualTo("도로명주소");
-        assertThat(result.getAddress().getX()).isEqualTo(1.0);
-        assertThat(result.getAddress().getY()).isEqualTo(2.0);
     }
 
 }

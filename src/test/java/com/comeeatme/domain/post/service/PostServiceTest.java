@@ -737,7 +737,6 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -797,8 +796,6 @@ class PostServiceTest {
         assertThat(result.getRestaurant().getId()).isEqualTo(3L);
         assertThat(result.getRestaurant().getName()).isEqualTo("지그재그");
         assertThat(result.getRestaurant().getAddress().getName()).isEqualTo("화양동");
-        assertThat(result.getRestaurant().getAddress().getX()).isEqualTo(1.0);
-        assertThat(result.getRestaurant().getAddress().getY()).isEqualTo(2.0);
     }
 
     @Test
@@ -806,7 +803,6 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);
@@ -860,7 +856,6 @@ class PostServiceTest {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("화양동");
-        given(address.getLocation()).willReturn(Address.createPoint(1.0, 2.0));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(3L);

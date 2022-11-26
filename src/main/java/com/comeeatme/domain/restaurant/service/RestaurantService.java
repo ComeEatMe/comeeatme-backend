@@ -43,8 +43,8 @@ public class RestaurantService {
     }
 
     public Slice<RestaurantDto> getList(Pageable pageable, RestaurantSearch restaurantSearch) {
-        Slice<Restaurant> restaurants = restaurantRepository.findSliceBySearchAndUseYnIsTrue(
-                pageable, restaurantSearch);
+        Slice<Restaurant> restaurants = restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(
+                pageable, restaurantSearch.getName());
         Map<Long, Long> restaurantIdToFavoriteCount = getRestaurantIdToFavoriteCount(restaurants.getContent());
         return restaurants
                 .map(restaurant -> RestaurantDto.builder()
@@ -53,8 +53,6 @@ public class RestaurantService {
                         .favoriteCount(restaurantIdToFavoriteCount.getOrDefault(restaurant.getId(), 0L).intValue())
                         .addressName(restaurant.getAddress().getName())
                         .addressRoadName(restaurant.getAddress().getRoadName())
-                        .addressX(restaurant.getAddress().getLocation().getX())
-                        .addressY(restaurant.getAddress().getLocation().getY())
                         .build()
                 );
     }
@@ -70,8 +68,6 @@ public class RestaurantService {
                 .hashtags(hashtags)
                 .addressName(restaurant.getAddress().getName())
                 .addressRoadName(restaurant.getAddress().getRoadName())
-                .addressX(restaurant.getAddress().getLocation().getX())
-                .addressY(restaurant.getAddress().getLocation().getY())
                 .build();
     }
 
