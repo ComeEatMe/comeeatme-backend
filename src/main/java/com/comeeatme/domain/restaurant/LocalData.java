@@ -11,19 +11,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "open_info",
+@Table(name = "local_data",
         uniqueConstraints = {
-                @UniqueConstraint(name = "UK_open_info_management_num", columnNames = "management_num"),
-                @UniqueConstraint(name = "UK_open_info_restaurant", columnNames = "restaurant_id")
+                @UniqueConstraint(name = "UK_local_data_restaurant", columnNames = "restaurant_id")
         }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OpenInfo {
+public class LocalData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "open_info_id")
+    @Column(name = "local_data_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -55,7 +54,7 @@ public class OpenInfo {
     private LocalDateTime lastModifiedAt;
 
     @Builder
-    private OpenInfo(
+    private LocalData(
             @Nullable Long id,
             Restaurant restaurant,
             String serviceId,
