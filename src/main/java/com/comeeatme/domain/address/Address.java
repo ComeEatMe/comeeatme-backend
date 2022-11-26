@@ -18,12 +18,18 @@ public class Address {
     @Column(name = "road_address_name", nullable = false, updatable = false)
     private String roadName;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "address_code")
+    private AddressCode addressCode;
+
     @Builder
     private Address(
             String name,
-            String roadName) {
+            String roadName,
+            AddressCode addressCode) {
         this.name = name;
         this.roadName = roadName;
+        this.addressCode = addressCode;
     }
 
 }

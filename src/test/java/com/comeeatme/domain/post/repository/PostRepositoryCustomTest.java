@@ -4,6 +4,8 @@ import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.account.Account;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Hashtag;
@@ -41,6 +43,9 @@ class PostRepositoryCustomTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private AddressCodeRepository addressCodeRepository;
+
     @Test
     void existsByIdAndUsernameAndUseYnIsTrue_True() {
         // given
@@ -77,12 +82,37 @@ class PostRepositoryCustomTest {
                 .nickname("test-nickname")
                 .introduction("test-introduction")
                 .build());
+
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
                 .name("모노끼 야탑점")
                 .phone("031-702-2929")
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .addressCode(addressCode)
                         .build())
                 .build());
         Post post1 = postRepository.save(Post.builder()
@@ -114,12 +144,37 @@ class PostRepositoryCustomTest {
                 .nickname("test-nickname")
                 .introduction("test-introduction")
                 .build());
+
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
                 .name("모노끼 야탑점")
                 .phone("031-702-2929")
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .addressCode(addressCode)
                         .build())
                 .build());
         Post post = postRepository.save(Post.builder()
@@ -146,12 +201,37 @@ class PostRepositoryCustomTest {
                 .nickname("test-nickname")
                 .introduction("test-introduction")
                 .build());
+
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
                 .name("모노끼 야탑점")
                 .phone("031-702-2929")
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .addressCode(addressCode)
                         .build())
                 .build());
         Post post1 = postRepository.save(Post.builder()

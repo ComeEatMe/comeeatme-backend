@@ -1,6 +1,8 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.favorite.Favorite;
@@ -30,6 +32,9 @@ class FavoriteRepositoryCustomTest {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private AddressCodeRepository addressCodeRepository;
 
     @Test
     void findAllByMemberIdAndRestaurantIds() {
@@ -61,12 +66,37 @@ class FavoriteRepositoryCustomTest {
     @Test
     void findSliceWithByMemberAndGroup() {
         // given
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
+
         Restaurant restaurant1 = restaurantRepository.save(Restaurant.builder()
                 .name("restaurant-1")
                 .phone("031-0000-0000")
                 .address(Address.builder()
                         .name("addressName")
                         .roadName("addressRoadName")
+                        .addressCode(addressCode)
                         .build())
                 .build());
 
@@ -76,6 +106,7 @@ class FavoriteRepositoryCustomTest {
                 .address(Address.builder()
                         .name("addressName")
                         .roadName("addressRoadName")
+                        .addressCode(addressCode)
                         .build())
                 .build());
 

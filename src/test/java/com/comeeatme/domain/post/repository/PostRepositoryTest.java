@@ -2,6 +2,8 @@ package com.comeeatme.domain.post.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
@@ -41,17 +43,44 @@ class PostRepositoryTest {
     private ImageRepository imageRepository;
 
     @Autowired
+    private AddressCodeRepository addressCodeRepository;
+
+    @Autowired
     private EntityManager em;
 
     @Test
     void findSliceWithRestaurantByMemberAndUseYnIsTrue() {
         // given
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
                 .name("모노끼 야탑점")
                 .phone("031-702-2929")
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .addressCode(addressCode)
                         .build())
                 .build());
 
@@ -89,12 +118,36 @@ class PostRepositoryTest {
     @Test
     void findSliceWithRestaurantByMemberAndUseYnIsTrue_Deleted() {
         // given
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         Restaurant restaurant = restaurantRepository.save(Restaurant.builder()
                 .name("모노끼 야탑점")
                 .phone("031-702-2929")
                 .address(Address.builder()
                         .name("경기 성남시 분당구 야탑동 353-4")
                         .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                        .addressCode(addressCode)
                         .build())
                 .build());
 
