@@ -9,9 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @DataJpaTest
@@ -23,7 +20,7 @@ class LocalDataTest {
     private LocalDataRepository localDataRepository;
 
     @Test
-    @DisplayName("OpenInfo 생성 및 저장")
+    @DisplayName("LocalData 생성 및 저장")
     void save() {
         assertThatNoException().isThrownBy(() -> localDataRepository.saveAndFlush(LocalData.builder()
                 .restaurant(Restaurant.builder().id(1L).build())
@@ -31,8 +28,8 @@ class LocalDataTest {
                 .serviceId("07_24_04_P")
                 .name("일반음식점")
                 .category("경양식")
-                .permissionDate(LocalDate.of(2012, 12, 13))
-                .lastModifiedAt(LocalDateTime.of(2022, 8, 31, 13, 13, 1))
+                .permissionDate("20121213")
+                .closedDate("")
                 .build()
         ));
     }
