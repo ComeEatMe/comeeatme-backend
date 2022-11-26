@@ -1,7 +1,7 @@
 package com.comeeatme.domain.post.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.restaurant.Address;
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;

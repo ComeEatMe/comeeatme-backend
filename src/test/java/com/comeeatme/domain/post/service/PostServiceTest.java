@@ -25,7 +25,7 @@ import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.response.RestaurantPostDto;
-import com.comeeatme.domain.restaurant.Address;
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;

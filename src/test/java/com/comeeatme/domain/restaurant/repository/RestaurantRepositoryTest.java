@@ -1,7 +1,7 @@
 package com.comeeatme.domain.restaurant.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.restaurant.Address;
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
