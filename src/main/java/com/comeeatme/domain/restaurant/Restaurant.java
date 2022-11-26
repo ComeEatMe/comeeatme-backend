@@ -24,7 +24,7 @@ public class Restaurant extends BaseTimeEntity {
     @Column(name = "restaurant_id")
     private Long id;
 
-    @Column(name = "name", length = 45, nullable = false, updatable = false)
+    @Column(name = "name", length = 100, nullable = false, updatable = false)
     private String name;
 
     @Column(name = "phone", length = 25, nullable = false, updatable = false)
@@ -37,7 +37,7 @@ public class Restaurant extends BaseTimeEntity {
     private Restaurant(
             @Nullable Long id,
             String name,
-            @Nullable String phone,
+            String phone,
             Address address) {
         this.id = id;
         this.name = name;
