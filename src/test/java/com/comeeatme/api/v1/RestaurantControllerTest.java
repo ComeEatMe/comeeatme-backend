@@ -104,7 +104,7 @@ class RestaurantControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 리스트 조회 (좌표) - DOCS")
+    @DisplayName("음식점 리스트 조회 - DOCS")
     void getList_Docs() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
@@ -115,8 +115,6 @@ class RestaurantControllerTest {
                 .favoriteCount(10)
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
-                .addressY(37.5469873026613)
-                .addressX(127.07255855087)
                 .build();
         given(restaurantService.getList(any(Pageable.class), any(RestaurantSearch.class)))
                 .willReturn(new SliceImpl<>(List.of(restaurantDto)));
@@ -155,8 +153,6 @@ class RestaurantControllerTest {
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
-                                fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
-                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표"),
                                 fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));
@@ -175,8 +171,6 @@ class RestaurantControllerTest {
                 .favoriteCount(23)
                 .addressName("주소")
                 .addressRoadName("도로명주소")
-                .addressX(1.0)
-                .addressY(2.0)
                 .build();
         given(restaurantService.get(1L)).willReturn(dto);
 
@@ -204,8 +198,6 @@ class RestaurantControllerTest {
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
-                                fieldWithPath("address.x").type(Double.class.getSimpleName()).description("X 좌표"),
-                                fieldWithPath("address.y").type(Double.class.getSimpleName()).description("Y 좌표"),
                                 fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));

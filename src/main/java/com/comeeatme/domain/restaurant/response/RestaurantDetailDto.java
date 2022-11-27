@@ -29,9 +29,7 @@ public class RestaurantDetailDto {
             Integer favoriteCount,
             List<Hashtag> hashtags,
             String addressName,
-            String addressRoadName,
-            Double addressX,
-            Double addressY) {
+            String addressRoadName) {
         this.id = id;
         this.name = name;
         this.favoriteCount = favoriteCount;
@@ -39,8 +37,6 @@ public class RestaurantDetailDto {
         this.address = AddressDto.builder()
                 .name(addressName)
                 .roadName(addressRoadName)
-                .x(addressX)
-                .y(addressY)
                 .build();
     }
 
@@ -52,16 +48,10 @@ public class RestaurantDetailDto {
 
         private String roadName;
 
-        private Double x;
-
-        private Double y;
-
         @Builder
-        private AddressDto(String name, String roadName, Double x, Double y) {
+        private AddressDto(String name, String roadName) {
             this.name = name;
             this.roadName = roadName;
-            this.x = x;
-            this.y = y;
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.comeeatme.domain.restaurant.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.restaurant.Address;
+import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +25,35 @@ class RestaurantRepositoryTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private AddressCodeRepository addressCodeRepository;
+
     @Test
     void findSliceByNameStartingWithAndUseYnIsTrue() {
         // given
+        AddressCode addressCode = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4100000000")
+                        .name("경기도")
+                        .fullName("경기도")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("경기도 성남시 분당구")
+                        .fullName("성남시 분당구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        )).get(2);
         restaurantRepository.saveAllAndFlush(List.of(
                 Restaurant.builder()
                         .name("테스트 야탑점")
@@ -33,8 +61,7 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("경기도 성남시 분당구 야탑동")
                                 .roadName("경기도 성남시 분당구 야탑로")
-                                .x(0D)
-                                .y(0D)
+                                .addressCode(addressCode)
                                 .build())
                         .build(),
                 Restaurant.builder()
@@ -43,8 +70,7 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("서울특별시 광진구 화양동")
                                 .roadName("서울특별시 광진구 군자로")
-                                .x(0D)
-                                .y(0D)
+                                .addressCode(addressCode)
                                 .build())
                         .build(),
                 Restaurant.builder()
@@ -53,8 +79,7 @@ class RestaurantRepositoryTest {
                         .address(Address.builder()
                                 .name("경기도 성남시 분당구 야탑동")
                                 .roadName("경기도 성남시 분당구 야탑로")
-                                .x(0D)
-                                .y(0D)
+                                .addressCode(addressCode)
                                 .build())
                         .build()
         ));

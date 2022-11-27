@@ -46,7 +46,6 @@ dependencies {
     runtimeOnly 'mysql:mysql-connector-java'
     testRuntimeOnly 'com.h2database:h2'
     implementation 'org.flywaydb:flyway-mysql'
-    implementation 'org.hibernate:hibernate-spatial'
 
     //Querydsl
     implementation 'com.querydsl:querydsl-jpa'

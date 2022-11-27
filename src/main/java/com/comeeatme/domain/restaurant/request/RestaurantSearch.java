@@ -9,10 +9,4 @@ public class RestaurantSearch {
 
     private String name;
 
-    private Double x;
-
-    private Double y;
-
-    private Double distance;
-
 }

@@ -54,45 +54,76 @@ alter table member
     add constraint UK_member_nickname unique (nickname);
 
 
+-- AddressCode
+create table address_code
+(
+    code             varchar(15) not null,
+    parent_code      varchar(15),
+    name             varchar(15) not null,
+    full_name        varchar(65) not null,
+    depth            int         not null,
+    terminal         bit         not null,
+    use_yn           bit         not null,
+    created_at       datetime(6) not null,
+    last_modified_at datetime(6) not null,
+    primary key (code)
+) engine = InnoDB;
+
+alter table address_code
+    add constraint FK_address_code_parent_code
+        foreign key (parent_code)
+            references address_code (code);
+
+alter table address_code
+    add constraint UK_address_code_full_name unique (full_name);
+
+create index IX_address_code_name on address_code (name);
+
+create index IX_address_code_depth on address_code (depth);
+
+
 -- Restaurant
 create table restaurant
 (
     restaurant_id     bigint       not null auto_increment,
-    name              varchar(45)  not null,
+    name              varchar(100) not null,
     phone             varchar(25)  not null,
     address_name      varchar(255) not null,
     road_address_name varchar(255) not null,
-    location          point        not null srid 4326,
+    address_code      varchar(15)  not null,
     use_yn            bit          not null,
     created_at        datetime(6)  not null,
     last_modified_at  datetime(6)  not null,
     primary key (restaurant_id)
 ) engine = InnoDB;
 
+alter table restaurant
+    add constraint FK_restaurant_address_code
+        foreign key (address_code)
+            references address_code (code);
+
 create index IX_restaurant_name on restaurant (name);
 
-create spatial index IX_restaurant_location on restaurant (location);
 
-
--- OpenInfo
-create table open_info
+-- LocalData
+create table local_data
 (
-    open_info_id     bigint      not null auto_increment,
+    management_num   varchar(45) not null,
     restaurant_id    bigint      not null,
-    management_num   varchar(65) not null,
     service_id       varchar(15) not null,
     name             varchar(15) not null,
-    category         varchar(15) not null,
-    permission_date  date        not null,
+    category         varchar(25) not null,
+    permission_date  varchar(25) not null,
+    closed_date      varchar(25) not null,
+    update_at        datetime(6) not null,
+    use_yn           bit         not null,
+    created_at       datetime(6) not null,
     last_modified_at datetime(6) not null,
-    primary key (open_info_id)
+    primary key (management_num)
 ) engine = InnoDB;
 
-alter table open_info
-    add constraint UK_open_info_restaurant unique (restaurant_id);
-
-alter table open_info
-    add constraint UK_open_info_management_num unique (management_num);
+alter table local_data
+    add constraint UK_local_data_restaurant unique (restaurant_id);
 
 
 -- Post
