@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "local_data",
@@ -41,12 +42,15 @@ public class LocalData extends BaseTimeEntity implements Persistable<String>  {
     private String category;
 
     // 인허가일자
-    @Column(name = "permission_date", length = 25, nullable = false)
+    @Column(name = "permission_date", length = 25, nullable = false, updatable = false)
     private String permissionDate;
 
     // 폐업 일자
-    @Column(name = "closed_date", length = 25, nullable = false)
+    @Column(name = "closed_date", length = 25, nullable = false, updatable = false)
     private String closedDate;
+
+    @Column(name = "update_at", nullable = false, updatable = false)
+    private LocalDateTime updateAt;
 
     @Builder
     private LocalData(
@@ -56,7 +60,8 @@ public class LocalData extends BaseTimeEntity implements Persistable<String>  {
             String name,
             String category,
             String permissionDate,
-            String closedDate) {
+            String closedDate,
+            LocalDateTime updateAt) {
         this.managementNum = managementNum;
         this.restaurant = restaurant;
         this.serviceId = serviceId;
@@ -64,6 +69,7 @@ public class LocalData extends BaseTimeEntity implements Persistable<String>  {
         this.category = category;
         this.permissionDate = permissionDate;
         this.closedDate = closedDate;
+        this.updateAt = updateAt;
     }
 
     @Override

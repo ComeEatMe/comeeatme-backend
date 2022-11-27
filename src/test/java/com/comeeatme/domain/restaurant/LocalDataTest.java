@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @DataJpaTest
@@ -30,6 +32,7 @@ class LocalDataTest {
                 .category("경양식")
                 .permissionDate("20121213")
                 .closedDate("")
+                .updateAt(LocalDateTime.of(2022, 11, 27, 17, 19))
                 .build()
         ));
     }
