@@ -55,7 +55,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .join(comment.member, member).fetchJoin()
                 .leftJoin(member.image, image).fetchJoin()
                 .where(comment.post.eq(post))
-                .orderBy(comment.parent.id.coalesce(comment.id).asc())
+                .orderBy(comment.parent.id.coalesce(comment.id).asc(), comment.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1L)
                 .fetch();
