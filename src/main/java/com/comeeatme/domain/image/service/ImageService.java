@@ -91,10 +91,21 @@ public class ImageService {
                 .isEmpty();
     }
 
+    public boolean isNotOwnedByMember(Long memberId, Long imageId) {
+        Image image = getImageById(imageId);
+        return !Objects.equals(image.getMember().getId(), memberId);
+    }
+
     private Member getMemberByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    }
+
+    private Image getImageById(Long imageId) {
+        return imageRepository.findById(imageId)
+                .filter(Image::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Image.id=" + imageId));
     }
 
     private List<Image> getImagesByIds(List<Long> imageIds) {

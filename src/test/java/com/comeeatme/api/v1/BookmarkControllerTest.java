@@ -70,7 +70,7 @@ class BookmarkControllerTest {
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-bookmark-bookmark",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -78,6 +78,9 @@ class BookmarkControllerTest {
                         pathParameters(
                                 parameterWithName("groupName").description("북마크 그룹"),
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(bookmarkService).should().bookmark(eq(1L), anyString(), eq("그루비룸"));
@@ -91,13 +94,16 @@ class BookmarkControllerTest {
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-bookmark-bookmark-group-null",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(bookmarkService).should().bookmark(eq(1L), anyString(), eq(null));
@@ -111,7 +117,7 @@ class BookmarkControllerTest {
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-bookmark-cancel-bookmark",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
@@ -119,6 +125,9 @@ class BookmarkControllerTest {
                         pathParameters(
                                 parameterWithName("groupName").description("북마크 그룹"),
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq("그루비룸"));
@@ -132,13 +141,16 @@ class BookmarkControllerTest {
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-bookmark-cancel-bookmark-group-null",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ));
         then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq(null));

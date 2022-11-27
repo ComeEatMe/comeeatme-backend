@@ -34,19 +34,19 @@ public class BookmarkController {
     private final LikeService likeService;
 
     @PutMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
-    public ResponseEntity<Void> bookmark(
+    public ResponseEntity<ApiResult<Void>> bookmark(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
             @CurrentUsername String username) {
         bookmarkService.bookmark(postId, username, groupName);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @DeleteMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<ApiResult<Void>> delete(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
             @CurrentUsername String username) {
         bookmarkService.cancelBookmark(postId, username, groupName);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success());
     }
 
     @GetMapping("/members/{memberId}/bookmark-groups")

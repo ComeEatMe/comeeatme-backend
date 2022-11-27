@@ -473,6 +473,8 @@ class PostControllerTest {
                                 fieldWithPath("imageUrls").description("게시물 이미지 URL 리스트"),
                                 fieldWithPath("content").description("게시물 내용"),
                                 fieldWithPath("createdAt").description("게시물 생성 시점"),
+                                fieldWithPath("liked").description("좋아요 여부"),
+                                fieldWithPath("bookmarked").description("북마크 여부"),
                                 fieldWithPath("member.id").type(Long.class.getSimpleName())
                                         .description("게시물 작성자 회원 ID"),
                                 fieldWithPath("member.nickname").description("게시물 작성자 회원 닉네임"),

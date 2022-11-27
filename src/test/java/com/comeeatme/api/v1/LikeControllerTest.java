@@ -67,13 +67,16 @@ class LikeControllerTest {
         mockMvc.perform(put("/v1/member/like/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-like-like",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ))
         ;
@@ -88,13 +91,16 @@ class LikeControllerTest {
         mockMvc.perform(delete("/v1/member/like/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andDo(document("v1-like-unlike",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
                                 parameterWithName("postId").description("게시물 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("성공여부")
                         )
                 ))
         ;
