@@ -102,6 +102,8 @@ public class PostService {
         Post post = getPostById(postId);
         commentRepository.findAllByPostAndUseYnIsTrue(post)
                 .forEach(Comment::delete);
+        postImageRepository.findAllWithImageByPost(post)
+                .forEach(postImage -> postImage.getImage().delete());
         likeRepository.deleteAllByPost(post);
         bookmarkRepository.deleteAllByPost(post);
         post.delete();
