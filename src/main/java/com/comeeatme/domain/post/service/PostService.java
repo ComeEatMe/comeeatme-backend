@@ -13,10 +13,7 @@ import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
-import com.comeeatme.domain.post.PostEditor;
-import com.comeeatme.domain.post.PostHashtag;
-import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.*;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
@@ -44,19 +41,12 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-
     private final PostImageRepository postImageRepository;
-
     private final ImageRepository imageRepository;
-
     private final RestaurantRepository restaurantRepository;
-
     private final MemberRepository memberRepository;
-
     private final CommentRepository commentRepository;
-
     private final LikeRepository likeRepository;
-
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
@@ -76,15 +66,8 @@ public class PostService {
     @Transactional
     public UpdateResult<Long> edit(PostEdit postEdit, Long postId) {
         Post post = getPostById(postId);
-        Set<PostHashtag> editedPostHashtags = postEdit.getHashtags()
-                .stream()
-                .map(hashtag -> PostHashtag.builder()
-                        .post(post)
-                        .hashtag(hashtag)
-                        .build())
-                .collect(Collectors.toSet());
+
         PostEditor.PostEditorBuilder editorBuilder = post.toEditor()
-                .postHashtags(editedPostHashtags)
                 .content(postEdit.getContent());
 
         if (!Objects.equals(post.getRestaurant().getId(), postEdit.getRestaurantId())) {
@@ -94,6 +77,15 @@ public class PostService {
 
         PostEditor editor = editorBuilder.build();
         post.edit(editor);
+
+        Set<Hashtag> hashtags = new HashSet<>(post.getHashtags());
+        postEdit.getHashtags().stream()
+                .filter(hashtag -> !hashtags.contains(hashtag))
+                .forEach(post::addHashtag);
+        List<PostHashtag> deletedPostHashtags = post.getPostHashtags().stream()
+                .filter(postHashtag -> !postEdit.getHashtags().contains(postHashtag.getHashtag()))
+                .collect(Collectors.toList());
+        deletedPostHashtags.forEach(deletedPostHashtag -> post.getPostHashtags().remove(deletedPostHashtag));
         return new UpdateResult<>(post.getId());
     }
 

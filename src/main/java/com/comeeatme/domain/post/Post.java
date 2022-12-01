@@ -63,13 +63,11 @@ public class Post extends BaseTimeEntity {
     public PostEditor.PostEditorBuilder toEditor() {
         return PostEditor.builder()
                 .restaurant(restaurant)
-                .postHashtags(postHashtags)
                 .content(content);
     }
 
     public void edit(PostEditor editor) {
         restaurant = editor.getRestaurant();
-        postHashtags = editor.getPostHashtags();
         content = editor.getContent();
     }
 
