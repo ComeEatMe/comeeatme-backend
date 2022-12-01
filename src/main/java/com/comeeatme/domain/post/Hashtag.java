@@ -1,11 +1,13 @@
 package com.comeeatme.domain.post;
 
 import com.comeeatme.domain.common.core.EnumMapperType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import static com.comeeatme.domain.post.HashtagGroup.*;
 
 @RequiredArgsConstructor
+@Getter
 public enum Hashtag implements EnumMapperType {
 
     MOODY(MOOD, "감성있는"),

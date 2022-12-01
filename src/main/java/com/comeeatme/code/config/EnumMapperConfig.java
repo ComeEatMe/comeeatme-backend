@@ -2,6 +2,7 @@ package com.comeeatme.code.config;
 
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.HashtagGroup;
+import com.comeeatme.domain.report.ReportReason;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,7 @@ public class EnumMapperConfig {
         EnumMapperFactory enumMapperFactory = new EnumMapperFactory();
         enumMapperFactory.put("HashtagGroup", HashtagGroup.class);
         enumMapperFactory.put("Hashtag", Hashtag.class);
+        enumMapperFactory.put("ReportReason", ReportReason.class);
         return enumMapperFactory;
     }
 }
