@@ -6,7 +6,6 @@ import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
-import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +35,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,30 +59,35 @@ class RestaurantControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 제목 및 주소 리스트 조회 - DOCS")
+    @DisplayName("음식점 제목 및 주소 검색 - DOCS")
     void getSimpleList_Docs() throws Exception {
         // given
-        List<RestaurantSimpleDto> content = List.of(
-                RestaurantSimpleDto.builder()
+        List<RestaurantDto> content = List.of(
+                RestaurantDto.builder()
                         .id(1L)
-                        .name("음식점1")
-                        .addressName("주소1")
+                        .name("지그재그")
+                        .favoriteCount(10)
+                        .addressName("서울 광진구 화양동 111-27")
+                        .addressRoadName("서울 광진구 능동로19길 21-2")
                         .build(),
-                RestaurantSimpleDto.builder()
+                RestaurantDto.builder()
                         .id(2L)
-                        .name("음식점2")
-                        .addressName("주소2")
+                        .name("모노끼")
+                        .favoriteCount(10)
+                        .addressName("")
+                        .addressRoadName("야탑로")
                         .build()
         );
-        SliceImpl<RestaurantSimpleDto> slice = new SliceImpl<>(content, PageRequest.of(0, 10), false);
-        given(restaurantService.getSimpleList(any(Pageable.class), anyString())).willReturn(slice);
+        given(restaurantService.search(any(Pageable.class), any(RestaurantSearch.class)))
+                .willReturn(new SliceImpl<>(content));
 
         // expected
         mockMvc.perform(get("/v1/restaurants/simple")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("name", "음식점"))
+                        .param("keyword", "음식점"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andDo(document("v1-restaurant-get-simple",
@@ -91,7 +95,7 @@ class RestaurantControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         requestParameters(
-                                parameterWithName("name").description("검색하려는 음식점 이름")
+                                parameterWithName("keyword").description("음식점 검색 키워드")
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
@@ -104,7 +108,7 @@ class RestaurantControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("음식점 리스트 조회 - DOCS")
+    @DisplayName("음식점 검색 - DOCS")
     void getList_Docs() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
@@ -116,7 +120,7 @@ class RestaurantControllerTest {
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
                 .build();
-        given(restaurantService.getList(any(Pageable.class), any(RestaurantSearch.class)))
+        given(restaurantService.search(any(Pageable.class), any(RestaurantSearch.class)))
                 .willReturn(new SliceImpl<>(List.of(restaurantDto)));
 
         // expected
@@ -124,10 +128,7 @@ class RestaurantControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .param("name", "지그재그")
-                        .param("x", "127.07255855087")
-                        .param("y", "37.5469873026613")
-                        .param("distance", "1000")
+                        .param("keyword", "지그재그")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -136,14 +137,7 @@ class RestaurantControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         requestParameters(
-                                parameterWithName("name").optional()
-                                        .description("검색하려는 음식점 이름"),
-                                parameterWithName("x").optional()
-                                        .description("x 좌표 기준 검색"),
-                                parameterWithName("y").optional()
-                                        .description("y 좌표 기준 검색"),
-                                parameterWithName("distance").optional()
-                                        .description("해당 거리 이내만 검색.")
+                                parameterWithName("keyword").description("음식점 검색 키워드")
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
