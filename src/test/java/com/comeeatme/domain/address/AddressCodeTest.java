@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @DataJpaTest
@@ -47,6 +49,42 @@ class AddressCodeTest {
                         .terminal(true)
                         .build()
         )));
+    }
+
+    @Test
+    void getCodePrefix() {
+        // given
+        List<AddressCode> addressCodes = List.of(
+                AddressCode.builder()
+                        .code("1100000000")
+                        .name("서울특별시")
+                        .fullName("서울특별시")
+                        .depth(1)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121500000")
+                        .name("서울특별시 광진구")
+                        .fullName("광진구")
+                        .depth(2)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("서울특별시 광진구 화양동")
+                        .fullName("화양동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        // when
+        List<String> codePrefixes = addressCodes.stream()
+                .map(AddressCode::getCodePrefix)
+                .collect(Collectors.toList());
+
+        // then
+        assertThat(codePrefixes).containsOnly("11", "11215", "11215107");
     }
 
 }

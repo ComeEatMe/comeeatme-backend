@@ -1,10 +1,12 @@
 package com.comeeatme.domain.restaurant.service;
 
+import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,41 +47,11 @@ class RestaurantServiceTest {
     @Mock
     private PostRepository postRepository;
 
-    @Test
-    void getSimpleList() {
-        // given
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        Address address1 = mock(Address.class);
-        given(address1.getName()).willReturn("야탑동");
-        Restaurant restaurant1 = mock(Restaurant.class);
-        given(restaurant1.getId()).willReturn(1L);
-        given(restaurant1.getName()).willReturn("음식점1");
-        given(restaurant1.getAddress()).willReturn(address1);
-
-        Address address2 = mock(Address.class);
-        given(address2.getName()).willReturn("이매동" );
-        Restaurant restaurant2 = mock(Restaurant.class);
-        given(restaurant2.getId()).willReturn(2L);
-        given(restaurant2.getName()).willReturn("음식점2");
-        given(restaurant2.getAddress()).willReturn(address2);
-
-        SliceImpl<Restaurant> slice = new SliceImpl<>(List.of(restaurant1, restaurant2), pageRequest, false);
-        given(restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(any(Pageable.class), anyString())).willReturn(slice);
-
-        // when
-        Slice<RestaurantSimpleDto> simpleDtos = restaurantService.getSimpleList(pageRequest, "음식점");
-
-        // then
-        List<RestaurantSimpleDto> content = simpleDtos.getContent();
-        assertThat(content).hasSize(2);
-        assertThat(content).extracting("id").containsExactly(1L, 2L);
-        assertThat(content).extracting("name").containsExactly("음식점1", "음식점2");
-        assertThat(content).extracting("addressName").containsExactly("야탑동", "이매동");
-    }
+    @Mock
+    private AddressCodeRepository addressCodeRepository;
 
     @Test
-    void getList() {
+    void search() {
         // given
         Address address = mock(Address.class);
         given(address.getName()).willReturn("address-name");
@@ -89,8 +62,10 @@ class RestaurantServiceTest {
         given(restaurant.getName()).willReturn("지그재그");
         given(restaurant.getAddress()).willReturn(address);
 
+        given(addressCodeRepository.findAllByNameStartingWith(anyString())).willReturn(Collections.emptyList());
+
         given(restaurantRepository
-                .findSliceByNameStartingWithAndUseYnIsTrue(any(Pageable.class), eq("지그재그")))
+                .findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(any(Pageable.class), eq("지그재그"), eq(null)))
                 .willReturn(new SliceImpl<>(List.of(restaurant)));
 
         given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
@@ -99,9 +74,52 @@ class RestaurantServiceTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         RestaurantSearch restaurantSearch = RestaurantSearch.builder()
-                .name("지그재그")
+                .keyword("지그재그")
                 .build();
-        Slice<RestaurantDto> result = restaurantService.getList(pageRequest, restaurantSearch);
+        Slice<RestaurantDto> result = restaurantService.search(pageRequest, restaurantSearch);
+
+        // then
+        assertThat(result).hasSize(1);
+
+        RestaurantDto dto = result.getContent().get(0);
+        assertThat(dto.getId()).isEqualTo(1L);
+        assertThat(dto.getName()).isEqualTo("지그재그");
+        assertThat(dto.getFavoriteCount()).isEqualTo(10);
+        assertThat(dto.getAddress().getName()).isEqualTo("address-name");
+        assertThat(dto.getAddress().getRoadName()).isEqualTo("address-road-name");
+    }
+
+    @Test
+    void search_AddressContaining() {
+        // given
+        Address address = mock(Address.class);
+        given(address.getName()).willReturn("address-name");
+        given(address.getRoadName()).willReturn("address-road-name");
+
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(1L);
+        given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getAddress()).willReturn(address);
+
+        AddressCode addressCode = mock(AddressCode.class);
+        given(addressCode.getUseYn()).willReturn(true);
+        given(addressCode.getCodePrefix()).willReturn("11215107");
+        given(addressCodeRepository.findAllByNameStartingWith("화양")).willReturn(List.of(addressCode));
+
+        given(restaurantRepository
+                .findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(
+                        any(Pageable.class), eq("지그재그"), eq(List.of("11215107"))))
+                .willReturn(new SliceImpl<>(List.of(restaurant)));
+
+        given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
+                .willReturn(List.of(new FavoriteCount(1L, 10L)));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        RestaurantSearch restaurantSearch = RestaurantSearch.builder()
+                .keyword("화양 지그재그")
+                .build();
+        Slice<RestaurantDto> result = restaurantService.search(pageRequest, restaurantSearch);
 
         // then
         assertThat(result).hasSize(1);

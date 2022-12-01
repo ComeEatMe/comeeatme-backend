@@ -33,9 +33,11 @@ public class AddressCode extends BaseTimeEntity implements Persistable<String> {
     public static final int SIGUNGU_CODE_LEN =  3;
     public static final int EUPMYEONDONG_CODE_LEN = 3;
     public static final int RI_CODE_LEN = 2;
-
     public static final int TOTAL_CODE_LEN =
             SIDO_CODE_LEN + SIGUNGU_CODE_LEN + EUPMYEONDONG_CODE_LEN + RI_CODE_LEN;
+    public static final int[] CODE_LENS = new int[] {
+            SIDO_CODE_LEN, SIGUNGU_CODE_LEN, EUPMYEONDONG_CODE_LEN, RI_CODE_LEN
+    };
 
     @Id
     @Column(name = "code", length = 15, nullable = false, updatable = false)
@@ -86,6 +88,17 @@ public class AddressCode extends BaseTimeEntity implements Persistable<String> {
 
     public boolean hasChild() {
         return !getTerminal();
+    }
+
+    public String getCodePrefix() {
+        int prefixLen = 0;
+        for (int codeLen : CODE_LENS) {
+            prefixLen += codeLen;
+            if (code.endsWith("0".repeat(TOTAL_CODE_LEN - prefixLen))) {
+                return code.substring(0, prefixLen);
+            }
+        }
+        return code;
     }
 
 }
