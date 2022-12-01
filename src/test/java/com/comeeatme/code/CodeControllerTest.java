@@ -88,7 +88,8 @@ class CodeControllerTest {
                         responseFields(
                                 //subsectionWithPath("FieldCategory").description("분야 카테고리")    // RestDocs 등록
                                 subsectionWithPath("HashtagGroup").description("해쉬태그 그룹"),
-                                subsectionWithPath("Hashtag").description("해쉬태그")
+                                subsectionWithPath("Hashtag").description("해쉬태그"),
+                                subsectionWithPath("ReportReason").description("신고사유")
                         )
                 ));
     }
