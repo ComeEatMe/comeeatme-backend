@@ -13,6 +13,9 @@
 == 음식점 제목 및 주소 검색
 
 Page parameter
+
+sort 불가능
+
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
 operation::v1-restaurant-get-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
