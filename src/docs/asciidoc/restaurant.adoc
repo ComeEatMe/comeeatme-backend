@@ -10,7 +10,7 @@
 
 
 [[v1-restaurant-get-simple]]
-== 음식점 제목 및 주소 리스트 조회
+== 음식점 제목 및 주소 검색
 
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
@@ -19,7 +19,7 @@ operation::v1-restaurant-get-simple[snippets='http-request,request-headers,reque
 
 
 [[v1-restaurant-get-list]]
-== 음식점 리스트 조회 (좌표)
+== 음식점 검색
 
 Page parameter
 
