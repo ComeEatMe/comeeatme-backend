@@ -1,5 +1,7 @@
 package com.comeeatme.domain.restaurant.service;
 
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.post.Hashtag;
@@ -9,7 +11,6 @@ import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
-import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +18,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,19 +32,20 @@ public class RestaurantService {
 
     private final PostRepository postRepository;
 
-    public Slice<RestaurantSimpleDto> getSimpleList(Pageable pageable, String name) {
-        return restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(pageable, name)
-                .map(restaurant -> RestaurantSimpleDto.builder()
-                        .id(restaurant.getId())
-                        .name(restaurant.getName())
-                        .addressName(restaurant.getAddress().getName())
-                        .build()
-                );
-    }
+    private final AddressCodeRepository addressCodeRepository;
 
-    public Slice<RestaurantDto> getList(Pageable pageable, RestaurantSearch restaurantSearch) {
-        Slice<Restaurant> restaurants = restaurantRepository.findSliceByNameStartingWithAndUseYnIsTrue(
-                pageable, restaurantSearch.getName());
+    public Slice<RestaurantDto> search(Pageable pageable, RestaurantSearch restaurantSearch) {
+        Deque<String> querySplit = new LinkedList<>(Arrays.asList(restaurantSearch.getKeyword().split(" ")));
+        List<AddressCode> addressCodesInQuery = getAddressCodesInQuerySplit(querySplit);
+        List<String> addressCodePrefixes = addressCodesInQuery.stream()
+                .map(AddressCode::getCodePrefix)
+                .collect(Collectors.toList());
+        addressCodePrefixes = addressCodePrefixes.isEmpty() ? null : addressCodePrefixes;
+
+        String name = String.join(" ", querySplit);
+
+        Slice<Restaurant> restaurants = restaurantRepository.findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(
+                pageable, name, addressCodePrefixes);
         Map<Long, Long> restaurantIdToFavoriteCount = getRestaurantIdToFavoriteCount(restaurants.getContent());
         return restaurants
                 .map(restaurant -> RestaurantDto.builder()
@@ -55,6 +56,34 @@ public class RestaurantService {
                         .addressRoadName(restaurant.getAddress().getRoadName())
                         .build()
                 );
+    }
+
+    private List<AddressCode> getAddressCodesInQuerySplit(Deque<String> querySplit) {
+        if (querySplit.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<AddressCode> addressCodes = new ArrayList<>();
+
+        List<AddressCode> firstCodes = addressCodeRepository.findAllByNameStartingWith(querySplit.peekFirst())
+                .stream()
+                .filter(AddressCode::getUseYn)
+                .collect(Collectors.toList());
+        if (!firstCodes.isEmpty()) {
+            querySplit.pollFirst();
+            addressCodes.addAll(firstCodes);
+        }
+
+        List<AddressCode> lastCodes = addressCodeRepository.findAllByNameStartingWith(querySplit.peekLast())
+                .stream()
+                .filter(AddressCode::getUseYn)
+                .collect(Collectors.toList());
+        if (!lastCodes.isEmpty()) {
+            querySplit.pollLast();
+            addressCodes.addAll(lastCodes);
+        }
+
+        return addressCodes;
     }
 
     public RestaurantDetailDto get(Long restaurantId) {

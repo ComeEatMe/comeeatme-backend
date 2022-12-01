@@ -7,6 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 public class RestaurantSearch {
 
-    private String name;
+    private String keyword;
 
 }

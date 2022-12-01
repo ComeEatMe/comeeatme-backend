@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,9 +35,16 @@ public class RestaurantController {
 
     @GetMapping("/restaurants/simple")
     public ResponseEntity<ApiResult<Slice<RestaurantSimpleDto>>> getSimpleList(
-            Pageable pageable, @RequestParam String name) {
-        Slice<RestaurantSimpleDto> simpleList = restaurantService.getSimpleList(pageable, name);
-        ApiResult<Slice<RestaurantSimpleDto>> result = ApiResult.success(simpleList);
+            Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch) {
+        Slice<RestaurantSimpleDto> restaurants = restaurantService.search(pageable, restaurantSearch)
+                .map(restaurant -> RestaurantSimpleDto.builder()
+                        .id(restaurant.getId())
+                        .name(restaurant.getName())
+                        .addressName(StringUtils.hasText(restaurant.getAddress().getName()) ?
+                                restaurant.getAddress().getName() : restaurant.getAddress().getRoadName())
+                        .build()
+                );
+        ApiResult<Slice<RestaurantSimpleDto>> result = ApiResult.success(restaurants);
         return ResponseEntity.ok(result);
     }
 
@@ -44,7 +52,7 @@ public class RestaurantController {
     public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> getList(
             Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        Slice<RestaurantDto> restaurants = restaurantService.getList(pageable, restaurantSearch);
+        Slice<RestaurantDto> restaurants = restaurantService.search(pageable, restaurantSearch);
         List<Long> restaurantIds = restaurants.stream()
                 .map(RestaurantDto::getId)
                 .collect(Collectors.toList());
