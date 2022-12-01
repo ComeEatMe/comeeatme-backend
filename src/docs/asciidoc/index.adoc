@@ -21,6 +21,7 @@
 - xref:comment.adoc[Comment]
 - xref:restaurant.adoc[Restaurant]
 - xref:favorite.adoc[Favorite]
+- xref:report.adoc[Report]
 
 == HTTP Method
 
