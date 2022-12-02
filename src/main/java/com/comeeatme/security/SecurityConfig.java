@@ -40,6 +40,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity httpSecurity,
+            CorsConfigurationSource corsConfigurationSource,
             OAuth2UserServiceCustom oAuth2UserService,
             OAuth2AuthenticationSuccessHandlerCustom oAuth2AuthenticationSuccessHandler,
             JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
@@ -48,6 +49,7 @@ public class SecurityConfig {
             throws Exception {
         return httpSecurity
                 .cors()
+                .configurationSource(corsConfigurationSource)
                 .and()
 
                 .csrf().disable()
