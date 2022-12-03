@@ -1,5 +1,6 @@
 package com.comeeatme.domain.post.service;
 
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
@@ -25,7 +26,6 @@ import com.comeeatme.domain.post.response.MemberPostDto;
 import com.comeeatme.domain.post.response.PostDetailDto;
 import com.comeeatme.domain.post.response.PostDto;
 import com.comeeatme.domain.post.response.RestaurantPostDto;
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
@@ -93,12 +92,12 @@ class PostServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername(anyString()))
+        given(memberRepository.findById(10L))
                 .willReturn(Optional.of(member));
 
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getUseYn()).willReturn(true);
-        given(restaurantRepository.findById(postCreate.getRestaurantId()))
+        given(restaurantRepository.findWithPessimisticLockById(postCreate.getRestaurantId()))
                 .willReturn(Optional.of(restaurant));
 
         Post post = mock(Post.class);
@@ -117,7 +116,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(5L);
 
         // when
-        CreateResult<Long> result = postService.create(postCreate, "test-username");
+        CreateResult<Long> result = postService.create(postCreate, 10L);
 
         // then
         Post capturedPost = postCaptor.getValue();
@@ -137,6 +136,8 @@ class PostServiceTest {
                 .containsExactly(post, post, post);
         assertThat(capturedPostImages).extracting("image")
                 .containsExactly(image1, image2, image3);
+
+        then(restaurant).should().increasePostCount();
 
         assertThat(result.getId()).isEqualTo(5L);
     }
@@ -232,14 +233,22 @@ class PostServiceTest {
     @Test
     void delete() {
         // given
+        Restaurant restaurant = mock(Restaurant.class);
+        given(restaurant.getId()).willReturn(2L);
+
         Post post = mock(Post.class);
         given(post.getId()).willReturn(1L);
         given(post.getUseYn()).willReturn(true);
+        given(post.getRestaurant()).willReturn(restaurant);
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
         List<Comment> comments = List.of(
                 mock(Comment.class), mock(Comment.class), mock(Comment.class));
         given(commentRepository.findAllByPostAndUseYnIsTrue(post)).willReturn(comments);
+
+        Restaurant lockedRestaurant = mock(Restaurant.class);
+        given(lockedRestaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findWithPessimisticLockById(restaurant.getId())).willReturn(Optional.of(lockedRestaurant));
 
         // when
         DeleteResult<Long> deleteResult = postService.delete(1L);
@@ -248,6 +257,7 @@ class PostServiceTest {
         comments.forEach(comment -> then(comment).should().delete());
         then(likeRepository).should().deleteAllByPost(post);
         then(bookmarkRepository).should().deleteAllByPost(post);
+        then(lockedRestaurant).should().decreasePostCount();
         then(post).should().delete();
         assertThat(deleteResult.getId()).isEqualTo(1L);
     }

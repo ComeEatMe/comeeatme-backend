@@ -96,7 +96,8 @@ class PostControllerTest {
                 .content("test-content")
                 .build();
         given(imageService.validateImageIds(anyList(), anyString())).willReturn(true);
-        given(postService.create(any(PostCreate.class), anyString())).willReturn(new CreateResult<>(10L));
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(postService.create(any(PostCreate.class), eq(10L))).willReturn(new CreateResult<>(10L));
 
         // expected
         mockMvc.perform(post("/v1/post").with(csrf())
