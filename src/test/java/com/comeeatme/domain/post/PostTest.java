@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 
 @DataJpaTest
@@ -31,5 +32,84 @@ class PostTest {
                 .build()
         ));
     }
+
+    @Test
+    void increaseCommentCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseCommentCount();
+
+        // then
+        assertThat(post.getCommentCount()).isEqualTo(1);
+    }
+
+    @Test
+    void decreaseCommentCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseCommentCount();
+        post.increaseCommentCount();
+        post.decreaseCommentCount();
+
+        // then
+        assertThat(post.getCommentCount()).isEqualTo(1);
+    }
+
+    @Test
+    void increaseLikeCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseLikeCount();
+
+        // then
+        assertThat(post.getLikeCount()).isEqualTo(1);
+    }
+
+    @Test
+    void decreaseLikeCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseLikeCount();
+        post.increaseLikeCount();
+        post.decreaseLikeCount();
+
+        // then
+        assertThat(post.getLikeCount()).isEqualTo(1);
+    }
+
+    @Test
+    void increaseBookmarkCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseBookmarkCount();
+
+        // then
+        assertThat(post.getBookmarkCount()).isEqualTo(1);
+    }
+
+    @Test
+    void decreaseBookmarkCount() {
+        // given
+        Post post = Post.builder().build();
+
+        // when
+        post.increaseBookmarkCount();
+        post.increaseBookmarkCount();
+        post.decreaseBookmarkCount();
+
+        // then
+        assertThat(post.getBookmarkCount()).isEqualTo(1);
+    }
+
 
 }
