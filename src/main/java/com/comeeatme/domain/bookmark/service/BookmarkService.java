@@ -42,11 +42,11 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void bookmark(Long postId, String username, String groupName) {
+    public void bookmark(Long postId, Long memberId, String groupName) {
         Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+        Member member = getMemberById(memberId);
         BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        if (bookmarkRepository.existsByGroupAndPost(group, post)) {
+        if (bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)) {
             throw new AlreadyBookmarkedException(String.format(
                     "member.id=%s, bookmark.group=%s, post.id=%s",
                     member.getId(), groupName, post.getId()

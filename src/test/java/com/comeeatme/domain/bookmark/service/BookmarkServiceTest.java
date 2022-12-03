@@ -69,15 +69,15 @@ class BookmarkServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         BookmarkGroup group = mock(BookmarkGroup.class);
         given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
 
-        given(bookmarkRepository.existsByGroupAndPost(group, post)).willReturn(false);
+        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)).willReturn(false);
 
         // when
-        bookmarkService.bookmark(1L, "username", "그루비룸");
+        bookmarkService.bookmark(1L, 2L, "그루비룸");
 
         // then
         ArgumentCaptor<Bookmark> bookmarkCaptor = ArgumentCaptor.forClass(Bookmark.class);
@@ -100,12 +100,12 @@ class BookmarkServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
-        given(bookmarkRepository.existsByGroupAndPost(null, post)).willReturn(false);
+        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, null, post)).willReturn(false);
 
         // when
-        bookmarkService.bookmark(1L, "username", null);
+        bookmarkService.bookmark(1L, 2L, null);
 
         // then
         ArgumentCaptor<Bookmark> bookmarkCaptor = ArgumentCaptor.forClass(Bookmark.class);
@@ -126,15 +126,15 @@ class BookmarkServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         BookmarkGroup group = mock(BookmarkGroup.class);
         given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
 
-        given(bookmarkRepository.existsByGroupAndPost(group, post)).willReturn(true);
+        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)).willReturn(true);
 
         // expected
-        assertThatThrownBy(() -> bookmarkService.bookmark(1L, "username", "그루비룸"))
+        assertThatThrownBy(() -> bookmarkService.bookmark(1L, 2L, "그루비룸"))
                 .isInstanceOf(AlreadyBookmarkedException.class);
     }
 

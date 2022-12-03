@@ -37,7 +37,8 @@ public class BookmarkController {
     public ResponseEntity<ApiResult<Void>> bookmark(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
             @CurrentUsername String username) {
-        bookmarkService.bookmark(postId, username, groupName);
+        Long memberId = accountService.getMemberId(username);
+        bookmarkService.bookmark(postId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
     }
 

@@ -24,7 +24,7 @@ class BookmarkRepositoryTest {
     private BookmarkRepository bookmarkRepository;
 
     @Test
-    void existsByGroupAndPost() {
+    void existsByMemberAndGroupAndPost() {
         // given
         bookmarkRepository.save(Bookmark.builder()
                 .member(Member.builder().id(10L).build())
@@ -33,14 +33,15 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.existsByGroupAndPost(
+        assertThat(bookmarkRepository.existsByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(30L).build(),
                 Post.builder().id(20L).build()
         )).isTrue();
     }
 
     @Test
-    void existsByGroupAndPost_GroupNull() {
+    void existsByMemberAndGroupAndPost_GroupNull() {
         // given
         bookmarkRepository.save(Bookmark.builder()
                 .member(Member.builder().id(10L).build())
@@ -48,14 +49,15 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.existsByGroupAndPost(
+        assertThat(bookmarkRepository.existsByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 null,
                 Post.builder().id(20L).build()
         )).isTrue();
     }
 
     @Test
-    void existsByGroupAndPost_PostNotEqual() {
+    void existsByMemberAndGroupAndPost_PostNotEqual() {
         // given
         bookmarkRepository.save(Bookmark.builder()
                 .member(Member.builder().id(10L).build())
@@ -64,14 +66,15 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.existsByGroupAndPost(
+        assertThat(bookmarkRepository.existsByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(30L).build(),
                 Post.builder().id(40L).build()
         )).isFalse();
     }
 
     @Test
-    void existsByGroupAndPost_GroupNotEqual() {
+    void existsByMemberAndGroupAndPost_GroupNotEqual() {
         // given
         bookmarkRepository.save(Bookmark.builder()
                 .member(Member.builder().id(10L).build())
@@ -80,7 +83,8 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.existsByGroupAndPost(
+        assertThat(bookmarkRepository.existsByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(400L).build(),
                 Post.builder().id(20L).build()
         )).isFalse();
