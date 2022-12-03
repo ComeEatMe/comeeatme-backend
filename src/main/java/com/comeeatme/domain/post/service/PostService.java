@@ -235,12 +235,6 @@ public class PostService {
                 .collect(Collectors.toMap(LikeCount::getPostId, LikeCount::getCount));
     }
 
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
-    }
-
     private Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .filter(Member::getUseYn)
