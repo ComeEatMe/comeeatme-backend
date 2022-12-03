@@ -67,7 +67,7 @@ class FavoriteServiceRaceConditionTest {
                         .build()
         );
 
-        int memberCount = 10;
+        int memberCount = 100;
         List<Member> members = memberRepository.saveAll(IntStream.range(0, memberCount)
                 .mapToObj(i -> Member.builder()
                         .nickname("nickname-" + i)
@@ -77,7 +77,7 @@ class FavoriteServiceRaceConditionTest {
         );
 
         // when
-        int threadCount = 10;
+        int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -96,11 +96,64 @@ class FavoriteServiceRaceConditionTest {
 
         // then
         Restaurant foundRestaurant = restaurantRepository.findById(restaurant.getId()).orElseThrow();
-        assertThat(foundRestaurant.getFavoriteCount()).isEqualTo(10);
+        assertThat(foundRestaurant.getFavoriteCount()).isEqualTo(100);
     }
 
     @Test
-    void cancelFavorite() {
+    void cancelFavorite() throws InterruptedException {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+        Restaurant restaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("모노끼 야탑점")
+                        .phone("")
+                        .address(Address.builder()
+                                .name("경기 성남시 분당구 야탑동 353-4")
+                                .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        int memberCount = 200;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, memberCount)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+        members.forEach(member -> favoriteService.favorite(restaurant.getId(), member.getId(), null));
+
+        // when
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    favoriteService.cancelFavorite(restaurant.getId(), member.getId(), null);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Restaurant foundRestaurant = restaurantRepository.findById(restaurant.getId()).orElseThrow();
+        assertThat(foundRestaurant.getFavoriteCount()).isEqualTo(100);
     }
 
 }
