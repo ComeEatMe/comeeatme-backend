@@ -50,9 +50,9 @@ public class PostService {
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
-    public CreateResult<Long> create(PostCreate postCreate, String username) {
-        Member member = getMemberByUsername(username);
-        Restaurant restaurant = getRestaurantById(postCreate.getRestaurantId());
+    public CreateResult<Long> create(PostCreate postCreate, Long memberId) {
+        Member member = getMemberById(memberId);
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(postCreate.getRestaurantId());
         Post post = postRepository.save(Post.builder()
                 .member(member)
                 .restaurant(restaurant)
@@ -60,6 +60,7 @@ public class PostService {
                 .build());
         postCreate.getHashtags().forEach(post::addHashtag);
         savePostImages(post, postCreate.getImageIds());
+        restaurant.increasePostCount();
         return new CreateResult<>(post.getId());
     }
 
@@ -98,7 +99,9 @@ public class PostService {
                 .forEach(postImage -> postImage.getImage().delete());
         likeRepository.deleteAllByPost(post);
         bookmarkRepository.deleteAllByPost(post);
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(post.getRestaurant().getId());
         post.delete();
+        restaurant.decreasePostCount();
         return new DeleteResult<>(post.getId());
     }
 
@@ -246,6 +249,12 @@ public class PostService {
 
     private Restaurant getRestaurantById(Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
+                .filter(Restaurant::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
+    }
+
+    private Restaurant getRestaurantWithPessimisticLockById(Long restaurantId) {
+        return restaurantRepository.findWithPessimisticLockById(restaurantId)
                 .filter(Restaurant::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
     }
