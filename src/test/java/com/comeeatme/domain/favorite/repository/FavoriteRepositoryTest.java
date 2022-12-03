@@ -24,7 +24,7 @@ class FavoriteRepositoryTest {
     private FavoriteRepository favoriteRepository;
 
     @Test
-    void existsByGroupAndRestaurant() {
+    void existsByMemberAndGroupAndRestaurant() {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
@@ -33,14 +33,15 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByGroupAndRestaurant(
+        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(3L).build(),
                 Restaurant.builder().id(2L).build()
         )).isTrue();
     }
 
     @Test
-    void existsByGroupAndRestaurant_GroupNotEqual() {
+    void existsByMemberAndGroupAndRestaurant_GroupNotEqual() {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
@@ -49,14 +50,15 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByGroupAndRestaurant(
+        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(4L).build(),
                 Restaurant.builder().id(2L).build()
         )).isFalse();
     }
 
     @Test
-    void existsByGroupAndRestaurant_RestaurantNotEqual() {
+    void existsByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
@@ -65,7 +67,8 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByGroupAndRestaurant(
+        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(3L).build(),
                 Restaurant.builder().id(4L).build()
         )).isFalse();
