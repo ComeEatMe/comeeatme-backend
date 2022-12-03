@@ -12,7 +12,6 @@ import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
-import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -143,11 +142,10 @@ class RestaurantServiceTest {
         given(restaurant.getUseYn()).willReturn(true);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("음식점");
+        given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
-
-        given(favoriteRepository.countByRestaurant(restaurant)).willReturn(10L);
 
         given(postRepository.findAllHashtagByRestaurant(restaurant))
                 .willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));
