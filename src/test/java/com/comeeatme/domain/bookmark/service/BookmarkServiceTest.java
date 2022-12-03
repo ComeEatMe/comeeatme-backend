@@ -147,16 +147,16 @@ class BookmarkServiceTest {
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         BookmarkGroup group = mock(BookmarkGroup.class);
         given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
 
         Bookmark bookmark = mock(Bookmark.class);
-        given(bookmarkRepository.findByGroupAndPost(group, post)).willReturn(Optional.of(bookmark));
+        given(bookmarkRepository.findByMemberAndGroupAndPost(member, group, post)).willReturn(Optional.of(bookmark));
 
         // when
-        bookmarkService.cancelBookmark(1L, "username", "그루비룸");
+        bookmarkService.cancelBookmark(1L, 2L, "그루비룸");
 
         // then
         then(bookmarkRepository).should().delete(bookmark);

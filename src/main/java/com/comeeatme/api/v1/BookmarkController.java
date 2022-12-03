@@ -46,7 +46,8 @@ public class BookmarkController {
     public ResponseEntity<ApiResult<Void>> delete(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
             @CurrentUsername String username) {
-        bookmarkService.cancelBookmark(postId, username, groupName);
+        Long memberId = accountService.getMemberId(username);
+        bookmarkService.cancelBookmark(postId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
     }
 

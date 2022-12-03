@@ -100,7 +100,8 @@ class BookmarkRepositoryTest {
                 .build());
 
         // when
-        Bookmark result = bookmarkRepository.findByGroupAndPost(
+        Bookmark result = bookmarkRepository.findByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(30L).build(),
                 Post.builder().id(20L).build()
         ).orElseThrow();
@@ -119,14 +120,15 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.findByGroupAndPost(
+        assertThat(bookmarkRepository.findByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(40L).build(),
                 Post.builder().id(20L).build()
         )).isEmpty();
     }
 
     @Test
-    void findByGroupAndPost_PostNotEqual() {
+    void findByMemberAndGroupAndPost_PostNotEqual() {
         // given
         Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
                 .member(Member.builder().id(10L).build())
@@ -135,7 +137,8 @@ class BookmarkRepositoryTest {
                 .build());
 
         // expected
-        assertThat(bookmarkRepository.findByGroupAndPost(
+        assertThat(bookmarkRepository.findByMemberAndGroupAndPost(
+                Member.builder().id(10L).build(),
                 BookmarkGroup.builder().id(30L).build(),
                 Post.builder().id(40L).build()
         )).isEmpty();
