@@ -149,7 +149,7 @@ class FavoriteServiceTest {
                 .willReturn(Optional.of(group));
 
         Favorite favorite = mock(Favorite.class);
-        given(favoriteRepository.findByGroupAndRestaurant(group, restaurant))
+        given(favoriteRepository.findByMemberAndGroupAndRestaurant(member, group, restaurant))
                 .willReturn(Optional.of(favorite));
 
         // when
@@ -173,7 +173,7 @@ class FavoriteServiceTest {
         given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         Favorite favorite = mock(Favorite.class);
-        given(favoriteRepository.findByGroupAndRestaurant(null, restaurant))
+        given(favoriteRepository.findByMemberAndGroupAndRestaurant(member, null, restaurant))
                 .willReturn(Optional.of(favorite));
 
         // when

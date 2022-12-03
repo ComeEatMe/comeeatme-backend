@@ -75,7 +75,7 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    void findByGroupAndRestaurant() {
+    void findByMemberAndGroupAndRestaurant() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
                 .restaurant(Restaurant.builder().id(2L).build())
@@ -83,7 +83,8 @@ class FavoriteRepositoryTest {
                 .build());
 
         // when
-        Favorite result = favoriteRepository.findByGroupAndRestaurant(
+        Favorite result = favoriteRepository.findByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(3L).build(),
                 Restaurant.builder().id(2L).build()
         ).orElseThrow();
@@ -93,7 +94,7 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    void findByGroupAndRestaurant_GroupNotEqual() {
+    void findByMemberAndGroupAndRestaurant_GroupNotEqual() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
                 .restaurant(Restaurant.builder().id(2L).build())
@@ -101,14 +102,15 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.findByGroupAndRestaurant(
+        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(4L).build(),
                 Restaurant.builder().id(2L).build()
         )).isEmpty();
     }
 
     @Test
-    void findByGroupAndRestaurant_RestaurantNotEqual() {
+    void findByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
                 .member(Member.builder().id(1L).build())
                 .restaurant(Restaurant.builder().id(2L).build())
@@ -116,7 +118,8 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.findByGroupAndRestaurant(
+        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
+                Member.builder().id(1L).build(),
                 FavoriteGroup.builder().id(3L).build(),
                 Restaurant.builder().id(4L).build()
         )).isEmpty();

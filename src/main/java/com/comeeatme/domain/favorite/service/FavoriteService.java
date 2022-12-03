@@ -70,7 +70,7 @@ public class FavoriteService {
         FavoriteGroup group = Optional.ofNullable(groupName)
                 .map(name -> getFavoriteGroupByMemberAndName(member, name))
                 .orElse(null);
-        Favorite favorite = favoriteRepository.findByGroupAndRestaurant(group, restaurant)
+        Favorite favorite = favoriteRepository.findByMemberAndGroupAndRestaurant(member, group, restaurant)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "group=" + groupName + ", restaurant.id" + restaurantId));
 
