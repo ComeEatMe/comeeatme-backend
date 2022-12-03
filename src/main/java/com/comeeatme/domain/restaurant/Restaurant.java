@@ -31,6 +31,12 @@ public class Restaurant extends BaseTimeEntity {
     @Column(name = "phone", length = 25, nullable = false, updatable = false)
     private String phone;
 
+    @Column(name = "post_count", nullable = false)
+    private Integer postCount;
+
+    @Column(name = "favorite_count", nullable = false)
+    private Integer favoriteCount;
+
     @Embedded
     private Address address;
 
@@ -44,5 +50,29 @@ public class Restaurant extends BaseTimeEntity {
         this.name = name;
         this.phone = phone;
         this.address = address;
+        this.postCount = 0;
+        this.favoriteCount = 0;
+    }
+
+    public void increasePostCount() {
+        postCount += 1;
+    }
+
+    public void decreasePostCount() {
+        if (postCount < 1) {
+            throw new IllegalStateException("count가 더 이상 감소될 수 없습니다.");
+        }
+        postCount -= 1;
+    }
+
+    public void increaseFavoriteCount() {
+        favoriteCount += 1;
+    }
+
+    public void decreaseFavoriteCount() {
+        if (favoriteCount < 1) {
+            throw new IllegalStateException("count가 더 이상 감소될 수 없습니다.");
+        }
+        favoriteCount -= 1;
     }
 }
