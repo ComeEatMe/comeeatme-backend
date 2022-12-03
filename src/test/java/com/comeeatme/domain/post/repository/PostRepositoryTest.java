@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceUnitUtil;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -257,6 +258,25 @@ class PostRepositoryTest {
         // then
         List<Post> content = result.getContent();
         assertThat(content).isEmpty();
+    }
+
+    @Test
+    void findWithPessimisticLockById() {
+        // given
+        Post post = postRepository.save(
+                Post.builder()
+                        .member(Member.builder().id(1L).build())
+                        .restaurant(Restaurant.builder().id(2L).build())
+                        .content("content")
+                        .build()
+        );
+
+        // when
+        Optional<Post> result = postRepository.findWithPessimisticLockById(post.getId());
+
+        // then
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(post.getId());
     }
 
 }

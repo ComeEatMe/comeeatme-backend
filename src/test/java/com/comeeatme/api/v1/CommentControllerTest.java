@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
@@ -61,16 +62,20 @@ class CommentControllerTest {
     @MockBean
     private CommentService commentService;
 
+    @MockBean
+    private AccountService accountService;
+
     @Test
     @WithMockUser
     @DisplayName("댓글 작성 - DOCS")
     void post_Docs() throws Exception {
         // given
+        given(accountService.getMemberId(anyString())).willReturn(3L);
         CommentCreate commentCreate = CommentCreate.builder()
                 .parentId(null)
                 .content("test-content")
                 .build();
-        given(commentService.create(any(CommentCreate.class), anyString(), anyLong()))
+        given(commentService.create(any(CommentCreate.class), eq(3L), eq(2L)))
                 .willReturn(new CreateResult<>(1L));
 
         // expected

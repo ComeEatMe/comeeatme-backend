@@ -34,9 +34,10 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public CreateResult<Long> create(CommentCreate commentCreate, String username, Long postId) {
-        Member member = getMemberByUsername(username);
-        Post post = getPostById(postId);
+    public CreateResult<Long> create(CommentCreate commentCreate, Long memberId, Long postId) {
+        Member member = getMemberById(memberId);
+//        Post post = getPostById(postId);
+        Post post = getPostWithPessimisticLockById(postId);
         Comment parent = Optional.ofNullable(commentCreate.getParentId())
                 .map(this::getCommentById)
                 .orElse(null);
@@ -46,6 +47,7 @@ public class CommentService {
                         .parent(parent)
                         .content(commentCreate.getContent())
                 .build());
+        post.increaseCommentCount();
         return new CreateResult<>(comment.getId());
     }
 
@@ -80,14 +82,20 @@ public class CommentService {
                 .map(CommentDto::of);
     }
 
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
                 .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
     }
 
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
+                .filter(Post::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
+    }
+
+    private Post getPostWithPessimisticLockById(Long postId) {
+        return postRepository.findWithPessimisticLockById(postId)
                 .filter(Post::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
