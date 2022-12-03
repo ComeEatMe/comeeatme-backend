@@ -1,10 +1,9 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
+import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
-import com.comeeatme.domain.favorite.response.FavoriteCount;
-import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.favorite.Favorite;
 import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.member.Member;
@@ -139,40 +138,6 @@ class FavoriteRepositoryCustomTest {
         assertThat(content)
                 .hasSize(2)
                 .extracting("id").containsOnly(favorite1.getId(), favorite2.getId());
-    }
-
-    @Test
-    void countsGroupByRestaurants() {
-        // given
-        favoriteRepository.saveAll(List.of(
-                Favorite.builder()
-                        .restaurant(Restaurant.builder().id(1L).build())
-                        .member(Member.builder().id(11L).build())
-                        .build(),
-                Favorite.builder()
-                        .restaurant(Restaurant.builder().id(1L).build())
-                        .member(Member.builder().id(11L).build())
-                        .group(FavoriteGroup.builder().id(21L).build())
-                        .build(),
-                Favorite.builder()
-                        .restaurant(Restaurant.builder().id(2L).build())
-                        .member(Member.builder().id(11L).build())
-                        .build(),
-                Favorite.builder()
-                        .restaurant(Restaurant.builder().id(1L).build())
-                        .member(Member.builder().id(12L).build())
-                        .build()
-        ));
-
-        // when
-        List<FavoriteCount> result = favoriteRepository.countsGroupByRestaurants(List.of(
-                Restaurant.builder().id(1L).build()
-        ));
-
-        // then
-        assertThat(result).hasSize(1);
-        assertThat(result).extracting("restaurantId").containsOnly(1L);
-        assertThat(result).extracting("count").containsOnly(2L);
     }
 
 }
