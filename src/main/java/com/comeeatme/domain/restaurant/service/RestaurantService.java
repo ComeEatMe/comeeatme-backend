@@ -2,9 +2,6 @@ package com.comeeatme.domain.restaurant.service;
 
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
-import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.post.Hashtag;
-import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
@@ -26,10 +23,6 @@ import java.util.stream.Collectors;
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
-
-    private final FavoriteRepository favoriteRepository;
-
-    private final PostRepository postRepository;
 
     private final AddressCodeRepository addressCodeRepository;
 
@@ -87,12 +80,10 @@ public class RestaurantService {
     public RestaurantDetailDto get(Long restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
         Integer favoriteCount = restaurant.getFavoriteCount();
-        List<Hashtag> hashtags = postRepository.findAllHashtagByRestaurant(restaurant);
         return RestaurantDetailDto.builder()
                 .id(restaurant.getId())
                 .name(restaurant.getName())
                 .favoriteCount(favoriteCount)
-                .hashtags(hashtags)
                 .addressName(restaurant.getAddress().getName())
                 .addressRoadName(restaurant.getAddress().getRoadName())
                 .build();

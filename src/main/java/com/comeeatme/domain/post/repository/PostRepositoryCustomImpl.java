@@ -84,17 +84,4 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orElse(null);
     }
 
-    @Override
-    public List<Hashtag> findAllHashtagByRestaurant(Restaurant restaurant) {
-        return query
-                .select(postHashtag.hashtag).distinct()
-                .from(postHashtag)
-                .join(postHashtag.post, post)
-                .where(
-                        post.restaurant.eq(restaurant),
-                        postHashtag.post.useYn.isTrue()
-                )
-                .fetch();
-    }
-
 }
