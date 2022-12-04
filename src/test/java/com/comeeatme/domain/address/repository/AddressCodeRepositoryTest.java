@@ -186,4 +186,69 @@ class AddressCodeRepositoryTest {
                 .extracting("name").containsOnly("야탑동");
     }
 
+    @Test
+    void findAllByParentCode() {
+        // given
+        List<AddressCode> parents = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4113500000")
+                        .name("성남시 분당구")
+                        .fullName("경기도 성남시 분당구")
+                        .depth(2)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121500000")
+                        .name("광진구")
+                        .fullName("서울특별시 광진구")
+                        .depth(2)
+                        .terminal(true)
+                        .build()
+        ));
+        List<AddressCode> addressCodes = addressCodeRepository.saveAll(List.of(
+                AddressCode.builder()
+                        .code("4113510700")
+                        .parentCode(parents.get(0))
+                        .name("야탑동")
+                        .fullName("경기도 성남시 분당구 야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113510300")
+                        .parentCode(parents.get(0))
+                        .name("정자동")
+                        .fullName("경기도 성남시 분당구 정자동")
+                        .depth(3)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()
+                        .code("4113510301")
+                        .parentCode(parents.get(0))
+                        .name("삭제동")
+                        .fullName("경기도 성남시 분당구 삭제동")
+                        .depth(3)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()
+                        .code("1121510700")
+                        .parentCode(parents.get(1))
+                        .name("서울특별시 광진구 화양동")
+                        .fullName("화양동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        ));
+        addressCodes.get(2).delete();
+
+        // when
+        AddressCode parentCode = parents.get(0);
+        List<AddressCode> result = addressCodeRepository.findAllByParentCodeAndUseYnIsTrue(parentCode);
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("code").containsOnly("4113510700", "4113510300");
+    }
+
 }
