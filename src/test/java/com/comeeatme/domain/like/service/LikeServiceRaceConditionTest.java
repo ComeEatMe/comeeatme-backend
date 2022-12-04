@@ -43,6 +43,7 @@ class LikeServiceRaceConditionTest {
     void afterEach() {
         memberRepository.deleteAll();
         postRepository.deleteAll();
+        restaurantRepository.deleteAll();
         likeRepository.deleteAll();
     }
 
@@ -88,5 +89,48 @@ class LikeServiceRaceConditionTest {
         assertThat(foundPost.getLikeCount()).isEqualTo(100);
     }
 
+    @Test
+    void unlike() throws InterruptedException {
+        int memberCount = 200;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, memberCount)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        Post post = postRepository.save(
+                Post.builder()
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(members.get(0))
+                        .content("content")
+                        .build()
+        );
+
+        members.forEach(member -> likeService.like(post.getId(), member.getId()));
+
+        // when
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    likeService.unlike(post.getId(), member.getId());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Post foundPost = postRepository.findById(post.getId()).orElseThrow();
+        assertThat(foundPost.getLikeCount()).isEqualTo(100);
+    }
 
 }

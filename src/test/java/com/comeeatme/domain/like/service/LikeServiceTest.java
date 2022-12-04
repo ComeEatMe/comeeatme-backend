@@ -106,20 +106,21 @@ class LikeServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         Like like = mock(Like.class);
         given(likeRepository.findByPostAndMember(post, member)).willReturn(Optional.of(like));
 
         // when
-        likeService.unlike(1L, "username");
+        likeService.unlike(1L, 2L);
 
         // then
         then(likeRepository).should().delete(like);
+        then(post).should().decreaseLikeCount();
     }
 
     @Test
@@ -128,16 +129,16 @@ class LikeServiceTest {
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
         given(post.getId()).willReturn(1L);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         given(likeRepository.findByPostAndMember(post, member)).willReturn(Optional.empty());
 
         // expected
-        assertThatThrownBy(() -> likeService.unlike(1L, "username"))
+        assertThatThrownBy(() -> likeService.unlike(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 

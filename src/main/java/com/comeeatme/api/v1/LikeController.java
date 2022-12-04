@@ -41,7 +41,8 @@ public class LikeController {
 
     @DeleteMapping("/member/like/{postId}")
     public ResponseEntity<ApiResult<Void>> unlike(@PathVariable Long postId, @CurrentUsername String username) {
-        likeService.unlike(postId, username);
+        Long memberId = accountService.getMemberId(username);
+        likeService.unlike(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 

@@ -90,6 +90,9 @@ class LikeControllerTest {
     @WithMockUser
     @DisplayName("게시물 좋아요 취소 - DOCS")
     void unlike_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
         // expected
         mockMvc.perform(delete("/v1/member/like/{postId}", 1L)
                         .with(csrf())
@@ -107,7 +110,7 @@ class LikeControllerTest {
                         )
                 ))
         ;
-        then(likeService).should().unlike(eq(1L), anyString());
+        then(likeService).should().unlike(1L, 2L);
     }
 
     @Test

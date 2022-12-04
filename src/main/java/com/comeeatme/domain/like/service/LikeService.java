@@ -54,13 +54,14 @@ public class LikeService {
     }
 
     @Transactional
-    public void unlike(Long postId, String username) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void unlike(Long postId, Long memberId) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         Like like = likeRepository.findByPostAndMember(post, member)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(
                         "post.id=%s, member.id=%s", post.getId(), member.getId())));
         likeRepository.delete(like);
+        post.decreaseLikeCount();
     }
 
     public List<PostLiked> areLiked(Long memberId, List<Long> postIds) {
@@ -120,12 +121,6 @@ public class LikeService {
         return memberRepository.findById(id)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
-    }
-
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
     }
 
 }
