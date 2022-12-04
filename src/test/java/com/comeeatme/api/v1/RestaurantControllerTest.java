@@ -3,6 +3,8 @@ package com.comeeatme.api.v1;
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.service.FavoriteService;
+import com.comeeatme.domain.post.Hashtag;
+import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
@@ -25,6 +27,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -56,6 +59,9 @@ class RestaurantControllerTest {
 
     @MockBean
     private FavoriteService favoriteService;
+
+    @MockBean
+    private PostHashtagService postHashtagService;
 
     @Test
     @WithMockUser
@@ -123,6 +129,9 @@ class RestaurantControllerTest {
         given(restaurantService.search(any(Pageable.class), any(RestaurantSearch.class)))
                 .willReturn(new SliceImpl<>(List.of(restaurantDto)));
 
+        given(postHashtagService.getHashtagsOfRestaurants(List.of(1L)))
+                .willReturn(Map.of(1L, List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS)));
+
         // expected
         mockMvc.perform(get("/v1/restaurants")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
@@ -147,6 +156,7 @@ class RestaurantControllerTest {
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
+                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
                                 fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));
@@ -170,6 +180,9 @@ class RestaurantControllerTest {
 
         given(favoriteService.isFavorite(10L, 1L)).willReturn(true);
 
+        given(postHashtagService.getHashtagsOfRestaurant(1L))
+                .willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));
+
         // expected
         mockMvc.perform(get("/v1/restaurants/{restaurantId}", 1L)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
@@ -187,11 +200,11 @@ class RestaurantControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
-                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
                                 fieldWithPath("address.roadName").description("도로명 주소"),
+                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
                                 fieldWithPath("favorited").description("맛집 즐겨찾기 여부")
                         )
                 ));

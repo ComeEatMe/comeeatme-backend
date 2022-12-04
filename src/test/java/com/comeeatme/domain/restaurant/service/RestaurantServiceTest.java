@@ -4,7 +4,6 @@ import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
@@ -142,9 +141,6 @@ class RestaurantServiceTest {
 
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
 
-        given(postRepository.findAllHashtagByRestaurant(restaurant))
-                .willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));
-
         // when
         RestaurantDetailDto result = restaurantService.get(1L);
 
@@ -152,7 +148,6 @@ class RestaurantServiceTest {
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("음식점");
         assertThat(result.getFavoriteCount()).isEqualTo(10);
-        assertThat(result.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS);
         assertThat(result.getAddress().getName()).isEqualTo("소재지주소");
         assertThat(result.getAddress().getRoadName()).isEqualTo("도로명주소");
     }
