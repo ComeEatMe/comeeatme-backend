@@ -755,6 +755,8 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getHashtags()).willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS));
         given(post.getContent()).willReturn("content");
+        given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 10, 31, 16, 36));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -773,9 +775,6 @@ class PostServiceTest {
         given(postImage2.getImage()).willReturn(image2);
 
         given(postImageRepository.findAllWithImageByPost(post)).willReturn(List.of(postImage1, postImage2));
-
-        given(commentRepository.countByPostAndUseYnIsTrue(post)).willReturn(10L);
-        given(likeRepository.countByPost(post)).willReturn(20L);
 
         // when
         PostDetailDto result = postService.get(1L);
@@ -821,6 +820,8 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getHashtags()).willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS));
         given(post.getContent()).willReturn("content");
+        given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 10, 31, 16, 36));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -838,9 +839,6 @@ class PostServiceTest {
         given(postImage2.getImage()).willReturn(image2);
 
         given(postImageRepository.findAllWithImageByPost(post)).willReturn(List.of(postImage1, postImage2));
-
-        given(commentRepository.countByPostAndUseYnIsTrue(post)).willReturn(10L);
-        given(likeRepository.countByPost(post)).willReturn(20L);
 
         // when
         PostDetailDto result = postService.get(1L);
@@ -869,6 +867,8 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getHashtags()).willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS));
         given(post.getContent()).willReturn("content");
+        given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 10, 31, 16, 36));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -887,9 +887,6 @@ class PostServiceTest {
         given(postImage2.getImage()).willReturn(image2);
 
         given(postImageRepository.findAllWithImageByPost(post)).willReturn(List.of(postImage1, postImage2));
-
-        given(commentRepository.countByPostAndUseYnIsTrue(post)).willReturn(10L);
-        given(likeRepository.countByPost(post)).willReturn(20L);
 
         // when
         PostDetailDto result = postService.get(1L);

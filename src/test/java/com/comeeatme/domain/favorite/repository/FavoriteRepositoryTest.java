@@ -198,34 +198,4 @@ class FavoriteRepositoryTest {
         )).isFalse();
     }
 
-    @Test
-    void countByRestaurant() {
-        // given
-        favoriteRepository.saveAll(List.of(
-                Favorite.builder()
-                        .member(Member.builder().id(1L).build())
-                        .restaurant(Restaurant.builder().id(10L).build())
-                        .build(),
-                Favorite.builder()
-                        .member(Member.builder().id(1L).build())
-                        .restaurant(Restaurant.builder().id(10L).build())
-                        .group(FavoriteGroup.builder().id(20L).build())
-                        .build(),
-                Favorite.builder()
-                        .member(Member.builder().id(2L).build())
-                        .restaurant(Restaurant.builder().id(10L).build())
-                        .build(),
-                Favorite.builder()
-                        .member(Member.builder().id(2L).build())
-                        .restaurant(Restaurant.builder().id(11L).build())
-                        .build()
-        ));
-
-        // when
-        long result = favoriteRepository.countByRestaurant(Restaurant.builder().id(10L).build());
-
-        // then
-        assertThat(result).isEqualTo(3L);
-    }
-
 }

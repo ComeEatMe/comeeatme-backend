@@ -18,6 +18,4 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>, Favor
 
     boolean existsByMemberAndRestaurant(Member member, Restaurant restaurant);
 
-    long countByRestaurant(Restaurant restaurant);
-
 }

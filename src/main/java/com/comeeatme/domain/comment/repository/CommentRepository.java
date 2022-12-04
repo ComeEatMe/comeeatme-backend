@@ -12,6 +12,4 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     List<Comment> findAllByPostAndUseYnIsTrue(Post post);
 
-    long countByPostAndUseYnIsTrue(Post post);
-
 }

@@ -183,8 +183,6 @@ public class PostService {
                 .filter(postImage -> postImage.getImage().getUseYn())
                 .map(postImage -> postImage.getImage().getUrl())
                 .collect(Collectors.toList());
-        int commentCount = (int) commentRepository.countByPostAndUseYnIsTrue(post);
-        int likeCount = (int) likeRepository.countByPost(post);
 
         return PostDetailDto.builder()
                 .id(post.getId())
@@ -192,8 +190,8 @@ public class PostService {
                 .content(post.getContent())
                 .hashtags(post.getHashtags())
                 .createdAt(post.getCreatedAt())
-                .commentCount(commentCount)
-                .likeCount(likeCount)
+                .commentCount(post.getCommentCount())
+                .likeCount(post.getLikeCount())
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
                 .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
