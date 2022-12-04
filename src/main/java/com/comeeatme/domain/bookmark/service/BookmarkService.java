@@ -43,7 +43,7 @@ public class BookmarkService {
 
     @Transactional
     public void bookmark(Long postId, Long memberId, String groupName) {
-        Post post = getPostById(postId);
+        Post post = getPostWithPessimisticLockById(postId);
         Member member = getMemberById(memberId);
         BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
         if (bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)) {
@@ -59,6 +59,7 @@ public class BookmarkService {
                 .post(post)
                 .build());
         Optional.ofNullable(group).ifPresent(BookmarkGroup::incrBookmarkCount);
+        post.increaseBookmarkCount();
     }
 
     @Transactional
@@ -140,6 +141,12 @@ public class BookmarkService {
 
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
+                .filter(Post::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
+    }
+
+    private Post getPostWithPessimisticLockById(Long postId) {
+        return postRepository.findWithPessimisticLockById(postId)
                 .filter(Post::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
