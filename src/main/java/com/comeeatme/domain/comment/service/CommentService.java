@@ -36,7 +36,6 @@ public class CommentService {
     @Transactional
     public CreateResult<Long> create(CommentCreate commentCreate, Long memberId, Long postId) {
         Member member = getMemberById(memberId);
-//        Post post = getPostById(postId);
         Post post = getPostWithPessimisticLockById(postId);
         Comment parent = Optional.ofNullable(commentCreate.getParentId())
                 .map(this::getCommentById)
@@ -73,6 +72,8 @@ public class CommentService {
     public DeleteResult<Long> delete(Long commentId) {
         Comment comment = getCommentById(commentId);
         comment.delete();
+        Post post = getPostWithPessimisticLockById(comment.getPost().getId());
+        post.decreaseCommentCount();
         return new DeleteResult<>(commentId);
     }
 
