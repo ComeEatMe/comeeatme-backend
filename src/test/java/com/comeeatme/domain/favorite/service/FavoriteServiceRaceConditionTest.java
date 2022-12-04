@@ -3,6 +3,7 @@ package com.comeeatme.domain.favorite.service;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
+import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -36,11 +37,15 @@ class FavoriteServiceRaceConditionTest {
     @Autowired
     private AddressCodeRepository addressCodeRepository;
 
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
     @AfterEach
     void afterEach() {
         restaurantRepository.deleteAll();
         memberRepository.deleteAll();
         addressCodeRepository.deleteAll();
+        favoriteRepository.deleteAll();
     }
 
     @Test
