@@ -30,3 +30,9 @@ operation::code-api-not-found[snippets='http-request,http-response']
 
 operation::code-api-get-all[snippets='http-request,response-fields,http-response']
 
+
+[[code-get-address-code-list]]
+== 법정동 코드 조회
+
+operation::code-get-address-code-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
