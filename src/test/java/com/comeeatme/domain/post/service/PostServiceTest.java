@@ -10,7 +10,6 @@ import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.like.repository.LikeRepository;
-import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Hashtag;
@@ -281,6 +280,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getContent()).willReturn("content");
         given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -305,8 +305,6 @@ class PostServiceTest {
 
         given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
                 .willReturn(List.of(postImage1, postImage2));
-        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
-                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
@@ -343,6 +341,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getContent()).willReturn("content");
         given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -367,8 +366,6 @@ class PostServiceTest {
 
         given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
                 .willReturn(List.of(postImage1, postImage2));
-        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
-                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
@@ -410,6 +407,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getContent()).willReturn("content");
         given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 1, 12));
         given(post.getMember()).willReturn(member);
         given(post.getRestaurant()).willReturn(restaurant);
@@ -432,8 +430,6 @@ class PostServiceTest {
 
         given(postImageRepository.findAllWithImageByPostIn(postSlice.getContent()))
                 .willReturn(List.of(postImage1, postImage2));
-        given(likeRepository.countsGroupByPosts(postSlice.getContent()))
-                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         Slice<PostDto> result = postService.getList(PageRequest.of(0, 10), PostSearch.builder().build());
@@ -470,6 +466,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getContent()).willReturn("content");
         given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 2, 6));
         given(post.getRestaurant()).willReturn(restaurant);
 
@@ -492,8 +489,6 @@ class PostServiceTest {
 
         given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
                 .willReturn(List.of(postImage1, postImage2));
-        given(likeRepository.countsGroupByPosts(List.of(post)))
-                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -528,6 +523,7 @@ class PostServiceTest {
         given(post.getId()).willReturn(1L);
         given(post.getContent()).willReturn("content");
         given(post.getCommentCount()).willReturn(10);
+        given(post.getLikeCount()).willReturn(20);
         given(post.getCreatedAt()).willReturn(LocalDateTime.of(2022, 11, 1, 2, 6));
         given(post.getRestaurant()).willReturn(restaurant);
 
@@ -548,8 +544,6 @@ class PostServiceTest {
 
         given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
                 .willReturn(List.of(postImage1, postImage2));
-        given(likeRepository.countsGroupByPosts(List.of(post)))
-                .willReturn(List.of(new LikeCount(1L, 20L)));
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
