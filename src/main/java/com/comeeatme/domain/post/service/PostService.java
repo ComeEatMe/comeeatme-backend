@@ -3,14 +3,12 @@ package com.comeeatme.domain.post.service;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.comment.repository.CommentRepository;
-import com.comeeatme.domain.comment.response.CommentCount;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.like.repository.LikeRepository;
-import com.comeeatme.domain.like.response.LikeCount;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.*;
@@ -50,9 +48,9 @@ public class PostService {
     private final BookmarkRepository bookmarkRepository;
 
     @Transactional
-    public CreateResult<Long> create(PostCreate postCreate, String username) {
-        Member member = getMemberByUsername(username);
-        Restaurant restaurant = getRestaurantById(postCreate.getRestaurantId());
+    public CreateResult<Long> create(PostCreate postCreate, Long memberId) {
+        Member member = getMemberById(memberId);
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(postCreate.getRestaurantId());
         Post post = postRepository.save(Post.builder()
                 .member(member)
                 .restaurant(restaurant)
@@ -60,6 +58,7 @@ public class PostService {
                 .build());
         postCreate.getHashtags().forEach(post::addHashtag);
         savePostImages(post, postCreate.getImageIds());
+        restaurant.increasePostCount();
         return new CreateResult<>(post.getId());
     }
 
@@ -98,15 +97,15 @@ public class PostService {
                 .forEach(postImage -> postImage.getImage().delete());
         likeRepository.deleteAllByPost(post);
         bookmarkRepository.deleteAllByPost(post);
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(post.getRestaurant().getId());
         post.delete();
+        restaurant.decreasePostCount();
         return new DeleteResult<>(post.getId());
     }
 
     public Slice<PostDto> getList(Pageable pageable, PostSearch postSearch) {
         Slice<Post> posts = postRepository.findSliceWithMemberAndRestaurantBy(pageable, postSearch);
         Map<Long, List<PostImage>> postIdToPostImages = getPostIdToPostImages(posts.getContent());
-        Map<Long, Long> postIdToCommentCount = getPostIdToCommentCount(posts.getContent());
-        Map<Long, Long> postIdToLikeCount = getPostIdToLikeCount(posts.getContent());
 
         return posts.map(
                 post -> PostDto.builder()
@@ -118,8 +117,8 @@ public class PostService {
                                 .collect(Collectors.toList()))
                         .content(post.getContent())
                         .createdAt(post.getCreatedAt())
-                        .commentCount(postIdToCommentCount.getOrDefault(post.getId(), 0L).intValue())
-                        .likeCount(postIdToLikeCount.getOrDefault(post.getId(), 0L).intValue())
+                        .commentCount(post.getCommentCount())
+                        .likeCount(post.getLikeCount())
                         .memberId(post.getMember().getId())
                         .memberNickname(post.getMember().getNickname())
                         .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
@@ -136,8 +135,6 @@ public class PostService {
         Member member = getMemberById(memberId);
         Slice<Post> posts = postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(pageable, member);
         Map<Long, List<PostImage>> postIdToPostImages = getPostIdToPostImages(posts.getContent());
-        Map<Long, Long> postIdToCommentCount = getPostIdToCommentCount(posts.getContent());
-        Map<Long, Long> postIdToLikeCount = getPostIdToLikeCount(posts.getContent());
 
         return posts.map(post -> MemberPostDto.builder()
                 .id(post.getId())
@@ -148,8 +145,8 @@ public class PostService {
                         .collect(Collectors.toList()))
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
-                .commentCount(postIdToCommentCount.getOrDefault(post.getId(), 0L).intValue())
-                .likeCount(postIdToLikeCount.getOrDefault(post.getId(), 0L).intValue())
+                .commentCount(post.getCommentCount())
+                .likeCount(post.getLikeCount())
                 .restaurantId(post.getRestaurant().getId())
                 .restaurantName(post.getRestaurant().getName())
                 .build());
@@ -186,8 +183,6 @@ public class PostService {
                 .filter(postImage -> postImage.getImage().getUseYn())
                 .map(postImage -> postImage.getImage().getUrl())
                 .collect(Collectors.toList());
-        int commentCount = (int) commentRepository.countByPostAndUseYnIsTrue(post);
-        int likeCount = (int) likeRepository.countByPost(post);
 
         return PostDetailDto.builder()
                 .id(post.getId())
@@ -195,8 +190,8 @@ public class PostService {
                 .content(post.getContent())
                 .hashtags(post.getHashtags())
                 .createdAt(post.getCreatedAt())
-                .commentCount(commentCount)
-                .likeCount(likeCount)
+                .commentCount(post.getCommentCount())
+                .likeCount(post.getLikeCount())
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
                 .memberImageUrl(Optional.ofNullable(post.getMember().getImage())
@@ -220,24 +215,6 @@ public class PostService {
                 .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId()));
     }
 
-    private Map<Long, Long> getPostIdToCommentCount(List<Post> posts) {
-        return commentRepository.countsGroupByPosts(posts)
-                .stream()
-                .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCount));
-    }
-
-    private Map<Long, Long> getPostIdToLikeCount(List<Post> posts) {
-        return likeRepository.countsGroupByPosts(posts)
-                .stream()
-                .collect(Collectors.toMap(LikeCount::getPostId, LikeCount::getCount));
-    }
-
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
-    }
-
     private Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .filter(Member::getUseYn)
@@ -246,6 +223,12 @@ public class PostService {
 
     private Restaurant getRestaurantById(Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
+                .filter(Restaurant::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
+    }
+
+    private Restaurant getRestaurantWithPessimisticLockById(Long restaurantId) {
+        return restaurantRepository.findWithPessimisticLockById(restaurantId)
                 .filter(Restaurant::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
     }

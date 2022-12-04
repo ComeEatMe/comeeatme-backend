@@ -75,31 +75,6 @@ class LikeRepositoryTest {
     }
 
     @Test
-    void countByPost() {
-        // given
-        likeRepository.saveAllAndFlush(List.of(
-                Like.builder()
-                        .post(Post.builder().id(2L).build())
-                        .member(Member.builder().id(2L).build())
-                        .build(),
-                Like.builder()
-                        .post(Post.builder().id(2L).build())
-                        .member(Member.builder().id(3L).build())
-                        .build(),
-                Like.builder() // 다른 Post ID -> count 에 포함 X
-                        .post(Post.builder().id(1L).build())
-                        .member(Member.builder().id(3L).build())
-                        .build()
-        ));
-
-        // when
-        Long count = likeRepository.countByPost(Post.builder().id(2L).build());
-
-        // then
-        assertThat(count).isEqualTo(2);
-    }
-
-    @Test
     void existsByPostAndMember() {
         // given
         likeRepository.save(Like.builder()

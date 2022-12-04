@@ -3,7 +3,6 @@ package com.comeeatme.domain.restaurant.service;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -46,12 +45,11 @@ public class RestaurantService {
 
         Slice<Restaurant> restaurants = restaurantRepository.findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(
                 pageable, name, addressCodePrefixes);
-        Map<Long, Long> restaurantIdToFavoriteCount = getRestaurantIdToFavoriteCount(restaurants.getContent());
         return restaurants
                 .map(restaurant -> RestaurantDto.builder()
                         .id(restaurant.getId())
                         .name(restaurant.getName())
-                        .favoriteCount(restaurantIdToFavoriteCount.getOrDefault(restaurant.getId(), 0L).intValue())
+                        .favoriteCount(restaurant.getFavoriteCount())
                         .addressName(restaurant.getAddress().getName())
                         .addressRoadName(restaurant.getAddress().getRoadName())
                         .build()
@@ -88,7 +86,7 @@ public class RestaurantService {
 
     public RestaurantDetailDto get(Long restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
-        int favoriteCount = (int) favoriteRepository.countByRestaurant(restaurant);
+        Integer favoriteCount = restaurant.getFavoriteCount();
         List<Hashtag> hashtags = postRepository.findAllHashtagByRestaurant(restaurant);
         return RestaurantDetailDto.builder()
                 .id(restaurant.getId())
@@ -104,12 +102,6 @@ public class RestaurantService {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant.id=" + id));
-    }
-
-    private Map<Long, Long> getRestaurantIdToFavoriteCount(List<Restaurant> restaurants) {
-        return favoriteRepository.countsGroupByRestaurants(restaurants)
-                .stream()
-                .collect(Collectors.toMap(FavoriteCount::getRestaurantId, FavoriteCount::getCount));
     }
 
 }

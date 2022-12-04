@@ -60,6 +60,10 @@ class FavoriteControllerTest {
     @WithMockUser
     @DisplayName("맛집 즐겨찾기 - DOCS")
     void put_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        // expected
         mockMvc.perform(put("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -76,13 +80,17 @@ class FavoriteControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().favorite(eq(1L), anyString(), eq("그루비룸"));
+        then(favoriteService).should().favorite(1L, 2L, "그루비룸");
     }
 
     @Test
     @WithMockUser
     @DisplayName("맛집 즐겨찾기 (그룹 지정 X) - DOCS")
     void put_GroupNull_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        // expected
         mockMvc.perform(put("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -98,13 +106,17 @@ class FavoriteControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().favorite(eq(1L), anyString(), eq(null));
+        then(favoriteService).should().favorite(1L, 2L, null);
     }
 
     @Test
     @WithMockUser
     @DisplayName("맛집 즐겨찾기 취소 - DOCS")
     void delete_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        // expected
         mockMvc.perform(delete("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -121,13 +133,17 @@ class FavoriteControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq("그루비룸"));
+        then(favoriteService).should().cancelFavorite(1L, 2L, "그루비룸");
     }
 
     @Test
     @WithMockUser
     @DisplayName("맛집 즐겨찾기 취소 (그룹 지정 X) - DOCS")
     void delete_GroupNull_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        // expected
         mockMvc.perform(delete("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -143,7 +159,7 @@ class FavoriteControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().cancelFavorite(eq(1L), anyString(), eq(null));
+        then(favoriteService).should().cancelFavorite(1L, 2L, null);
     }
 
     @Test

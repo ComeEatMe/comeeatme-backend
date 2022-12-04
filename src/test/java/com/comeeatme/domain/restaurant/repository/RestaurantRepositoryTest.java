@@ -94,4 +94,32 @@ class RestaurantRepositoryTest {
                 .extracting("name")
                 .containsExactly("테스트 야탑점", "테스트 화양점");
     }
+
+    @Test
+    void findWithPessimisticLockById() throws InterruptedException {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        Restaurant restaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("테스트 야탑점")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        assertThat(restaurantRepository.findWithPessimisticLockById(restaurant.getId())).isPresent();
+    }
 }

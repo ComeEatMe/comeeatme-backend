@@ -42,11 +42,11 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void bookmark(Long postId, String username, String groupName) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void bookmark(Long postId, Long memberId, String groupName) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        if (bookmarkRepository.existsByGroupAndPost(group, post)) {
+        if (bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)) {
             throw new AlreadyBookmarkedException(String.format(
                     "member.id=%s, bookmark.group=%s, post.id=%s",
                     member.getId(), groupName, post.getId()
@@ -59,17 +59,19 @@ public class BookmarkService {
                 .post(post)
                 .build());
         Optional.ofNullable(group).ifPresent(BookmarkGroup::incrBookmarkCount);
+        post.increaseBookmarkCount();
     }
 
     @Transactional
-    public void cancelBookmark(Long postId, String username, String groupName) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void cancelBookmark(Long postId, Long memberId, String groupName) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        Bookmark bookmark = bookmarkRepository.findByGroupAndPost(group, post)
+        Bookmark bookmark = bookmarkRepository.findByMemberAndGroupAndPost(member, group, post)
                 .orElseThrow(() -> new EntityNotFoundException("group=" + groupName + ", post.id=" + postId));
         bookmarkRepository.delete(bookmark);
         Optional.ofNullable(group).ifPresent(BookmarkGroup::decrBookmarkCount);
+        post.decreaseBookmarkCount();
     }
 
     public List<BookmarkGroupDto> getAllGroupsOfMember(Long memberId) {
@@ -144,10 +146,10 @@ public class BookmarkService {
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
 
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    private Post getPostWithPessimisticLockById(Long postId) {
+        return postRepository.findWithPessimisticLockById(postId)
+                .filter(Post::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
 
     private Member getMemberById(Long id) {

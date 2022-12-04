@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class LikeServiceTest {
@@ -59,16 +60,16 @@ class LikeServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         given(likeRepository.existsByPostAndMember(post, member)).willReturn(false);
 
         // when
-        likeService.like(1L, "username");
+        likeService.like(1L, 2L);
 
         // then
         ArgumentCaptor<Like> likesCaptor = ArgumentCaptor.forClass(Like.class);
@@ -76,6 +77,8 @@ class LikeServiceTest {
         Like likeCaptorValue = likesCaptor.getValue();
         assertThat(likeCaptorValue.getPost()).isEqualTo(post);
         assertThat(likeCaptorValue.getMember()).isEqualTo(member);
+
+        then(post).should().increaseLikeCount();
     }
 
     @Test
@@ -84,17 +87,18 @@ class LikeServiceTest {
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
         given(post.getId()).willReturn(1L);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         given(likeRepository.existsByPostAndMember(post, member)).willReturn(true);
 
         // expected
-        assertThatThrownBy(() -> likeService.like(1L, "username"))
+        assertThatThrownBy(() -> likeService.like(1L, 2L))
                 .isInstanceOf(AlreadyLikedPostException.class);
+        then(post).should(never()).increaseLikeCount();
     }
 
     @Test
@@ -102,20 +106,21 @@ class LikeServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         Like like = mock(Like.class);
         given(likeRepository.findByPostAndMember(post, member)).willReturn(Optional.of(like));
 
         // when
-        likeService.unlike(1L, "username");
+        likeService.unlike(1L, 2L);
 
         // then
         then(likeRepository).should().delete(like);
+        then(post).should().decreaseLikeCount();
     }
 
     @Test
@@ -124,16 +129,16 @@ class LikeServiceTest {
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
         given(post.getId()).willReturn(1L);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername("username")).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         given(likeRepository.findByPostAndMember(post, member)).willReturn(Optional.empty());
 
         // expected
-        assertThatThrownBy(() -> likeService.unlike(1L, "username"))
+        assertThatThrownBy(() -> likeService.unlike(1L, 2L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 

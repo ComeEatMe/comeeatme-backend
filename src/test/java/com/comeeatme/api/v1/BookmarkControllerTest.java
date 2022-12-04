@@ -66,6 +66,10 @@ class BookmarkControllerTest {
     @WithMockUser
     @DisplayName("게시물 북마크 - DOCS")
     void bookmark_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        //expected
         mockMvc.perform(put("/v1/member/bookmark/{groupName}/{postId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -83,13 +87,17 @@ class BookmarkControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().bookmark(eq(1L), anyString(), eq("그루비룸"));
+        then(bookmarkService).should().bookmark(1L, 2L, "그루비룸");
     }
 
     @Test
     @WithMockUser
     @DisplayName("게시물 북마크 (그룹 지정 X) - DOCS")
     void bookmark_GroupNull_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        //expected
         mockMvc.perform(put("/v1/member/bookmark/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -106,13 +114,17 @@ class BookmarkControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().bookmark(eq(1L), anyString(), eq(null));
+        then(bookmarkService).should().bookmark(1L, 2L, null);
     }
 
     @Test
     @WithMockUser
     @DisplayName("게시물 북마크 취소 - DOCS")
     void cancelBookmark_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        //expected
         mockMvc.perform(delete("/v1/member/bookmark/{groupName}/{postId}", "그루비룸", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -130,13 +142,17 @@ class BookmarkControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq("그루비룸"));
+        then(bookmarkService).should().cancelBookmark(1L, 2L, "그루비룸");
     }
 
     @Test
     @WithMockUser
     @DisplayName("게시물 북마크 취소 (그룹 지정 X) - DOCS")
     void cancelBookmark_Docs_GroupNull_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(2L);
+
+        //expected
         mockMvc.perform(delete("/v1/member/bookmark/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
@@ -153,7 +169,7 @@ class BookmarkControllerTest {
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().cancelBookmark(eq(1L), anyString(), eq(null));
+        then(bookmarkService).should().cancelBookmark(1L, 2L, null);
     }
 
     @Test

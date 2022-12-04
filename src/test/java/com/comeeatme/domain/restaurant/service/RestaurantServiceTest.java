@@ -4,7 +4,6 @@ import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.favorite.response.FavoriteCount;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -12,7 +11,6 @@ import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
-import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -60,6 +58,7 @@ class RestaurantServiceTest {
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
         given(addressCodeRepository.findAllByNameStartingWith(anyString())).willReturn(Collections.emptyList());
@@ -67,9 +66,6 @@ class RestaurantServiceTest {
         given(restaurantRepository
                 .findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(any(Pageable.class), eq("지그재그"), eq(null)))
                 .willReturn(new SliceImpl<>(List.of(restaurant)));
-
-        given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
-                .willReturn(List.of(new FavoriteCount(1L, 10L)));
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -99,6 +95,7 @@ class RestaurantServiceTest {
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
         AddressCode addressCode = mock(AddressCode.class);
@@ -110,9 +107,6 @@ class RestaurantServiceTest {
                 .findSliceByNameAddressCodesStartingWithAndUseYnIsTrue(
                         any(Pageable.class), eq("지그재그"), eq(List.of("11215107"))))
                 .willReturn(new SliceImpl<>(List.of(restaurant)));
-
-        given(favoriteRepository.countsGroupByRestaurants(List.of(restaurant)))
-                .willReturn(List.of(new FavoriteCount(1L, 10L)));
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
@@ -143,11 +137,10 @@ class RestaurantServiceTest {
         given(restaurant.getUseYn()).willReturn(true);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("음식점");
+        given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
-
-        given(favoriteRepository.countByRestaurant(restaurant)).willReturn(10L);
 
         given(postRepository.findAllHashtagByRestaurant(restaurant))
                 .willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));

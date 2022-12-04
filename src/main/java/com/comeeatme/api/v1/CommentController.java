@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
@@ -26,11 +27,14 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    private final AccountService accountService;
+
     @PostMapping("/posts/{postId}/comment")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody CommentCreate commentCreate, @PathVariable Long postId,
             @CurrentUsername String username) {
-        CreateResult<Long> createResult = commentService.create(commentCreate, username, postId);
+        Long memberId = accountService.getMemberId(username);
+        CreateResult<Long> createResult = commentService.create(commentCreate, memberId, postId);
         ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
     }

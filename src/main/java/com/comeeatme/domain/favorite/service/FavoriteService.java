@@ -40,13 +40,13 @@ public class FavoriteService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void favorite(Long restaurantId, String username, @Nullable String groupName) {
-        Restaurant restaurant = getRestaurantById(restaurantId);
-        Member member = getMemberByUsername(username);
+    public void favorite(Long restaurantId, Long memberId, @Nullable String groupName) {
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(restaurantId);
+        Member member = getMemberById(memberId);
         FavoriteGroup group = Optional.ofNullable(groupName)
                 .map(name -> getFavoriteGroupByMemberAndName(member, name))
                 .orElse(null);
-        if (favoriteRepository.existsByGroupAndRestaurant(group, restaurant)) {
+        if (favoriteRepository.existsByMemberAndGroupAndRestaurant(member, group, restaurant)) {
             throw new AlreadyFavoriteException(String.format(
                     "member.id=%s, favorite.group=%s, restaurant.id=%s",
                     member.getId(), groupName, restaurant.getId()
@@ -58,22 +58,24 @@ public class FavoriteService {
                 .group(group)
                 .restaurant(restaurant)
                 .build());
+        restaurant.increaseFavoriteCount();
         Optional.ofNullable(group)
                 .ifPresent(FavoriteGroup::incrFavoriteCount);
     }
 
     @Transactional
-    public void cancelFavorite(Long restaurantId, String username, String groupName) {
-        Restaurant restaurant = getRestaurantById(restaurantId);
-        Member member = getMemberByUsername(username);
+    public void cancelFavorite(Long restaurantId, Long memberId, String groupName) {
+        Restaurant restaurant = getRestaurantWithPessimisticLockById(restaurantId);
+        Member member = getMemberById(memberId);
         FavoriteGroup group = Optional.ofNullable(groupName)
                 .map(name -> getFavoriteGroupByMemberAndName(member, name))
                 .orElse(null);
-        Favorite favorite = favoriteRepository.findByGroupAndRestaurant(group, restaurant)
+        Favorite favorite = favoriteRepository.findByMemberAndGroupAndRestaurant(member, group, restaurant)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "group=" + groupName + ", restaurant.id" + restaurantId));
 
         favoriteRepository.delete(favorite);
+        restaurant.decreaseFavoriteCount();
         Optional.ofNullable(group)
                 .ifPresent(FavoriteGroup::decrFavoriteCount);
     }
@@ -138,10 +140,10 @@ public class FavoriteService {
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant.id=" + id));
     }
 
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+    private Restaurant getRestaurantWithPessimisticLockById(Long restaurantId) {
+        return restaurantRepository.findWithPessimisticLockById(restaurantId)
+                .filter(Restaurant::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurant id=" + restaurantId));
     }
 
     private Member getMemberById(Long id) {

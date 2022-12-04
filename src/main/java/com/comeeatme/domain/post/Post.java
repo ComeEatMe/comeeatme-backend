@@ -46,6 +46,15 @@ public class Post extends BaseTimeEntity {
     @Column(name = "content", length = 2000, nullable = false)
     private String content;
 
+    @Column(name = "comment_count", nullable = false)
+    private Integer commentCount;
+
+    @Column(name = "like_count", nullable = false)
+    private Integer likeCount;
+
+    @Column(name = "bookmark_count", nullable = false)
+    private Integer bookmarkCount;
+
     @Builder
     private Post(
             @Nullable Long id,
@@ -58,6 +67,9 @@ public class Post extends BaseTimeEntity {
         this.restaurant = restaurant;
         this.postHashtags = Optional.ofNullable(postHashtags).orElse(new HashSet<>());
         this.content = content;
+        this.commentCount = 0;
+        this.likeCount = 0;
+        this.bookmarkCount = 0;
     }
 
     public PostEditor.PostEditorBuilder toEditor() {
@@ -84,4 +96,38 @@ public class Post extends BaseTimeEntity {
                 .map(PostHashtag::getHashtag)
                 .collect(Collectors.toList());
     }
+
+    public void increaseCommentCount() {
+        commentCount += 1;
+    }
+
+    public void decreaseCommentCount() {
+        if (commentCount < 1) {
+            throw new IllegalStateException("commentCount가 더 이상 감소될 수 없습니다.");
+        }
+        commentCount -= 1;
+    }
+
+    public void increaseLikeCount() {
+        likeCount += 1;
+    }
+
+    public void decreaseLikeCount() {
+        if (likeCount < 1) {
+            throw new IllegalStateException("likeCount가 더 이상 감소될 수 없습니다.");
+        }
+        likeCount -= 1;
+    }
+
+    public void increaseBookmarkCount() {
+        bookmarkCount += 1;
+    }
+
+    public void decreaseBookmarkCount() {
+        if (bookmarkCount < 1) {
+            throw new IllegalStateException("bookmarkCount가 더 이상 감소될 수 없습니다.");
+        }
+        bookmarkCount -= 1;
+    }
+
 }

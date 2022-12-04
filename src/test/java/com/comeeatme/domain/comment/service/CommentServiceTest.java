@@ -30,6 +30,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,11 +53,11 @@ class CommentServiceTest {
         // given
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
+        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(3L)).willReturn(Optional.of(post));
 
         Comment comment = mock(Comment.class);
         given(comment.getId()).willReturn(1L);
@@ -70,7 +71,7 @@ class CommentServiceTest {
                 .build();
 
         //when
-        CreateResult<Long> result = commentService.create(commentCreate, "test-username", 2L);
+        CreateResult<Long> result = commentService.create(commentCreate, 2L, 3L);
 
         // then
         assertThat(result.getId()).isEqualTo(1L);
@@ -80,6 +81,8 @@ class CommentServiceTest {
         assertThat(capturedComment.getPost()).isEqualTo(post);
         assertThat(capturedComment.getParent()).isNull();
         assertThat(capturedComment.getContent()).isEqualTo("test-content");
+
+        then(post).should().increaseCommentCount();
     }
 
     @Test
@@ -129,17 +132,25 @@ class CommentServiceTest {
     @Test
     void delete() {
         // given
-        Comment comment = Comment.builder()
-                .id(1L)
-                .build();
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(2L);
+        Comment comment = mock(Comment.class);
+        given(comment.getUseYn()).willReturn(true);
+        given(comment.getPost()).willReturn(post);
         given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
+
+        Post lockedPost = mock(Post.class);
+        given(lockedPost.getUseYn()).willReturn(true);
+        given(postRepository.findWithPessimisticLockById(post.getId())).willReturn(Optional.of(lockedPost));
 
         // when
         DeleteResult<Long> deleteResult = commentService.delete(1L);
 
         // then
         assertThat(deleteResult.getId()).isEqualTo(1L);
-        assertThat(comment.getUseYn()).isFalse();
+
+        then(comment).should().delete();
+        then(lockedPost).should().decreaseCommentCount();
     }
 
     @Test

@@ -16,8 +16,6 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
 
     boolean existsByPostAndMember(Post post, Member member);
 
-    long countByPost(Post post);
-
     @EntityGraph(attributePaths = "post")
     Slice<Like> findSliceWithPostByMember(Pageable pageable, Member member);
 

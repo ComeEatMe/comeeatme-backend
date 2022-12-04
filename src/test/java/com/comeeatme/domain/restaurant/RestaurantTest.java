@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @Transactional
@@ -62,6 +62,76 @@ class RestaurantTest {
                         .addressCode(addressCode)
                         .build())
                 .build()));
+    }
+
+    @Test
+    void increasePostCount() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // when
+        restaurant.increasePostCount();
+
+        // then
+        assertThat(restaurant.getPostCount()).isEqualTo(1);
+    }
+
+    @Test
+    void decreasePostCount() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // when
+        restaurant.increasePostCount();
+        restaurant.decreasePostCount();
+
+        // then
+        assertThat(restaurant.getPostCount()).isZero();
+    }
+
+    @Test
+    void decreasePostCount_Fail() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // expected
+        assertThatThrownBy(restaurant::decreasePostCount)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void increaseFavoriteCount() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // when
+        restaurant.increaseFavoriteCount();
+
+        // then
+        assertThat(restaurant.getFavoriteCount()).isEqualTo(1);
+    }
+
+    @Test
+    void decreaseFavoriteCount() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // when
+        restaurant.increaseFavoriteCount();
+        restaurant.decreaseFavoriteCount();
+
+        // then
+        assertThat(restaurant.getFavoriteCount()).isZero();
+    }
+
+    @Test
+    void decreaseFavoriteCount_Fail() {
+        // given
+        Restaurant restaurant = Restaurant.builder().build();
+
+        // expected
+        assertThatThrownBy(restaurant::decreaseFavoriteCount)
+                .isInstanceOf(IllegalStateException.class);
     }
 
 }

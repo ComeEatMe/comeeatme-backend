@@ -149,7 +149,8 @@ public class PostController {
         if (!imageService.validateImageIds(postCreate.getImageIds(), username)) {
             throw new InvalidImageIdception("imageIds=" + postCreate.getImageIds());
         }
-        CreateResult<Long> createResult = postService.create(postCreate, username);
+        Long memberId = accountService.getMemberId(username);
+        CreateResult<Long> createResult = postService.create(postCreate, memberId);
         ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
     }

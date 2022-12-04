@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
 
-    boolean existsByGroupAndPost(BookmarkGroup group, Post post);
+    boolean existsByMemberAndGroupAndPost(Member member, BookmarkGroup group, Post post);
 
-    Optional<Bookmark> findByGroupAndPost(BookmarkGroup group, Post post);
+    Optional<Bookmark> findByMemberAndGroupAndPost(Member member, BookmarkGroup group, Post post);
 
     int countByMember(Member member);
 

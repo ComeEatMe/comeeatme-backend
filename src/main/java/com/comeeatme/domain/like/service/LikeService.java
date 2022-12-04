@@ -39,9 +39,9 @@ public class LikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void like(Long postId, String username) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void like(Long postId, Long memberId) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         if (likeRepository.existsByPostAndMember(post, member)) {
             throw new AlreadyLikedPostException(String.format(
                     "post.id=%s, member.id=%s", post.getId(), member.getId()));
@@ -50,16 +50,18 @@ public class LikeService {
                 .post(post)
                 .member(member)
                 .build());
+        post.increaseLikeCount();
     }
 
     @Transactional
-    public void unlike(Long postId, String username) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void unlike(Long postId, Long memberId) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         Like like = likeRepository.findByPostAndMember(post, member)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(
                         "post.id=%s, member.id=%s", post.getId(), member.getId())));
         likeRepository.delete(like);
+        post.decreaseLikeCount();
     }
 
     public List<PostLiked> areLiked(Long memberId, List<Long> postIds) {
@@ -109,16 +111,16 @@ public class LikeService {
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
 
+    private Post getPostWithPessimisticLockById(Long postId) {
+        return postRepository.findWithPessimisticLockById(postId)
+                .filter(Post::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
+    }
+
     private Member getMemberById(Long id) {
         return memberRepository.findById(id)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
-    }
-
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
     }
 
 }

@@ -10,14 +10,12 @@ import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long>, FavoriteRepositoryCustom {
 
-    boolean existsByGroupAndRestaurant(FavoriteGroup group, Restaurant restaurant);
+    boolean existsByMemberAndGroupAndRestaurant(Member member, FavoriteGroup group, Restaurant restaurant);
 
-    Optional<Favorite> findByGroupAndRestaurant(FavoriteGroup group, Restaurant restaurant);
+    Optional<Favorite> findByMemberAndGroupAndRestaurant(Member member, FavoriteGroup group, Restaurant restaurant);
 
     long countByMember(Member member);
 
     boolean existsByMemberAndRestaurant(Member member, Restaurant restaurant);
-
-    long countByRestaurant(Restaurant restaurant);
 
 }
