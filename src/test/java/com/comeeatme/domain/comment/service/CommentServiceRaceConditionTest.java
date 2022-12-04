@@ -1,5 +1,6 @@
 package com.comeeatme.domain.comment.service;
 
+import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,11 +35,15 @@ class CommentServiceRaceConditionTest {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
     @AfterEach
     void afterEach() {
         memberRepository.deleteAll();
         postRepository.deleteAll();
         restaurantRepository.deleteAll();
+        commentRepository.deleteAll();
     }
 
     @Test
@@ -81,4 +88,55 @@ class CommentServiceRaceConditionTest {
         Post foundPost = postRepository.findById(post.getId()).orElseThrow();
         assertThat(foundPost.getCommentCount()).isEqualTo(100);
     }
+
+    @Test
+    void delete() throws InterruptedException {
+        // given
+        Member member = memberRepository.save(
+                Member.builder()
+                        .nickname("떡볶이")
+                        .introduction("")
+                        .build()
+        );
+        Post post = postRepository.save(
+                Post.builder()
+                        .member(member)
+                        .restaurant(restaurantRepository.getReferenceById(10L))
+                        .content("content")
+                        .build()
+        );
+
+        int commentCount = 200;
+        List<Long> commentIds = new ArrayList<>();
+        for (int i = 0; i < commentCount; i++) {
+            CommentCreate commentCreate = CommentCreate.builder()
+                    .parentId(null)
+                    .content("comment-" + i)
+                    .build();
+            Long commentId = commentService.create(commentCreate, member.getId(), post.getId()).getId();
+            commentIds.add(commentId);
+        }
+
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Long commentId = commentIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    commentService.delete(commentId);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Post foundPost = postRepository.findById(post.getId()).orElseThrow();
+        assertThat(foundPost.getCommentCount()).isEqualTo(100);
+    }
+
 }

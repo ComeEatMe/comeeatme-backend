@@ -132,17 +132,25 @@ class CommentServiceTest {
     @Test
     void delete() {
         // given
-        Comment comment = Comment.builder()
-                .id(1L)
-                .build();
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(2L);
+        Comment comment = mock(Comment.class);
+        given(comment.getUseYn()).willReturn(true);
+        given(comment.getPost()).willReturn(post);
         given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
+
+        Post lockedPost = mock(Post.class);
+        given(lockedPost.getUseYn()).willReturn(true);
+        given(postRepository.findWithPessimisticLockById(post.getId())).willReturn(Optional.of(lockedPost));
 
         // when
         DeleteResult<Long> deleteResult = commentService.delete(1L);
 
         // then
         assertThat(deleteResult.getId()).isEqualTo(1L);
-        assertThat(comment.getUseYn()).isFalse();
+
+        then(comment).should().delete();
+        then(lockedPost).should().decreaseCommentCount();
     }
 
     @Test
