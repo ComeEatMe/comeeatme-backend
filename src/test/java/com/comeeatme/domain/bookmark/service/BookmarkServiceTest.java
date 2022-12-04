@@ -65,7 +65,7 @@ class BookmarkServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -89,6 +89,7 @@ class BookmarkServiceTest {
         assertThat(captorValue.getPost()).isEqualTo(post);
 
         then(group).should().incrBookmarkCount();
+        then(post).should().increaseBookmarkCount();
     }
 
     @Test
@@ -96,7 +97,7 @@ class BookmarkServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -115,6 +116,8 @@ class BookmarkServiceTest {
         assertThat(captorValue.getMember()).isEqualTo(member);
         assertThat(captorValue.getGroup()).isNull();
         assertThat(captorValue.getPost()).isEqualTo(post);
+
+        then(post).should().increaseBookmarkCount();
     }
 
     @Test
@@ -122,7 +125,7 @@ class BookmarkServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
