@@ -34,7 +34,8 @@ public class LikeController {
 
     @PutMapping("/member/like/{postId}")
     public ResponseEntity<ApiResult<Void>> like(@PathVariable Long postId, @CurrentUsername String username) {
-        likeService.like(postId, username);
+        Long memberId = accountService.getMemberId(username);
+        likeService.like(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 

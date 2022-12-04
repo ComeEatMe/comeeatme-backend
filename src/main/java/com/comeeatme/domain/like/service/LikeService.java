@@ -39,9 +39,9 @@ public class LikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void like(Long postId, String username) {
-        Post post = getPostById(postId);
-        Member member = getMemberByUsername(username);
+    public void like(Long postId, Long memberId) {
+        Post post = getPostWithPessimisticLockById(postId);
+        Member member = getMemberById(memberId);
         if (likeRepository.existsByPostAndMember(post, member)) {
             throw new AlreadyLikedPostException(String.format(
                     "post.id=%s, member.id=%s", post.getId(), member.getId()));
@@ -50,6 +50,7 @@ public class LikeService {
                 .post(post)
                 .member(member)
                 .build());
+        post.increaseLikeCount();
     }
 
     @Transactional
@@ -105,6 +106,12 @@ public class LikeService {
 
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
+                .filter(Post::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
+    }
+
+    private Post getPostWithPessimisticLockById(Long postId) {
+        return postRepository.findWithPessimisticLockById(postId)
                 .filter(Post::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Post id=" + postId));
     }
