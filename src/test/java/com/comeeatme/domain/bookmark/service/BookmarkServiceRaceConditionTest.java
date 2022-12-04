@@ -89,4 +89,50 @@ class BookmarkServiceRaceConditionTest {
         Post foundPost = postRepository.findById(post.getId()).orElseThrow();
         assertThat(foundPost.getBookmarkCount()).isEqualTo(100);
     }
+
+    @Test
+    void cancelBookmark() throws InterruptedException {
+        // given
+        int memberCount = 200;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, memberCount)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        Post post = postRepository.save(
+                Post.builder()
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(members.get(0))
+                        .content("content")
+                        .build()
+        );
+
+        members.forEach(member -> bookmarkService.bookmark(post.getId(), member.getId(), null));
+
+        // when
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    bookmarkService.cancelBookmark(post.getId(), member.getId(), null);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Post foundPost = postRepository.findById(post.getId()).orElseThrow();
+        assertThat(foundPost.getBookmarkCount()).isEqualTo(100);
+    }
+
 }

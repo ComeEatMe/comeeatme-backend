@@ -146,7 +146,7 @@ class BookmarkServiceTest {
         // given
         Post post = mock(Post.class);
         given(post.getUseYn()).willReturn(true);
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -165,6 +165,7 @@ class BookmarkServiceTest {
         then(bookmarkRepository).should().delete(bookmark);
 
         then(group).should().decrBookmarkCount();
+        then(post).should().decreaseBookmarkCount();
     }
 
     @Test
