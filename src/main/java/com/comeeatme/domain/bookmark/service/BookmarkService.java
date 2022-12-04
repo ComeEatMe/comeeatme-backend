@@ -64,13 +64,14 @@ public class BookmarkService {
 
     @Transactional
     public void cancelBookmark(Long postId, Long memberId, String groupName) {
-        Post post = getPostById(postId);
+        Post post = getPostWithPessimisticLockById(postId);
         Member member = getMemberById(memberId);
         BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
         Bookmark bookmark = bookmarkRepository.findByMemberAndGroupAndPost(member, group, post)
                 .orElseThrow(() -> new EntityNotFoundException("group=" + groupName + ", post.id=" + postId));
         bookmarkRepository.delete(bookmark);
         Optional.ofNullable(group).ifPresent(BookmarkGroup::decrBookmarkCount);
+        post.decreaseBookmarkCount();
     }
 
     public List<BookmarkGroupDto> getAllGroupsOfMember(Long memberId) {
