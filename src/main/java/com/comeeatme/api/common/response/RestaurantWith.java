@@ -23,11 +23,14 @@ public class RestaurantWith<R> {
 
     private List<Hashtag> hashtags;
 
+    private List<String> imageUrls;
+
     @Builder
-    private RestaurantWith(R restaurant, Boolean favorited, List<Hashtag> hashtags) {
+    private RestaurantWith(R restaurant, Boolean favorited, List<Hashtag> hashtags, List<String> imageUrls) {
         this.restaurant = restaurant;
         this.favorited = favorited;
         this.hashtags = hashtags;
+        this.imageUrls = imageUrls;
     }
 
     public static <T> RestaurantWithBuilder<T> restaurant(T restaurant) {

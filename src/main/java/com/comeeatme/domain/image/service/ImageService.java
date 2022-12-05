@@ -7,7 +7,9 @@ import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.store.ImageStore;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.repository.PostImageRepository;
+import com.comeeatme.domain.post.response.RestaurantPostImage;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -126,10 +129,38 @@ public class ImageService {
                 );
     }
 
+    public Map<Long, List<String>> getRestaurantIdToImages(List<Long> restaurantIds, Integer perImageNum) {
+        List<Restaurant> restaurants = getRestaurantsByIds(restaurantIds);
+        List<RestaurantPostImage> restaurantPostImages = postImageRepository.findImagesByRestaurantsAndPostUseYnIsTrue(
+                restaurants, perImageNum);
+        List<Long> postImageIds = restaurantPostImages.stream()
+                .map(RestaurantPostImage::getPostImageId)
+                .collect(Collectors.toList());
+        List<PostImage> postImages = postImageRepository.findAllWithPostAndImageByIdIn(postImageIds);
+        return postImages.stream()
+                .collect(Collectors.groupingBy(
+                        postImage -> postImage.getPost().getRestaurant().getId(),
+                        Collectors.mapping(postImage -> postImage.getImage().getUrl(), Collectors.toList()))
+                );
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant.id=" + id));
+    }
+
+    private List<Restaurant> getRestaurantsByIds(List<Long> restaurantIds) {
+        List<Restaurant> restaurants = restaurantRepository.findAllById(restaurantIds);
+        if (restaurantIds.size() != restaurants.size()) {
+            throw new EntityNotFoundException("존재하지 않는 음식점 포함. Restaurant.id=" + restaurantIds);
+        }
+        boolean containDeleted = restaurants.stream()
+                .anyMatch(restaurant -> !restaurant.getUseYn());
+        if (containDeleted) {
+            throw new EntityNotFoundException("삭제된 음식점 포함. Restaurant.id=" + restaurantIds);
+        }
+        return restaurants;
     }
 
 }
