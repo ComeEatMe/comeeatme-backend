@@ -4,9 +4,11 @@ import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -14,9 +16,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +40,16 @@ class PostImageRepositoryTest {
     private ImageRepository imageRepository;
 
     @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
+    @Autowired
     private EntityManager em;
+
+    @Autowired
+    private EntityManagerFactory emf;
 
     @Test
     void findAllWithImagesByPostIn() {
@@ -153,6 +167,53 @@ class PostImageRepositoryTest {
         result.stream()
                 .map(PostImage::getImage)
                 .forEach(image -> assertThat(unitUtil.isLoaded(image)).isTrue());
+    }
+
+    @Test
+    void findAllWithPostAndImageById() {
+        // given
+        Post post = postRepository.save(
+                Post.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(20L))
+                        .content("content")
+                        .build()
+        );
+
+        List<PostImage> postImages = IntStream.range(0, 2)
+                .mapToObj(i -> {
+                    Image image = imageRepository.save(
+                            Image.builder()
+                                    .member(memberRepository.getReferenceById(10L))
+                                    .originName("origin-name" + i)
+                                    .storedName("stored-name" + i)
+                                    .url("url" + i)
+                                    .build()
+                    );
+                    return postImageRepository.save(
+                            PostImage.builder()
+                                    .post(post)
+                                    .image(image)
+                                    .build()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // when
+        List<Long> postImageIds = postImages.stream()
+                .map(PostImage::getId)
+                .collect(Collectors.toList());
+        List<PostImage> result = postImageRepository.findAllWithPostAndImageByIdIn(postImageIds);
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(postImageIds.toArray());
+        for (PostImage postImage : result) {
+            PersistenceUnitUtil persistenceUnitUtil = emf.getPersistenceUnitUtil();
+            assertThat(persistenceUnitUtil.isLoaded(postImage.getImage())).isTrue();
+            assertThat(persistenceUnitUtil.isLoaded(postImage.getPost())).isTrue();
+        }
     }
 
 }
