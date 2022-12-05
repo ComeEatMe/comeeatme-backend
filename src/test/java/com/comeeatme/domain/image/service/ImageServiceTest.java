@@ -10,6 +10,7 @@ import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.repository.PostImageRepository;
+import com.comeeatme.domain.post.response.RestaurantPostImage;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -243,6 +245,67 @@ class ImageServiceTest {
         assertThat(restaurantImage.getRestaurantId()).isEqualTo(1L);
         assertThat(restaurantImage.getPostId()).isEqualTo(2L);
         assertThat(restaurantImage.getImageUrl()).isEqualTo("image-url");
+    }
+
+    @Test
+    void getRestaurantIdToImages() {
+        // given
+        Restaurant restaurant1 = mock(Restaurant.class);
+        given(restaurant1.getUseYn()).willReturn(true);
+        given(restaurant1.getId()).willReturn(1L);
+        Restaurant restaurant2 = mock(Restaurant.class);
+        given(restaurant2.getUseYn()).willReturn(true);
+        given(restaurant2.getId()).willReturn(2L);
+        given(restaurantRepository.findAllById(List.of(1L, 2L)))
+                .willReturn(List.of(restaurant1, restaurant2));
+
+        given(postImageRepository.findImagesByRestaurantsAndPostUseYnIsTrue(
+                List.of(restaurant1, restaurant2), 2)).willReturn(
+                        List.of(
+                                new RestaurantPostImage(1L, 10L),
+                                new RestaurantPostImage(1L, 11L),
+                                new RestaurantPostImage(2L, 12L)
+                        )
+        );
+
+        Post post1 = mock(Post.class);
+        given(post1.getRestaurant()).willReturn(restaurant1);
+
+        Image image1 = mock(Image.class);
+        given(image1.getUrl()).willReturn("url-1");
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getPost()).willReturn(post1);
+        given(postImage1.getImage()).willReturn(image1);
+
+        Image image2 = mock(Image.class);
+        given(image2.getUrl()).willReturn("url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getPost()).willReturn(post1);
+        given(postImage2.getImage()).willReturn(image2);
+
+        Post post2 = mock(Post.class);
+        given(post2.getRestaurant()).willReturn(restaurant2);
+
+        Image image3 = mock(Image.class);
+        given(image3.getUrl()).willReturn("url-3");
+        PostImage postImage3 = mock(PostImage.class);
+        given(postImage3.getPost()).willReturn(post2);
+        given(postImage3.getImage()).willReturn(image3);
+
+        given(postImageRepository.findAllWithPostAndImageByIdIn(List.of(10L, 11L, 12L)))
+                .willReturn(List.of(postImage1, postImage2, postImage3));
+
+        // when
+        Map<Long, List<String>> result = imageService.getRestaurantIdToImages(List.of(1L, 2L), 2);
+
+        // then
+        assertThat(result).containsOnlyKeys(1L, 2L);
+        assertThat(result.get(1L))
+                .hasSize(2)
+                .containsOnly("url-1", "url-2");
+        assertThat(result.get(2L))
+                .hasSize(1)
+                .containsOnly("url-3");
     }
 
 }

@@ -15,4 +15,7 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long>, Pos
     @EntityGraph(attributePaths = "image")
     List<PostImage> findAllWithImageByPost(Post post);
 
+    @EntityGraph(attributePaths = {"image", "post"})
+    List<PostImage> findAllWithPostAndImageByIdIn(List<Long> id);
+
 }

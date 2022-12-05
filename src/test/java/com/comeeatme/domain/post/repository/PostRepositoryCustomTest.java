@@ -260,40 +260,4 @@ class PostRepositoryCustomTest {
         assertThat(content).extracting("id").containsExactly(post1.getId());
     }
 
-    @Test
-    void findAllHashtagByRestaurant() {
-        // given
-        Post post1 = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(10L).build())
-                .content("content-1")
-                .build());
-        post1.addHashtag(Hashtag.EATING_ALON);
-        post1.addHashtag(Hashtag.COST_EFFECTIVENESS);
-
-        Post post2 = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(11L).build())
-                .content("content-2")
-                .build());
-        post2.addHashtag(Hashtag.KINDNESS);
-        post2.addHashtag(Hashtag.COST_EFFECTIVENESS);
-
-        Post post3 = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(2L).build())
-                .member(Member.builder().id(12L).build())
-                .content("content-3")
-                .build());
-        post3.addHashtag(Hashtag.CLEANLINESS);
-        post3.addHashtag(Hashtag.AROUND_CLOCK);
-
-        // when
-        List<Hashtag> result = postRepository.findAllHashtagByRestaurant(Restaurant.builder().id(1L).build());
-
-        // then
-        assertThat(result)
-                .hasSize(3)
-                .containsOnly(Hashtag.EATING_ALON, Hashtag.COST_EFFECTIVENESS, Hashtag.KINDNESS);
-    }
-
 }
