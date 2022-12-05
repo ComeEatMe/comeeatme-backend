@@ -24,6 +24,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -95,8 +97,12 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        String[] clientUrls = {
+                "http://localhost:3000",
+                "https://comeeatme.zooneon.dev"
+        };
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.addAllowedOrigin(CorsConfiguration.ALL);
+        corsConfig.setAllowedOrigins(Arrays.asList(clientUrls));
         corsConfig.addAllowedHeader(CorsConfiguration.ALL);
         corsConfig.addAllowedMethod(CorsConfiguration.ALL);
         corsConfig.setAllowCredentials(true);
