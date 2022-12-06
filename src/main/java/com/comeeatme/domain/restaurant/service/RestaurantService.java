@@ -5,7 +5,6 @@ import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
-import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +42,7 @@ public class RestaurantService {
                 .map(restaurant -> RestaurantDto.builder()
                         .id(restaurant.getId())
                         .name(restaurant.getName())
+                        .postCount(restaurant.getPostCount())
                         .favoriteCount(restaurant.getFavoriteCount())
                         .addressName(restaurant.getAddress().getName())
                         .addressRoadName(restaurant.getAddress().getRoadName())
@@ -77,12 +78,13 @@ public class RestaurantService {
         return addressCodes;
     }
 
-    public RestaurantDetailDto get(Long restaurantId) {
+    public RestaurantDto get(Long restaurantId) {
         Restaurant restaurant = getRestaurantById(restaurantId);
         Integer favoriteCount = restaurant.getFavoriteCount();
-        return RestaurantDetailDto.builder()
+        return RestaurantDto.builder()
                 .id(restaurant.getId())
                 .name(restaurant.getName())
+                .postCount(restaurant.getPostCount())
                 .favoriteCount(favoriteCount)
                 .addressName(restaurant.getAddress().getName())
                 .addressRoadName(restaurant.getAddress().getRoadName())

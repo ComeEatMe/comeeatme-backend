@@ -9,7 +9,6 @@ import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
-import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
@@ -92,18 +91,18 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants/{restaurantId}")
-    public ResponseEntity<ApiResult<RestaurantWith<RestaurantDetailDto>>> get(
+    public ResponseEntity<ApiResult<RestaurantWith<RestaurantDto>>> get(
             @PathVariable Long restaurantId, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        RestaurantDetailDto restaurant = restaurantService.get(restaurantId);
+        RestaurantDto restaurant = restaurantService.get(restaurantId);
         boolean favorited = favoriteService.isFavorite(memberId, restaurant.getId());
         List<Hashtag> hashtags = postHashtagService.getHashtagsOfRestaurant(restaurant.getId());
-        RestaurantWith<RestaurantDetailDto> restaurantWith = RestaurantWith
+        RestaurantWith<RestaurantDto> restaurantWith = RestaurantWith
                 .restaurant(restaurant)
                 .favorited(favorited)
                 .hashtags(hashtags)
                 .build();
-        ApiResult<RestaurantWith<RestaurantDetailDto>> apiResult = ApiResult.success(restaurantWith);
+        ApiResult<RestaurantWith<RestaurantDto>> apiResult = ApiResult.success(restaurantWith);
         return ResponseEntity.ok(apiResult);
     }
 

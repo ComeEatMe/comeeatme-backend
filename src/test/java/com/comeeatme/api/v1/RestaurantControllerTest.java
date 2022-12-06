@@ -7,7 +7,6 @@ import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
-import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import com.comeeatme.security.SecurityConfig;
@@ -77,6 +76,7 @@ class RestaurantControllerTest {
                 RestaurantDto.builder()
                         .id(1L)
                         .name("지그재그")
+                        .postCount(5)
                         .favoriteCount(10)
                         .addressName("서울 광진구 화양동 111-27")
                         .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -84,6 +84,7 @@ class RestaurantControllerTest {
                 RestaurantDto.builder()
                         .id(2L)
                         .name("모노끼")
+                        .postCount(7)
                         .favoriteCount(10)
                         .addressName("")
                         .addressRoadName("야탑로")
@@ -127,6 +128,7 @@ class RestaurantControllerTest {
         RestaurantDto restaurantDto = RestaurantDto.builder()
                 .id(1L)
                 .name("지그재그")
+                .postCount(5)
                 .favoriteCount(10)
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -163,6 +165,8 @@ class RestaurantControllerTest {
                                 beneathPath("data.content[]").withSubsectionId("content"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("postCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 게시물 개수"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
@@ -184,6 +188,7 @@ class RestaurantControllerTest {
         RestaurantDto restaurantDto = RestaurantDto.builder()
                 .id(1L)
                 .name("지그재그")
+                .postCount(5)
                 .favoriteCount(10)
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -214,9 +219,10 @@ class RestaurantControllerTest {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
-        RestaurantDetailDto dto = RestaurantDetailDto.builder()
+        RestaurantDto dto = RestaurantDto.builder()
                 .id(1L)
                 .name("음식점")
+                .postCount(7)
                 .favoriteCount(23)
                 .addressName("주소")
                 .addressRoadName("도로명주소")
@@ -245,6 +251,8 @@ class RestaurantControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("postCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 게시물 개수"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),

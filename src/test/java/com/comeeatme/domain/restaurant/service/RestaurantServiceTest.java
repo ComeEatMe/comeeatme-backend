@@ -3,12 +3,9 @@ package com.comeeatme.domain.restaurant.service;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
-import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
-import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,12 +36,6 @@ class RestaurantServiceTest {
     private RestaurantRepository restaurantRepository;
 
     @Mock
-    private FavoriteRepository favoriteRepository;
-
-    @Mock
-    private PostRepository postRepository;
-
-    @Mock
     private AddressCodeRepository addressCodeRepository;
 
     @Test
@@ -57,6 +48,7 @@ class RestaurantServiceTest {
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getPostCount()).willReturn(5);
         given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
@@ -79,6 +71,7 @@ class RestaurantServiceTest {
         RestaurantDto dto = result.getContent().get(0);
         assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getName()).isEqualTo("지그재그");
+        assertThat(dto.getPostCount()).isEqualTo(5);
         assertThat(dto.getFavoriteCount()).isEqualTo(10);
         assertThat(dto.getAddress().getName()).isEqualTo("address-name");
         assertThat(dto.getAddress().getRoadName()).isEqualTo("address-road-name");
@@ -94,6 +87,7 @@ class RestaurantServiceTest {
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("지그재그");
+        given(restaurant.getPostCount()).willReturn(5);
         given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
@@ -120,6 +114,7 @@ class RestaurantServiceTest {
         RestaurantDto dto = result.getContent().get(0);
         assertThat(dto.getId()).isEqualTo(1L);
         assertThat(dto.getName()).isEqualTo("지그재그");
+        assertThat(dto.getPostCount()).isEqualTo(5);
         assertThat(dto.getFavoriteCount()).isEqualTo(10);
         assertThat(dto.getAddress().getName()).isEqualTo("address-name");
         assertThat(dto.getAddress().getRoadName()).isEqualTo("address-road-name");
@@ -136,17 +131,19 @@ class RestaurantServiceTest {
         given(restaurant.getUseYn()).willReturn(true);
         given(restaurant.getId()).willReturn(1L);
         given(restaurant.getName()).willReturn("음식점");
+        given(restaurant.getPostCount()).willReturn(5);
         given(restaurant.getFavoriteCount()).willReturn(10);
         given(restaurant.getAddress()).willReturn(address);
 
         given(restaurantRepository.findById(1L)).willReturn(Optional.of(restaurant));
 
         // when
-        RestaurantDetailDto result = restaurantService.get(1L);
+        RestaurantDto result = restaurantService.get(1L);
 
         // then
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("음식점");
+        assertThat(result.getPostCount()).isEqualTo(5);
         assertThat(result.getFavoriteCount()).isEqualTo(10);
         assertThat(result.getAddress().getName()).isEqualTo("소재지주소");
         assertThat(result.getAddress().getRoadName()).isEqualTo("도로명주소");
