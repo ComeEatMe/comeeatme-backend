@@ -99,14 +99,13 @@ class CommonDocsControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .param("page", "0")
                         .param("size", "10")
-                        .param("sort", "createdAt,desc", "distance,asc", "id"))
+                )
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("common-ApiResult-slice",
                         requestParameters(
                                 parameterWithName("page").description("페이지 번호. 0부터 시작. 기본값 0.").optional(),
-                                parameterWithName("size").description("페이지 사이즈. 최대 100. 기본값 10").optional(),
-                                parameterWithName("sort").description("정렬 조건. asc 는 생략 가능").optional()
+                                parameterWithName("size").description("페이지 사이즈. 최대 100. 기본값 10").optional()
                         ),
                         responseFields(
                                 beneathPath("data").withSubsectionId("data"),
