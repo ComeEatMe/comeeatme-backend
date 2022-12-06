@@ -40,7 +40,7 @@ public class RestaurantController {
     private final ImageService imageService;
 
     @GetMapping("/restaurants/simple")
-    public ResponseEntity<ApiResult<Slice<RestaurantSimpleDto>>> getSimpleList(
+    public ResponseEntity<ApiResult<Slice<RestaurantSimpleDto>>> searchSimple(
             Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch) {
         Slice<RestaurantSimpleDto> restaurants = restaurantService.search(pageable, restaurantSearch)
                 .map(restaurant -> RestaurantSimpleDto.builder()
@@ -55,7 +55,7 @@ public class RestaurantController {
     }
 
     @GetMapping("/restaurants")
-    public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> getList(
+    public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> search(
             Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch, @CurrentUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<RestaurantDto> restaurants = restaurantService.search(pageable, restaurantSearch);

@@ -71,7 +71,7 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 제목 및 주소 검색 - DOCS")
-    void getSimpleList_Docs() throws Exception {
+    void searchSimple_Docs() throws Exception {
         // given
         List<RestaurantDto> content = List.of(
                 RestaurantDto.builder()
@@ -120,7 +120,7 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 검색 - DOCS")
-    void getList_Docs() throws Exception {
+    void search_Docs() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
@@ -177,7 +177,7 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 검색 - 이미지 X")
-    void getList_PerImageNumNull() throws Exception {
+    void search_PerImageNumNull() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
