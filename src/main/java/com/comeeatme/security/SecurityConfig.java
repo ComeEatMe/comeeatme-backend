@@ -7,6 +7,7 @@ import com.comeeatme.security.jwt.JwtLogoutSuccessHandler;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.comeeatme.security.oauth2.OAuth2AuthenticationSuccessHandlerCustom;
 import com.comeeatme.security.oauth2.OAuth2UserServiceCustom;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -137,8 +138,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler() {
-        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler();
+    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(ObjectMapper objectMapper) {
+        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler(objectMapper);
         return jwtLogoutSuccessHandler;
     }
 }

@@ -7,7 +7,6 @@ import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.post.Hashtag;
 import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.domain.restaurant.request.RestaurantSearch;
-import com.comeeatme.domain.restaurant.response.RestaurantDetailDto;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
 import com.comeeatme.security.SecurityConfig;
@@ -71,12 +70,13 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 제목 및 주소 검색 - DOCS")
-    void getSimpleList_Docs() throws Exception {
+    void searchSimple_Docs() throws Exception {
         // given
         List<RestaurantDto> content = List.of(
                 RestaurantDto.builder()
                         .id(1L)
                         .name("지그재그")
+                        .postCount(5)
                         .favoriteCount(10)
                         .addressName("서울 광진구 화양동 111-27")
                         .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -84,6 +84,7 @@ class RestaurantControllerTest {
                 RestaurantDto.builder()
                         .id(2L)
                         .name("모노끼")
+                        .postCount(7)
                         .favoriteCount(10)
                         .addressName("")
                         .addressRoadName("야탑로")
@@ -101,7 +102,7 @@ class RestaurantControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-restaurant-get-simple",
+                .andDo(document("v1-restaurant-search-simple",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -120,13 +121,14 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 검색 - DOCS")
-    void getList_Docs() throws Exception {
+    void search_Docs() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
         RestaurantDto restaurantDto = RestaurantDto.builder()
                 .id(1L)
                 .name("지그재그")
+                .postCount(5)
                 .favoriteCount(10)
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -146,11 +148,11 @@ class RestaurantControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .param("keyword", "지그재그")
-                        .param("perImageNum", "3")
+                        .param("perImageNum", "2")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-restaurant-get-list",
+                .andDo(document("v1-restaurant-search",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
@@ -163,6 +165,8 @@ class RestaurantControllerTest {
                                 beneathPath("data.content[]").withSubsectionId("content"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("postCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 게시물 개수"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),
@@ -177,13 +181,14 @@ class RestaurantControllerTest {
     @Test
     @WithMockUser
     @DisplayName("음식점 검색 - 이미지 X")
-    void getList_PerImageNumNull() throws Exception {
+    void search_PerImageNumNull() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
         RestaurantDto restaurantDto = RestaurantDto.builder()
                 .id(1L)
                 .name("지그재그")
+                .postCount(5)
                 .favoriteCount(10)
                 .addressName("서울 광진구 화양동 111-27")
                 .addressRoadName("서울 광진구 능동로19길 21-2")
@@ -209,14 +214,82 @@ class RestaurantControllerTest {
 
     @Test
     @WithMockUser
+    @DisplayName("음식점 정렬된 리스트 조회 (랭킹) - DOCS")
+    void getRankedList_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+
+        RestaurantDto restaurantDto = RestaurantDto.builder()
+                .id(1L)
+                .name("지그재그")
+                .postCount(5)
+                .favoriteCount(10)
+                .addressName("서울 광진구 화양동 111-27")
+                .addressRoadName("서울 광진구 능동로19길 21-2")
+                .build();
+        given(restaurantService.getOrderedList(any(Pageable.class), eq("1121510700")))
+                .willReturn(new SliceImpl<>(List.of(restaurantDto)));
+
+        given(postHashtagService.getHashtagsOfRestaurants(List.of(1L)))
+                .willReturn(Map.of(1L, List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS)));
+
+        given(imageService.getRestaurantIdToImages(List.of(1L), 2))
+                .willReturn(Map.of(1L, List.of("image-url-1", "image-url-2")));
+
+        // expected
+        mockMvc.perform(get("/v1/restaurants/order")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("addressCode", "1121510700")
+                        .param("perImageNum", "2")
+                        .param("sort", "postCount,desc")
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-restaurant-get-ranked-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestParameters(
+                                parameterWithName("addressCode").optional()
+                                        .description("주소 코드 "),
+                                parameterWithName("perImageNum").optional()
+                                        .description("음식점당 이미지 개수. " +
+                                                "null 일 경우 imageUrls 필드 반환 안함. 최대 10 최소 1."),
+                                parameterWithName("sort").optional()
+                                        .description("순위 정렬 기준. " +
+                                                "postCount,desc : 게시물 개수. favoriteCount,desc : 맛집 즐겨찾기 개수")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
+                                fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("postCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 게시물 개수"),
+                                fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 즐겨찾기 개수"),
+                                fieldWithPath("address.name").description("주소"),
+                                fieldWithPath("address.roadName").description("도로명 주소"),
+                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
+                                fieldWithPath("favorited").description("맛집 즐겨찾기 여부"),
+                                fieldWithPath("imageUrls").description("해당 음식점 게시물 이미지")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUser
     @DisplayName("음식점 상세 조회 - DOCS")
     void get_Docs() throws Exception {
         // given
         given(accountService.getMemberId(anyString())).willReturn(10L);
 
-        RestaurantDetailDto dto = RestaurantDetailDto.builder()
+        RestaurantDto dto = RestaurantDto.builder()
                 .id(1L)
                 .name("음식점")
+                .postCount(7)
                 .favoriteCount(23)
                 .addressName("주소")
                 .addressRoadName("도로명주소")
@@ -245,6 +318,8 @@ class RestaurantControllerTest {
                                 beneathPath("data").withSubsectionId("data"),
                                 fieldWithPath("id").type(Long.class.getSimpleName()).description("음식점 ID"),
                                 fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("postCount").type(Integer.class.getSimpleName())
+                                        .description("음식점 게시물 개수"),
                                 fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
                                         .description("음식점 즐겨찾기 개수"),
                                 fieldWithPath("address.name").description("주소"),

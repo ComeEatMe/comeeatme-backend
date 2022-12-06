@@ -13,7 +13,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "restaurant",
         indexes = {
-        @Index(name = "IX_restaurant_name", columnList = "name")
+            @Index(name = "IX_restaurant_name", columnList = "name"),
+            @Index(name = "IX_restaurant_post_count", columnList = "post_count desc"),
+            @Index(name = "IX_restaurant_favorite_count", columnList = "favorite_count desc")
         }
 )
 @Getter

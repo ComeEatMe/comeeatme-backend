@@ -13,6 +13,8 @@ public class RestaurantDto {
 
     private String name;
 
+    private Integer postCount;
+
     private Integer favoriteCount;
 
     private AddressDto address;
@@ -21,11 +23,13 @@ public class RestaurantDto {
     public RestaurantDto(
             Long id,
             String name,
+            Integer postCount,
             Integer favoriteCount,
             String addressName,
             String addressRoadName) {
         this.id = id;
         this.name = name;
+        this.postCount = postCount;
         this.favoriteCount = favoriteCount;
         this.address = AddressDto.builder()
                 .name(addressName)

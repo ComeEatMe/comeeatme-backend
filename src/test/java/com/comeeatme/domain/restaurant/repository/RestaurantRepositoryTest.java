@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -122,4 +123,158 @@ class RestaurantRepositoryTest {
 
         assertThat(restaurantRepository.findWithPessimisticLockById(restaurant.getId())).isPresent();
     }
+
+    @Test
+    void findSliceByPostCountGreaterThanAndUseYnIsTrue() {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("4113510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        List<Restaurant> restaurants = restaurantRepository.saveAll(List.of(
+                Restaurant.builder()
+                        .name("음식점1")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점2")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점3")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        ));
+
+        restaurants.get(0).increasePostCount();
+        restaurants.get(0).increasePostCount();
+
+        restaurants.get(1).increasePostCount();
+        restaurants.get(1).increasePostCount();
+        restaurants.get(1).increasePostCount();
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.DESC, "postCount");
+        Slice<Restaurant> result = restaurantRepository.findSliceByPostCountGreaterThanAndUseYnIsTrue(pageRequest, 0);
+
+        // then
+        List<Restaurant> content = result.getContent();
+        assertThat(content)
+                .hasSize(2)
+                .extracting("id").containsOnly(
+                        restaurants.get(1).getId(),
+                        restaurants.get(0).getId()
+                );
+    }
+
+    @Test
+    void findSliceByAddressAddressCodeCodeStartingWithAndPostCountGreaterThanAndUseYnIsTrue() {
+        // given
+        AddressCode addressCode1 = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("4113510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        AddressCode addressCode2 = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("서울특별시 광진구 화양동")
+                        .fullName("화양동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        List<Restaurant> restaurants = restaurantRepository.saveAll(List.of(
+                Restaurant.builder()
+                        .name("음식점1")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode1)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점2")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode1)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점3")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode1)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점4")
+                        .phone("02-000-0000")
+                        .address(Address.builder()
+                                .name("서울특별시 광진구 화양동")
+                                .roadName("서울특별시 광진구 능동로")
+                                .addressCode(addressCode2)
+                                .build())
+                        .build()
+        ));
+
+
+        restaurants.get(0).increasePostCount();
+        restaurants.get(0).increasePostCount();
+
+        restaurants.get(1).increasePostCount();
+        restaurants.get(1).increasePostCount();
+        restaurants.get(1).increasePostCount();
+
+        restaurants.get(3).increasePostCount();
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.Direction.DESC, "postCount");
+        Slice<Restaurant> result = restaurantRepository
+                .findSliceByAddressAddressCodeCodeStartingWithAndPostCountGreaterThanAndUseYnIsTrue(
+                        pageRequest, "41135", 0
+                );
+
+        // then
+        List<Restaurant> content = result.getContent();
+        assertThat(content)
+                .hasSize(2)
+                .extracting("id").containsOnly(
+                        restaurants.get(1).getId(),
+                        restaurants.get(0).getId()
+                );
+    }
+
 }

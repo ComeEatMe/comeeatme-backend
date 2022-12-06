@@ -16,4 +16,9 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, R
     @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Restaurant> findWithPessimisticLockById(Long id);
 
+    Slice<Restaurant> findSliceByPostCountGreaterThanAndUseYnIsTrue(Pageable pageable, int postCount);
+
+    Slice<Restaurant> findSliceByAddressAddressCodeCodeStartingWithAndPostCountGreaterThanAndUseYnIsTrue(
+            Pageable pageable, String addressCode, int postCount);
+
 }
