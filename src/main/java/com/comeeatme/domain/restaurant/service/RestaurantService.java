@@ -91,10 +91,34 @@ public class RestaurantService {
                 .build();
     }
 
+    public Slice<RestaurantDto> getOrderedList(Pageable pageable, @Nullable String addressCodeCode) {
+        Slice<Restaurant> restaurants = Optional.ofNullable(addressCodeCode)
+                .map(code -> restaurantRepository
+                        .findSliceByAddressAddressCodeCodeStartingWithAndPostCountGreaterThanAndUseYnIsTrue(
+                                pageable, getAddressCodeByCode(code).getCodePrefix(), 0))
+                .orElseGet(() -> restaurantRepository.findSliceByPostCountGreaterThanAndUseYnIsTrue(pageable, 0));
+        return restaurants
+                .map(restaurant -> RestaurantDto.builder()
+                        .id(restaurant.getId())
+                        .name(restaurant.getName())
+                        .postCount(restaurant.getPostCount())
+                        .favoriteCount(restaurant.getFavoriteCount())
+                        .addressName(restaurant.getAddress().getName())
+                        .addressRoadName(restaurant.getAddress().getRoadName())
+                        .build()
+                );
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant.id=" + id));
+    }
+
+    private AddressCode getAddressCodeByCode(String code) {
+        return addressCodeRepository.findById(code)
+                .filter(AddressCode::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("AddressCode.code=" + code));
     }
 
 }

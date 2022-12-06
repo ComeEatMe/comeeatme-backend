@@ -20,6 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +68,37 @@ public class RestaurantController {
         Map<Long, List<Hashtag>> restaurantIdToHashtags = postHashtagService.getHashtagsOfRestaurants(restaurantIds);
         Map<Long, List<String>> restaurantIdToImages = Optional.ofNullable(restaurantSearch.getPerImageNum())
                 .map(perImageNum -> imageService.getRestaurantIdToImages(restaurantIds, perImageNum))
+                .orElse(null);
+        Slice<RestaurantWith<RestaurantDto>> restaurantWiths = restaurants
+                .map(restaurant -> RestaurantWith
+                        .restaurant(restaurant)
+                        .favorited(favoriteRestaurantIds.contains(restaurant.getId()))
+                        .hashtags(restaurantIdToHashtags.getOrDefault(restaurant.getId(), Collections.emptyList()))
+                        .imageUrls(Optional.ofNullable(restaurantIdToImages)
+                                .map(idToImages -> idToImages.getOrDefault(restaurant.getId(),
+                                        Collections.emptyList()))
+                                .orElse(null)
+                        )
+                        .build()
+                );
+        ApiResult<Slice<RestaurantWith<RestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @GetMapping("/restaurants/order")
+    public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> getRankedList(
+            @CurrentUsername String username, Pageable pageable,
+            @RequestParam(required = false) String addressCode,
+            @RequestParam(required = false) @Valid @Max(10) @Min(1) Integer perImageNum) {
+        Long memberId = accountService.getMemberId(username);
+        Slice<RestaurantDto> restaurants = restaurantService.getOrderedList(pageable, addressCode);
+        List<Long> restaurantIds = restaurants.stream()
+                .map(RestaurantDto::getId)
+                .collect(Collectors.toList());
+        Set<Long> favoriteRestaurantIds = getFavoriteRestaurantIds(memberId, restaurantIds);
+        Map<Long, List<Hashtag>> restaurantIdToHashtags = postHashtagService.getHashtagsOfRestaurants(restaurantIds);
+        Map<Long, List<String>> restaurantIdToImages = Optional.ofNullable(perImageNum)
+                .map(num -> imageService.getRestaurantIdToImages(restaurantIds, num))
                 .orElse(null);
         Slice<RestaurantWith<RestaurantDto>> restaurantWiths = restaurants
                 .map(restaurant -> RestaurantWith
