@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;
@@ -25,14 +26,17 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    private final AccountService accountService;
+
     @PostMapping("/images/scaled")
     public ResponseEntity<ApiResult<CreateResults<Long>>> postScaled(
             @RequestPart List<MultipartFile> images, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
         validateMultipartFileImages(images);
         List<Resource> resources = images.stream()
                 .map(MultipartFile::getResource)
                 .collect(Collectors.toList());
-        CreateResults<Long> createResults = imageService.saveImages(username, resources);
+        CreateResults<Long> createResults = imageService.saveImages(resources, memberId);
         ApiResult<CreateResults<Long>> result = ApiResult.success(createResults);
         return ResponseEntity.ok(result);
     }

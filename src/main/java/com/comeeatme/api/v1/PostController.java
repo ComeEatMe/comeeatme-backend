@@ -146,10 +146,10 @@ public class PostController {
     @PostMapping("/post")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody PostCreate postCreate, @CurrentUsername String username) {
-        if (!imageService.validateImageIds(postCreate.getImageIds(), username)) {
+        Long memberId = accountService.getMemberId(username);
+        if (!imageService.validateImageIds(postCreate.getImageIds(), memberId)) {
             throw new InvalidImageIdception("imageIds=" + postCreate.getImageIds());
         }
-        Long memberId = accountService.getMemberId(username);
         CreateResult<Long> createResult = postService.create(postCreate, memberId);
         ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
         return ResponseEntity.ok(result);
