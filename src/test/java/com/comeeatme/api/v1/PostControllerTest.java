@@ -95,8 +95,8 @@ class PostControllerTest {
                 .imageIds(List.of(2L, 3L, 4L))
                 .content("test-content")
                 .build();
-        given(imageService.validateImageIds(anyList(), anyString())).willReturn(true);
         given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(imageService.validateImageIds(anyList(), eq(10L))).willReturn(true);
         given(postService.create(any(PostCreate.class), eq(10L))).willReturn(new CreateResult<>(10L));
 
         // expected
@@ -138,7 +138,8 @@ class PostControllerTest {
                 .imageIds(List.of(2L, 3L, 3L))
                 .content("test-content")
                 .build();
-        given(imageService.validateImageIds(anyList(), anyString())).willReturn(false);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(imageService.validateImageIds(anyList(), eq(10L))).willReturn(false);
 
         // expected
         mockMvc.perform(post("/v1/post").with(csrf())

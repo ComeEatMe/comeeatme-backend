@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;
@@ -33,7 +34,6 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -51,17 +51,20 @@ class ImageControllerTest {
     @MockBean
     private ImageService imageService;
 
+    @MockBean
+    private AccountService accountService;
+
     @Test
     @WithMockUser
     @DisplayName("처리된 이미지 저장 - DOCS")
     void postScaled() throws Exception {
         // given
+        given(accountService.getMemberId(anyString())).willReturn(10L);
         MockMultipartFile image1 = new MockMultipartFile("images", "test-image1.jpg",
                 MediaType.IMAGE_JPEG_VALUE, "test-image1-content".getBytes());
         MockMultipartFile image2 = new MockMultipartFile("images", "test-image2.jpg",
                 MediaType.IMAGE_JPEG_VALUE, "test-image2-content".getBytes());
-
-        given(imageService.saveImages(anyString(), any(List.class)))
+        given(imageService.saveImages(any(List.class), eq(10L)))
                 .willReturn(new CreateResults<>(List.of(1L, 2L)));
 
         // expected

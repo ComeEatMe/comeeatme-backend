@@ -46,8 +46,8 @@ public class ImageService {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
 
     @Transactional
-    public CreateResults<Long> saveImages(String username, List<Resource> images) {
-        Member member = getMemberByUsername(username);
+    public CreateResults<Long> saveImages(List<Resource> images, Long memberId) {
+        Member member = getMemberById(memberId);
         List<Image> storedImages = imageRepository.saveAll(images.stream()
                 .map(image -> {
                     String originName = image.getFilename();
@@ -79,7 +79,7 @@ public class ImageService {
         return originalFilename.substring(pos + 1);
     }
 
-    public boolean validateImageIds(List<Long> imageIds, String username) {
+    public boolean validateImageIds(List<Long> imageIds, Long memberId) {
         if (imageIds.size() != imageIds.stream().distinct().count()) {
             return false;
         }
@@ -87,7 +87,7 @@ public class ImageService {
         if (imageIds.size() != images.size()) {
             return false;
         }
-        Member member = getMemberByUsername(username);
+        Member member = getMemberById(memberId);
         return images.stream()
                 .filter(image -> !Objects.equals(image.getMember().getId(), member.getId()))
                 .findAny()
@@ -99,10 +99,10 @@ public class ImageService {
         return !Objects.equals(image.getMember().getId(), memberId);
     }
 
-    private Member getMemberByUsername(String username) {
-        return memberRepository.findByUsername(username)
+    private Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
                 .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member username=" + username));
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + memberId));
     }
 
     private Image getImageById(Long imageId) {

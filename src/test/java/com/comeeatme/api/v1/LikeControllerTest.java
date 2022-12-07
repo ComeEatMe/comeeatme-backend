@@ -30,6 +30,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -163,11 +164,12 @@ class LikeControllerTest {
                         )
                 ))
         ;
+        then(likeService).should(never()).areLiked(anyLong(), anyList());
     }
 
     @Test
     @WithMockUser
-    @DisplayName("좋아요한 게시물 조회 - 본인 이회 회원 조회")
+    @DisplayName("좋아요한 게시물 조회 - 본인 이외 회원 조회")
     void getLikedList_MemberIdNotEqual() throws Exception {
         // given
         long memberId = 1L;

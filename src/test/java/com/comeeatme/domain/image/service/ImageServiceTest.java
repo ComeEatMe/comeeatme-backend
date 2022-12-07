@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -62,7 +61,7 @@ class ImageServiceTest {
         // given
         Member mockMember = mock(Member.class);
         given(mockMember.getUseYn()).willReturn(true);
-        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(mockMember));
+        given(memberRepository.findById(10L)).willReturn(Optional.of(mockMember));
 
         Resource mockResource = mock(Resource.class);
         List<Resource> resources = List.of(mockResource);
@@ -77,7 +76,7 @@ class ImageServiceTest {
         given(imageRepository.saveAll(imagesCaptor.capture())).willReturn(List.of(mockImage));
 
         // when
-        CreateResults<Long> result = imageService.saveImages("username", resources);
+        CreateResults<Long> result = imageService.saveImages(resources, 10L);
 
         // then
         String storedName = storedNameCaptor.getValue();
@@ -113,14 +112,14 @@ class ImageServiceTest {
         given(member.getId()).willReturn(1L);
         given(member.getUseYn()).willReturn(true);
 
-        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         given(image1.getMember()).willReturn(member);
         given(image2.getMember()).willReturn(member);
         given(image3.getMember()).willReturn(member);
 
         // expected
-        assertThat(imageService.validateImageIds(imageIds, "test-username")).isTrue();
+        assertThat(imageService.validateImageIds(imageIds, 1L)).isTrue();
     }
 
     @Test
@@ -129,7 +128,7 @@ class ImageServiceTest {
         List<Long> imageIds = List.of(1L, 2L, 2L);
 
         // expected
-        assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
+        assertThat(imageService.validateImageIds(imageIds, 1L)).isFalse();
     }
 
     @Test
@@ -147,7 +146,7 @@ class ImageServiceTest {
         given(imageRepository.findAllById(imageIds)).willReturn(List.of(image1, image2, image3));
 
         // expected
-        assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
+        assertThat(imageService.validateImageIds(imageIds, 1L)).isFalse();
     }
 
     @Test
@@ -171,14 +170,14 @@ class ImageServiceTest {
         Member otherMember = mock(Member.class);
         given(otherMember.getId()).willReturn(2L);
 
-        given(memberRepository.findByUsername(anyString())).willReturn(Optional.of(member));
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         given(image1.getMember()).willReturn(member);
         given(image2.getMember()).willReturn(member);
         given(image3.getMember()).willReturn(otherMember);
 
         // expected
-        assertThat(imageService.validateImageIds(imageIds, "test-username")).isFalse();
+        assertThat(imageService.validateImageIds(imageIds, 1L)).isFalse();
     }
 
     @Test
