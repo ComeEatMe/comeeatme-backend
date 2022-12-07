@@ -118,16 +118,17 @@ public class SecurityConfig {
     public JwtTokenProvider jwtTokenProvider(
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
             @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
-            @Value("${jwt.secret}") String secret,
-            UserDetailsService userDetailsService) {
+            @Value("${jwt.secret}") String secret) {
         JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
-                accessTokenValidity, refreshTokenValidity, secret, userDetailsService);
+                accessTokenValidity, refreshTokenValidity, secret);
         return jwtTokenProvider;
     }
 
     @Bean
-    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
+    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(
+            JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
+        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(
+                jwtTokenProvider, userDetailsService);
         return jwtAuthenticationCheckFilter;
     }
 
