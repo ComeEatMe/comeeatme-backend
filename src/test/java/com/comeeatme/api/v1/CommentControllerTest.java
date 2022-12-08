@@ -117,8 +117,9 @@ class CommentControllerTest {
                 .content("edited-content")
                 .build();
 
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(false);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(false);
+        given(commentService.isNotBelongToPost(1L, 2L)).willReturn(false);
         given(commentService.edit(any(CommentEdit.class), eq(1L))).willReturn(new UpdateResult<>(1L));
 
         // expected
@@ -159,7 +160,8 @@ class CommentControllerTest {
                 .content("edited-content")
                 .build();
 
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(true);
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
@@ -183,8 +185,9 @@ class CommentControllerTest {
                 .content("edited-content")
                 .build();
 
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(false);
+        given(commentService.isNotBelongToPost(1L, 2L)).willReturn(true);
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
@@ -204,8 +207,9 @@ class CommentControllerTest {
     @DisplayName("댓글 삭제 - DOCS")
     void delete_Docs() throws Exception {
         // given
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(false);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(false);
+        given(commentService.isNotBelongToPost(1L, 2L)).willReturn(false);
         given(commentService.delete(1L)).willReturn(new DeleteResult<>(1L));
 
         // expected
@@ -237,7 +241,8 @@ class CommentControllerTest {
     @DisplayName("댓글 삭제 - 소유하지 않은 댓글")
     void delete_NotOwned() throws Exception {
         // given
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(true);
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)
@@ -256,8 +261,9 @@ class CommentControllerTest {
     @DisplayName("댓글 삭제 - 잘못된 게시글 ID")
     void delete_BadPostId() throws Exception {
         // given
-        given(commentService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
-        given(commentService.isNotBelongToPost(anyLong(), anyLong())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(commentService.isNotOwnedByMember(1L, 10L)).willReturn(false);
+        given(commentService.isNotBelongToPost(1L, 2L)).willReturn(true);
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}/comments/{commentId}", 2L, 1L)

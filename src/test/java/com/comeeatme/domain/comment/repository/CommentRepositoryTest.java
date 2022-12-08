@@ -3,6 +3,7 @@ package com.comeeatme.domain.comment.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ class CommentRepositoryTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     void existsByIdAndPostAndUseYnIsTrue_True() {
@@ -95,6 +99,51 @@ class CommentRepositoryTest {
         assertThat(result)
                 .hasSize(1)
                 .extracting("id").containsExactly(comments.get(0).getId());
+    }
+
+    @Test
+    void existsByIdAndMember_True() {
+        // given
+        Comment comment = commentRepository.save(Comment.builder()
+                .member(memberRepository.getReferenceById(10L))
+                .post(Post.builder().id(1L).build())
+                .content("test-comment-content")
+                .build());
+
+        // expected
+        assertThat(commentRepository.existsByIdAndMember(
+                comment.getId(), memberRepository.getReferenceById(10L)
+        )).isTrue();
+    }
+
+    @Test
+    void existsByIdAndMember_IdNotEqual_False() {
+        // given
+        Comment comment = commentRepository.save(Comment.builder()
+                .member(memberRepository.getReferenceById(10L))
+                .post(Post.builder().id(1L).build())
+                .content("test-comment-content")
+                .build());
+
+        // expected
+        assertThat(commentRepository.existsByIdAndMember(
+                comment.getId() + 1, memberRepository.getReferenceById(10L)
+        )).isFalse();
+    }
+
+    @Test
+    void existsByIdAndMember_MemberNotEqual_False() {
+        // given
+        Comment comment = commentRepository.save(Comment.builder()
+                .member(memberRepository.getReferenceById(10L))
+                .post(Post.builder().id(1L).build())
+                .content("test-comment-content")
+                .build());
+
+        // expected
+        assertThat(commentRepository.existsByIdAndMember(
+                comment.getId() + 1, memberRepository.getReferenceById(10L + 1L)
+        )).isFalse();
     }
 
 }

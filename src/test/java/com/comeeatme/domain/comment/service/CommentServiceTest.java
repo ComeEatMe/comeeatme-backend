@@ -109,12 +109,25 @@ class CommentServiceTest {
     }
 
     @Test
-    void isNotOwnedByMember() {
+    void isNotOwnedByMember_False() {
         // given
-        given(commentRepository.existsByIdAndUsernameAndUseYnIsTrue(1L, "test-username")).willReturn(true);
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(2L)).willReturn(member);
+        given(commentRepository.existsByIdAndMember(1L, member)).willReturn(true);
 
         // expected
-        assertThat(commentService.isNotOwnedByMember(1L, "test-username")).isFalse();
+        assertThat(commentService.isNotOwnedByMember(1L, 2L)).isFalse();
+    }
+
+    @Test
+    void isNotOwnedByMember_True() {
+        // given
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(2L)).willReturn(member);
+        given(commentRepository.existsByIdAndMember(1L, member)).willReturn(false);
+
+        // expected
+        assertThat(commentService.isNotOwnedByMember(1L, 2L)).isTrue();
     }
 
     @Test
