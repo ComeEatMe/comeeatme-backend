@@ -35,6 +35,7 @@ public class SecurityConfig {
 
     private static final String[] POST_PERMITTED_URLS = {
             "/login/oauth2/token/{registrationId}",
+            "/login/reissue"
     };
 
     @Bean

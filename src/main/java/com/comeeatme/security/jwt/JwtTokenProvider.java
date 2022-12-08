@@ -92,4 +92,8 @@ public class JwtTokenProvider {
         }
         return null;
     }
+
+    public long getRefreshTokenValidityInDay() {
+        return refreshTokenValidityInMillis / (24 * 60 * 60 * 1000);
+    }
 }

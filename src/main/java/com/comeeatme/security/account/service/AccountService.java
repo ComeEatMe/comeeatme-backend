@@ -46,6 +46,10 @@ public class AccountService {
         return accountOptional.get();
     }
 
+    public Account get(String username) {
+        return getAccountByUsername(username);
+    }
+
     private Account getAccountByUsername(String username) {
         return accountRepository.findByUsername(username)
                 .filter(Account::getUseYn)
