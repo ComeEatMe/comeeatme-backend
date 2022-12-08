@@ -158,7 +158,8 @@ public class PostController {
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
-        if (postService.isNotOwnedByMember(postId, username)) {
+        Long memberId = accountService.getMemberId(username);
+        if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
         UpdateResult<Long> updateResult = postService.edit(postEdit, postId);
@@ -167,8 +168,10 @@ public class PostController {
     }
 
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(@PathVariable Long postId, @CurrentUsername String username) {
-        if (postService.isNotOwnedByMember(postId, username)) {
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
+            @PathVariable Long postId, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
+        if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
         DeleteResult<Long> deleteResult = postService.delete(postId);

@@ -7,8 +7,6 @@ import org.springframework.data.domain.Slice;
 
 public interface PostRepositoryCustom {
 
-    boolean existsByIdAndUsernameAndUseYnIsTrue(Long postId, String username);
-
     Slice<Post> findSliceWithMemberAndRestaurantBy(Pageable pageable, PostSearch postSearch);
 
 }
