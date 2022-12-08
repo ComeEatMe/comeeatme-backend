@@ -1,7 +1,8 @@
-package com.comeeatme.domain.account;
+package com.comeeatme.security.account;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.security.account.Account;
+import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

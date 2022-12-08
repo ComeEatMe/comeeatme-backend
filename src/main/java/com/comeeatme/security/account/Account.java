@@ -1,8 +1,11 @@
-package com.comeeatme.domain.account;
+package com.comeeatme.security.account;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.member.Member;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -21,7 +24,7 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
@@ -34,7 +37,6 @@ public class Account extends BaseTimeEntity {
     @Column(name = "password")
     private String password;
 
-    @Setter
     @Column(name = "refresh_token")
     private String refreshToken;
 
@@ -49,4 +51,5 @@ public class Account extends BaseTimeEntity {
         this.password = password;
         this.member = member;
     }
+
 }

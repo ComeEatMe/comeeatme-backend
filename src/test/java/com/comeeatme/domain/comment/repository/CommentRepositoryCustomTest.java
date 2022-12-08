@@ -1,8 +1,8 @@
 package com.comeeatme.domain.comment.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.security.account.Account;
+import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;

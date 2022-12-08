@@ -1,7 +1,7 @@
-package com.comeeatme.domain.account.service;
+package com.comeeatme.security.account.service;
 
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.security.account.Account;
+import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

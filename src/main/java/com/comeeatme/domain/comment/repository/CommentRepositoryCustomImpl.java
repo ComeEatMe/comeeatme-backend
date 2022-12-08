@@ -13,10 +13,10 @@ import org.springframework.data.domain.SliceImpl;
 import java.util.List;
 import java.util.Optional;
 
-import static com.comeeatme.domain.account.QAccount.account;
 import static com.comeeatme.domain.comment.QComment.comment;
 import static com.comeeatme.domain.image.QImage.image;
 import static com.comeeatme.domain.member.QMember.member;
+import static com.comeeatme.security.account.QAccount.account;
 
 @RequiredArgsConstructor
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
