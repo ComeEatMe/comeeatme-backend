@@ -2,10 +2,7 @@ package com.comeeatme.security;
 
 import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.security.account.service.AccountService;
-import com.comeeatme.security.jwt.JwtAuthenticationCheckFilter;
-import com.comeeatme.security.jwt.JwtLogoutHandler;
-import com.comeeatme.security.jwt.JwtLogoutSuccessHandler;
-import com.comeeatme.security.jwt.JwtTokenProvider;
+import com.comeeatme.security.jwt.*;
 import com.comeeatme.security.oauth2.OAuth2AuthenticationSuccessHandlerCustom;
 import com.comeeatme.security.oauth2.OAuth2UserServiceCustom;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +31,6 @@ public class SecurityConfig {
 
     private static final String[] GET_PERMITTED_URLS = {
             "/code",
-            "/docs/**",
     };
 
     private static final String[] POST_PERMITTED_URLS = {
@@ -48,6 +44,7 @@ public class SecurityConfig {
             OAuth2UserServiceCustom oAuth2UserService,
             OAuth2AuthenticationSuccessHandlerCustom oAuth2AuthenticationSuccessHandler,
             JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             JwtLogoutHandler jwtLogoutHandler,
             JwtLogoutSuccessHandler jwtLogoutSuccessHandler)
             throws Exception {
@@ -64,6 +61,9 @@ public class SecurityConfig {
                 .httpBasic().disable()
 
                 .addFilterAfter(jwtAuthenticationCheckFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(config -> config
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
 
                 .logout(logout -> logout
                         .addLogoutHandler(jwtLogoutHandler)
@@ -120,30 +120,31 @@ public class SecurityConfig {
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
             @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
             @Value("${jwt.secret}") String secret) {
-        JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
+        return new JwtTokenProvider(
                 accessTokenValidity, refreshTokenValidity, secret);
-        return jwtTokenProvider;
     }
 
     @Bean
     public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(
             JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(
+        return new JwtAuthenticationCheckFilter(
                 jwtTokenProvider, userDetailsService);
-        return jwtAuthenticationCheckFilter;
     }
 
     @Bean
     public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, AccountRepository accountRepository) {
-        JwtLogoutHandler jwtLogoutHandler = new JwtLogoutHandler(jwtTokenProvider, accountRepository);
-        return jwtLogoutHandler;
+        return new JwtLogoutHandler(jwtTokenProvider, accountRepository);
     }
 
     @Bean
     public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(
             ObjectMapper objectMapper, AccountService accountService, JwtTokenProvider jwtTokenProvider) {
-        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler(
+        return new JwtLogoutSuccessHandler(
                 objectMapper, accountService, jwtTokenProvider);
-        return jwtLogoutSuccessHandler;
+    }
+
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        return new JwtAuthenticationEntryPoint(objectMapper);
     }
 }
