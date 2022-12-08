@@ -1,25 +1,31 @@
 package com.comeeatme.security;
 
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
-import com.comeeatme.security.request.OauthLogin;
-import com.comeeatme.security.response.LoginResponse;
+import com.comeeatme.security.account.Account;
+import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.comeeatme.security.oauth2.OAuth2UserInfo;
+import com.comeeatme.security.request.OauthLogin;
+import com.comeeatme.security.response.LoginResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +41,8 @@ public class AuthController {
 
     private final ObjectMapper objectMapper;
 
+    private final AccountService accountService;
+
     @PostMapping("/login/oauth2/token/{registrationId}")
     public ResponseEntity<LoginResponse> loginOauthToken(
             @PathVariable String registrationId, @Valid @RequestBody OauthLogin oauthLogin)
@@ -43,22 +51,23 @@ public class AuthController {
         OAuth2UserInfo userInfo = OAuth2UserInfo.of(registrationId, providerId);
         String username = userInfo.ofUsername();
 
-        if (isNotAccountExists(username)) {
-            createMemberOf(username);
-        }
+        String accessToken = jwtTokenProvider.createAccessToken(username);
+        LocalDateTime accessTokenExpiresAt = LocalDateTime.ofInstant(
+                jwtTokenProvider.getExpiration(accessToken).toInstant(), ZoneId.systemDefault());
+        String refreshToken = jwtTokenProvider.createRefreshToken(username);
+        LocalDateTime refreshTokenExpiresAt = LocalDateTime.ofInstant(
+                jwtTokenProvider.getExpiration(refreshToken).toInstant(), ZoneId.systemDefault());
 
-        String jwtAccessToken = jwtTokenProvider.createAccessToken(username);
-        String jwtRefreshToken = jwtTokenProvider.createRefreshToken(username);
-
-        Account account = accountRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
-        account.setRefreshToken(jwtRefreshToken);
-        accountRepository.save(account);
+        Account account = accountService.login(username, refreshToken, refreshTokenExpiresAt);
 
         LoginResponse loginResponse = LoginResponse.builder()
-                .accessToken(jwtAccessToken)
-                .refreshToken(jwtRefreshToken)
-                .memberId(account.getMember().getId())
+                .accessToken(accessToken)
+                .accessTokenExpiresAt(accessTokenExpiresAt)
+                .refreshToken(refreshToken)
+                .refreshTokenExpiresAt(refreshTokenExpiresAt)
+                .memberId(Optional.ofNullable(account.getMember())
+                        .map(Member::getId)
+                        .orElse(null))
                 .build();
         return ResponseEntity.ok(loginResponse);
     }
@@ -80,25 +89,6 @@ public class AuthController {
             return "https://kapi.kakao.com/v1/user/access_token_info";
         }
         throw new IllegalArgumentException("지원하지 않는 OAuth2 Provider 입니다. provider = " + registrationId);
-    }
-
-    private boolean isNotAccountExists(String username) {
-        return accountRepository.findByUsername(username).filter(Account::getUseYn).isEmpty();
-    }
-
-    private void createMemberOf(String username) {
-        String nickname = nicknameCreator.create();
-        while (memberRepository.existsByNickname(nickname)) {
-            nickname = nicknameCreator.create();
-        }
-        Member member = memberRepository.save(Member.builder()
-                .nickname(nickname)
-                .introduction("")
-                .build());
-        accountRepository.save(Account.builder()
-                .member(member)
-                .username(username)
-                .build());
     }
 
 }

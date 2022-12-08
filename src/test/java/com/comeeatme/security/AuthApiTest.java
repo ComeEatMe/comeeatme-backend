@@ -33,7 +33,9 @@ class AuthApiTest {
                         responseFields(
                                 fieldWithPath("memberId").description("회원 ID"),
                                 fieldWithPath("accessToken").description("엑세스 토큰"),
-                                fieldWithPath("refreshToken").description("리프레쉬 토큰")
+                                fieldWithPath("accessTokenExpiresAt").description("엑세스 토큰 만료 시간"),
+                                fieldWithPath("refreshToken").description("리프레쉬 토큰"),
+                                fieldWithPath("refreshTokenExpiresAt").description("리프레쉬 토큰 만료 시간")
                         )
                 ));
     }

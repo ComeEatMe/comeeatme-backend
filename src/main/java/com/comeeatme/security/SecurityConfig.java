@@ -1,6 +1,6 @@
 package com.comeeatme.security;
 
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.security.jwt.JwtAuthenticationCheckFilter;
 import com.comeeatme.security.jwt.JwtLogoutHandler;
 import com.comeeatme.security.jwt.JwtLogoutSuccessHandler;

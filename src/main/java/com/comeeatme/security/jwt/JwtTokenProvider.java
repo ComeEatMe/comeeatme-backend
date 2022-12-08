@@ -39,21 +39,37 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(String username) {
-        return createToken(username, ACCESS_TOKEN);
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + accessTokenValidityInMillis);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String createRefreshToken(String username) {
-        return createToken(username, REFRESH_TOKEN);
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + refreshTokenValidityInMillis);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String createToken(String username, String tokenType) {
         long expiredTimeMillis = tokenType.equals(ACCESS_TOKEN) ?
                 accessTokenValidityInMillis : refreshTokenValidityInMillis;
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + expiredTimeMillis);
         return Jwts.builder()
                 .setSubject(username)
                 .claim(TOKEN_TYPE, tokenType)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiredTimeMillis))
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -81,6 +97,10 @@ public class JwtTokenProvider {
 
     public String getSubject(String token) {
         return jwtParser.parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Date getExpiration(String token) {
+        return jwtParser.parseClaimsJws(token).getBody().getExpiration();
     }
 
     public String resolveToken(HttpServletRequest request) {

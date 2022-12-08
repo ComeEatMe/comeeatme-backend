@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -17,6 +20,24 @@ public class AccountService {
     public Long getMemberId(String username) {
         Account account = getAccountByUsername(username);
         return account.getMember().getId();
+    }
+
+    @Transactional
+    public Account login(String username, String refreshToken, LocalDateTime refreshTokenExpiresAt) {
+        Account account = getOrCreate(username);
+        account.renewRefreshToken(refreshToken, refreshTokenExpiresAt);
+        return account;
+    }
+
+    private Account getOrCreate(String username) {
+        Optional<Account> accountOptional = accountRepository.findByUsername(username);
+        if (accountOptional.isEmpty()) {
+            Account account = accountRepository.save(Account.builder()
+                    .username(username)
+                    .build());
+            accountOptional = Optional.of(account);
+        }
+        return accountOptional.get();
     }
 
     private Account getAccountByUsername(String username) {
