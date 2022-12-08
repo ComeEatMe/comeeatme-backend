@@ -23,6 +23,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @Lock(LockModeType.PESSIMISTIC_READ)
     Optional<Post> findWithPessimisticLockById(Long id);
 
-    boolean existsByIdAndMemberAndUseYnIsTrue(Long id, Member member);
+    boolean existsByIdAndMember(Long id, Member member);
 
 }

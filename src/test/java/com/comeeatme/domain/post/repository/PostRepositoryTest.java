@@ -280,7 +280,7 @@ class PostRepositoryTest {
     }
 
     @Test
-    void existsByIdAndMemberAndUseYnIsTrue_True() {
+    void existsByIdAndMember_True() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -293,12 +293,12 @@ class PostRepositoryTest {
                 .build());
 
         // expected
-        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+        assertThat(postRepository.existsByIdAndMember(
                 post.getId(), member)).isTrue();
     }
 
     @Test
-    void existsByIdAndMemberAndUseYnIsTrue_PostIdNotEqual_False() {
+    void existsByIdAndMember_PostIdNotEqual_False() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -311,12 +311,12 @@ class PostRepositoryTest {
                 .build());
 
         // expected
-        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+        assertThat(postRepository.existsByIdAndMember(
                 post.getId() + 1L, member)).isFalse();
     }
 
     @Test
-    void existsByIdAndMemberAndUseYnIsTrue_MemberNotEqual_False() {
+    void existsByIdAndMember_MemberNotEqual_False() {
         // given
         Member member = memberRepository.save(Member.builder()
                 .nickname("test-nickname")
@@ -329,7 +329,7 @@ class PostRepositoryTest {
                 .build());
 
         // expected
-        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+        assertThat(postRepository.existsByIdAndMember(
                 post.getId() + 1L, memberRepository.getReferenceById(member.getId() + 1L)))
                 .isFalse();
     }

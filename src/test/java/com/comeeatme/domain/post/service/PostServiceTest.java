@@ -215,7 +215,7 @@ class PostServiceTest {
         // given
         Member member = mock(Member.class);
         given(memberRepository.getReferenceById(2L)).willReturn(member);
-        given(postRepository.existsByIdAndMemberAndUseYnIsTrue(1L, member)).willReturn(true);
+        given(postRepository.existsByIdAndMember(1L, member)).willReturn(true);
 
         // then
         assertThat(postService.isNotOwnedByMember(1L, 2L)).isFalse();
@@ -226,7 +226,7 @@ class PostServiceTest {
         // given
         Member member = mock(Member.class);
         given(memberRepository.getReferenceById(2L)).willReturn(member);
-        given(postRepository.existsByIdAndMemberAndUseYnIsTrue(1L, member)).willReturn(false);
+        given(postRepository.existsByIdAndMember(1L, member)).willReturn(false);
 
         // then
         assertThat(postService.isNotOwnedByMember(1L, 2L)).isTrue();

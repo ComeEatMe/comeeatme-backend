@@ -206,7 +206,7 @@ public class PostService {
 
     public boolean isNotOwnedByMember(Long postId, Long memberId) {
         Member member = memberRepository.getReferenceById(memberId);
-        return !postRepository.existsByIdAndMemberAndUseYnIsTrue(postId, member);
+        return !postRepository.existsByIdAndMember(postId, member);
     }
 
     private Map<Long, List<PostImage>> getPostIdToPostImages(List<Post> posts) {
