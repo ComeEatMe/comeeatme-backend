@@ -1,10 +1,7 @@
 package com.comeeatme.security;
 
 import com.comeeatme.domain.member.Member;
-import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.security.account.Account;
-import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.comeeatme.security.oauth2.OAuth2UserInfo;
@@ -32,12 +29,6 @@ import java.util.Optional;
 public class AuthController {
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    private final AccountRepository accountRepository;
-
-    private final MemberRepository memberRepository;
-
-    private final MemberNicknameCreator nicknameCreator;
 
     private final ObjectMapper objectMapper;
 

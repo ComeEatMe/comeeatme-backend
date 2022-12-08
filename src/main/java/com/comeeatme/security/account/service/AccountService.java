@@ -29,6 +29,12 @@ public class AccountService {
         return account;
     }
 
+    @Transactional
+    public void logout(String username) {
+        Account account = getAccountByUsername(username);
+        account.refreshTokenExpires();
+    }
+
     private Account getOrCreate(String username) {
         Optional<Account> accountOptional = accountRepository.findByUsername(username);
         if (accountOptional.isEmpty()) {

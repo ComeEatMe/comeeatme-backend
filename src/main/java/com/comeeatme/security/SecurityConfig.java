@@ -1,6 +1,7 @@
 package com.comeeatme.security;
 
 import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.security.jwt.JwtAuthenticationCheckFilter;
 import com.comeeatme.security.jwt.JwtLogoutHandler;
 import com.comeeatme.security.jwt.JwtLogoutSuccessHandler;
@@ -139,8 +140,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(ObjectMapper objectMapper) {
-        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler(objectMapper);
+    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(
+            ObjectMapper objectMapper, AccountService accountService, JwtTokenProvider jwtTokenProvider) {
+        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler(
+                objectMapper, accountService, jwtTokenProvider);
         return jwtLogoutSuccessHandler;
     }
 }

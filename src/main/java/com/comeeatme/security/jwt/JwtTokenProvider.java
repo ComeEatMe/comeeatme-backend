@@ -16,10 +16,6 @@ public class JwtTokenProvider {
 
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    private static final String TOKEN_TYPE = "token_type";
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String REFRESH_TOKEN = "refresh_token";
-
     private final SecretKey secretKey;
 
     private final long accessTokenValidityInMillis;
@@ -54,20 +50,6 @@ public class JwtTokenProvider {
         Date expiresAt = new Date(issuedAt.getTime() + refreshTokenValidityInMillis);
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiresAt)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    private String createToken(String username, String tokenType) {
-        long expiredTimeMillis = tokenType.equals(ACCESS_TOKEN) ?
-                accessTokenValidityInMillis : refreshTokenValidityInMillis;
-        Date issuedAt = new Date();
-        Date expiresAt = new Date(issuedAt.getTime() + expiredTimeMillis);
-        return Jwts.builder()
-                .setSubject(username)
-                .claim(TOKEN_TYPE, tokenType)
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiresAt)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
