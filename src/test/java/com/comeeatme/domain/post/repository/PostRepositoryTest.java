@@ -279,4 +279,59 @@ class PostRepositoryTest {
         assertThat(result.get().getId()).isEqualTo(post.getId());
     }
 
+    @Test
+    void existsByIdAndMemberAndUseYnIsTrue_True() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+                post.getId(), member)).isTrue();
+    }
+
+    @Test
+    void existsByIdAndMemberAndUseYnIsTrue_PostIdNotEqual_False() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+                post.getId() + 1L, member)).isFalse();
+    }
+
+    @Test
+    void existsByIdAndMemberAndUseYnIsTrue_MemberNotEqual_False() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMemberAndUseYnIsTrue(
+                post.getId() + 1L, memberRepository.getReferenceById(member.getId() + 1L)))
+                .isFalse();
+    }
+
 }

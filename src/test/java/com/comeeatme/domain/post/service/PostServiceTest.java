@@ -213,19 +213,23 @@ class PostServiceTest {
     @Test
     void isNotOwnedByMember_False() {
         // given
-        given(postRepository.existsByIdAndUsernameAndUseYnIsTrue(1L, "test-username")).willReturn(true);
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(2L)).willReturn(member);
+        given(postRepository.existsByIdAndMemberAndUseYnIsTrue(1L, member)).willReturn(true);
 
         // then
-        assertThat(postService.isNotOwnedByMember(1L, "test-username")).isFalse();
+        assertThat(postService.isNotOwnedByMember(1L, 2L)).isFalse();
     }
 
     @Test
     void isNotOwnedByMember_True() {
         // given
-        given(postRepository.existsByIdAndUsernameAndUseYnIsTrue(1L, "test-username")).willReturn(false);
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(2L)).willReturn(member);
+        given(postRepository.existsByIdAndMemberAndUseYnIsTrue(1L, member)).willReturn(false);
 
         // then
-        assertThat(postService.isNotOwnedByMember(1L, "test-username")).isTrue();
+        assertThat(postService.isNotOwnedByMember(1L, 2L)).isTrue();
     }
 
     @Test

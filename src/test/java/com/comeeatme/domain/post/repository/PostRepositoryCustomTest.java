@@ -1,8 +1,6 @@
 package com.comeeatme.domain.post.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.security.account.Account;
-import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
@@ -13,6 +11,7 @@ import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
+import com.comeeatme.security.account.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -45,35 +44,6 @@ class PostRepositoryCustomTest {
 
     @Autowired
     private AddressCodeRepository addressCodeRepository;
-
-    @Test
-    void existsByIdAndUsernameAndUseYnIsTrue_True() {
-        // given
-        Member member = memberRepository.save(Member.builder()
-                .nickname("test-nickname")
-                .introduction("test-introduction")
-                .build());
-        Account account1 = accountRepository.save(Account.builder()
-                .username("test-username-1")
-                .member(member)
-                .build());
-        Account account2 = accountRepository.save(Account.builder()
-                .username("test-username-2")
-                .member(member)
-                .build());
-        Post post = postRepository.save(Post.builder()
-                .member(member)
-                .restaurant(Restaurant.builder().id(10L).build())
-                .content("test-content")
-                .build());
-
-
-        // expected
-        assertThat(postRepository.existsByIdAndUsernameAndUseYnIsTrue(
-                post.getId(), "test-username-1")).isTrue();
-        assertThat(postRepository.existsByIdAndUsernameAndUseYnIsTrue(
-                post.getId(), "test-username-2")).isTrue();
-    }
 
     @Test
     void findSliceWithMemberAndRestaurantBy_IdDescOrder() {
