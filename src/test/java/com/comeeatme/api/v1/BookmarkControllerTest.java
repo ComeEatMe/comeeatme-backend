@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.bookmark.BookmarkGroup;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;

@@ -1,10 +1,8 @@
 package com.comeeatme.security;
 
-import com.comeeatme.domain.account.repository.AccountRepository;
-import com.comeeatme.security.jwt.JwtAuthenticationCheckFilter;
-import com.comeeatme.security.jwt.JwtLogoutHandler;
-import com.comeeatme.security.jwt.JwtLogoutSuccessHandler;
-import com.comeeatme.security.jwt.JwtTokenProvider;
+import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.security.jwt.*;
 import com.comeeatme.security.oauth2.OAuth2AuthenticationSuccessHandlerCustom;
 import com.comeeatme.security.oauth2.OAuth2UserServiceCustom;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,11 +30,11 @@ public class SecurityConfig {
 
     private static final String[] GET_PERMITTED_URLS = {
             "/code",
-            "/docs/**",
     };
 
     private static final String[] POST_PERMITTED_URLS = {
             "/login/oauth2/token/{registrationId}",
+            "/login/reissue"
     };
 
     @Bean
@@ -47,6 +44,7 @@ public class SecurityConfig {
             OAuth2UserServiceCustom oAuth2UserService,
             OAuth2AuthenticationSuccessHandlerCustom oAuth2AuthenticationSuccessHandler,
             JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             JwtLogoutHandler jwtLogoutHandler,
             JwtLogoutSuccessHandler jwtLogoutSuccessHandler)
             throws Exception {
@@ -63,6 +61,9 @@ public class SecurityConfig {
                 .httpBasic().disable()
 
                 .addFilterAfter(jwtAuthenticationCheckFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(config -> config
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
 
                 .logout(logout -> logout
                         .addLogoutHandler(jwtLogoutHandler)
@@ -118,28 +119,32 @@ public class SecurityConfig {
     public JwtTokenProvider jwtTokenProvider(
             @Value("${jwt.access-token-validity}") long accessTokenValidity,
             @Value("${jwt.refresh-token-validity}") long refreshTokenValidity,
-            @Value("${jwt.secret}") String secret,
-            UserDetailsService userDetailsService) {
-        JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(
-                accessTokenValidity, refreshTokenValidity, secret, userDetailsService);
-        return jwtTokenProvider;
+            @Value("${jwt.secret}") String secret) {
+        return new JwtTokenProvider(
+                accessTokenValidity, refreshTokenValidity, secret);
     }
 
     @Bean
-    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(JwtTokenProvider jwtTokenProvider) {
-        JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter = new JwtAuthenticationCheckFilter(jwtTokenProvider);
-        return jwtAuthenticationCheckFilter;
+    public JwtAuthenticationCheckFilter jwtAuthenticationCheckFilter(
+            JwtTokenProvider jwtTokenProvider) {
+        return new JwtAuthenticationCheckFilter(
+                jwtTokenProvider);
     }
 
     @Bean
     public JwtLogoutHandler jwtLogoutHandler(JwtTokenProvider jwtTokenProvider, AccountRepository accountRepository) {
-        JwtLogoutHandler jwtLogoutHandler = new JwtLogoutHandler(jwtTokenProvider, accountRepository);
-        return jwtLogoutHandler;
+        return new JwtLogoutHandler(jwtTokenProvider, accountRepository);
     }
 
     @Bean
-    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(ObjectMapper objectMapper) {
-        JwtLogoutSuccessHandler jwtLogoutSuccessHandler = new JwtLogoutSuccessHandler(objectMapper);
-        return jwtLogoutSuccessHandler;
+    public JwtLogoutSuccessHandler jwtLogoutSuccessHandler(
+            ObjectMapper objectMapper, AccountService accountService, JwtTokenProvider jwtTokenProvider) {
+        return new JwtLogoutSuccessHandler(
+                objectMapper, accountService, jwtTokenProvider);
+    }
+
+    @Bean
+    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+        return new JwtAuthenticationEntryPoint(objectMapper);
     }
 }

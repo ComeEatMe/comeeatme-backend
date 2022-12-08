@@ -2,7 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.PostWith;
-import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.common.response.CreateResult;
@@ -158,7 +158,8 @@ public class PostController {
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
-        if (postService.isNotOwnedByMember(postId, username)) {
+        Long memberId = accountService.getMemberId(username);
+        if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
         UpdateResult<Long> updateResult = postService.edit(postEdit, postId);
@@ -167,8 +168,10 @@ public class PostController {
     }
 
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(@PathVariable Long postId, @CurrentUsername String username) {
-        if (postService.isNotOwnedByMember(postId, username)) {
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
+            @PathVariable Long postId, @CurrentUsername String username) {
+        Long memberId = accountService.getMemberId(username);
+        if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
         }
         DeleteResult<Long> deleteResult = postService.delete(postId);

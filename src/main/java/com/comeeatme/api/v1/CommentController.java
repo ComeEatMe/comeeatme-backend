@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
@@ -43,7 +43,8 @@ public class CommentController {
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody CommentEdit commentEdit, @PathVariable Long postId, @PathVariable Long commentId,
             @CurrentUsername String username) {
-        if (commentService.isNotOwnedByMember(commentId, username)) {
+        Long memberId = accountService.getMemberId(username);
+        if (commentService.isNotOwnedByMember(commentId, memberId)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
         }
         if (commentService.isNotBelongToPost(commentId, postId)) {
@@ -57,14 +58,15 @@ public class CommentController {
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
             @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
-        if (commentService.isNotOwnedByMember(commentId, username)) {
+        Long memberId = accountService.getMemberId(username);
+        if (commentService.isNotOwnedByMember(commentId, memberId)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
         }
         if (commentService.isNotBelongToPost(commentId, postId)) {
             throw new EntityNotFoundException(String.format("commentId=%s, postId=%s", commentId, postId));
         }
         DeleteResult<Long> deleteResult = commentService.delete(commentId);
-        ApiResult<DeleteResult<Long>        > result = ApiResult.success(deleteResult);
+        ApiResult<DeleteResult<Long>> result = ApiResult.success(deleteResult);
         return ResponseEntity.ok(result);
     }
 

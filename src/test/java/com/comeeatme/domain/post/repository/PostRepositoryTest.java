@@ -279,4 +279,59 @@ class PostRepositoryTest {
         assertThat(result.get().getId()).isEqualTo(post.getId());
     }
 
+    @Test
+    void existsByIdAndMember_True() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMember(
+                post.getId(), member)).isTrue();
+    }
+
+    @Test
+    void existsByIdAndMember_PostIdNotEqual_False() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMember(
+                post.getId() + 1L, member)).isFalse();
+    }
+
+    @Test
+    void existsByIdAndMember_MemberNotEqual_False() {
+        // given
+        Member member = memberRepository.save(Member.builder()
+                .nickname("test-nickname")
+                .introduction("test-introduction")
+                .build());
+        Post post = postRepository.save(Post.builder()
+                .member(member)
+                .restaurant(Restaurant.builder().id(10L).build())
+                .content("test-content")
+                .build());
+
+        // expected
+        assertThat(postRepository.existsByIdAndMember(
+                post.getId() + 1L, memberRepository.getReferenceById(member.getId() + 1L)))
+                .isFalse();
+    }
+
 }

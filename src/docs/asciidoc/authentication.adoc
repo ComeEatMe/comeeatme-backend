@@ -10,11 +10,16 @@
 
 
 [[auth-LoginResponse]]
-== LoginResponse
-
-인증 성공 시 응답
+== 인증 및 토큰 재발급 성공 시 응답
 
 operation::auth-LoginResponse[snippets='response-body,response-fields']
+
+[[auth-unauthorized-response]]
+== 인증 실패시 응답
+
+HttpStatus = 401 (Unauthorized)
+
+operation::auth-unauthorized-response[snippets='http-response,response-fields']
 
 [[auth-login-oauthtoken]]
 == OAuth AccessToken 을 통한 로그인
@@ -33,3 +38,9 @@ Request Body
 }
 ----
 
+[[auth-reissue]]
+== 토큰 재발급
+
+- method: POST
+- path: /login/reissue
+- Authorization: Bearer +{REFRESH_TOKEN}+

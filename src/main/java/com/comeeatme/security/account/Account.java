@@ -1,11 +1,13 @@
-package com.comeeatme.domain.account;
+package com.comeeatme.security.account;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.member.Member;
 import lombok.*;
+import org.springframework.util.Assert;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "account",
@@ -21,7 +23,7 @@ public class Account extends BaseTimeEntity {
     @Column(name = "account_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
@@ -34,9 +36,11 @@ public class Account extends BaseTimeEntity {
     @Column(name = "password")
     private String password;
 
-    @Setter
-    @Column(name = "refresh_token")
+    @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
+
+    @Column(name = "refresh_token_expires_at", nullable = false)
+    private LocalDateTime refreshTokenExpiresAt;
 
     @Builder
     private Account(
@@ -48,5 +52,20 @@ public class Account extends BaseTimeEntity {
         this.username = username;
         this.password = password;
         this.member = member;
+        this.refreshToken = "";
+        this.refreshTokenExpiresAt = LocalDateTime.now();
     }
+
+    public void renewRefreshToken(String refreshToken, LocalDateTime expiresAt) {
+        Assert.notNull(Account.this.refreshToken, "refreshToken 은 null 일 수 없습니다.");
+        Assert.notNull(expiresAt, "expiresAt 은 null 일 수 없습니다.");
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiresAt = expiresAt;
+    }
+
+    public void refreshTokenExpires() {
+        this.refreshToken = "";
+        this.refreshTokenExpiresAt = LocalDateTime.now();
+    }
+
 }

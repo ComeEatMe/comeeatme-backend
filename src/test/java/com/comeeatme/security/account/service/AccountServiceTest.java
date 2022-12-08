@@ -1,8 +1,9 @@
-package com.comeeatme.domain.account.service;
+package com.comeeatme.security.account.service;
 
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.security.account.Account;
+import com.comeeatme.security.account.repository.AccountRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.security.account.service.AccountService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

@@ -60,8 +60,9 @@ public class CommentService {
         return new UpdateResult<>(comment.getId());
     }
 
-    public boolean isNotOwnedByMember(Long commentId, String username) {
-        return !commentRepository.existsByIdAndUsernameAndUseYnIsTrue(commentId, username);
+    public boolean isNotOwnedByMember(Long commentId, Long memberId) {
+        Member member = memberRepository.getReferenceById(memberId);
+        return !commentRepository.existsByIdAndMember(commentId, member);
     }
 
     public boolean isNotBelongToPost(Long commentId, Long postId) {

@@ -7,8 +7,6 @@ import org.springframework.data.domain.Slice;
 
 public interface CommentRepositoryCustom {
 
-    boolean existsByIdAndUsernameAndUseYnIsTrue(Long commentId, String username);
-
     Slice<Comment> findSliceByPostWithMemberAndImage(Pageable pageable, Post post);
 
 }

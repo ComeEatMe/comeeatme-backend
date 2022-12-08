@@ -5,10 +5,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
@@ -20,48 +16,42 @@ public class JwtTokenProvider {
 
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    private static final String TOKEN_TYPE = "token_type";
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String REFRESH_TOKEN = "refresh_token";
-
     private final SecretKey secretKey;
 
     private final long accessTokenValidityInMillis;
 
     private final long refreshTokenValidityInMillis;
 
-    private final UserDetailsService userDetailsService;
-
     private final JwtParser jwtParser;
 
     public JwtTokenProvider(
             long accessTokenValidity,
             long refreshTokenValidity,
-            String secret,
-            UserDetailsService userDetailsService) {
+            String secret) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         this.accessTokenValidityInMillis = accessTokenValidity * 1000;
         this.refreshTokenValidityInMillis = refreshTokenValidity * 1000;
-        this.userDetailsService = userDetailsService;
         this.jwtParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
     }
 
     public String createAccessToken(String username) {
-        return createToken(username, ACCESS_TOKEN);
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + accessTokenValidityInMillis);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String createRefreshToken(String username) {
-        return createToken(username, REFRESH_TOKEN);
-    }
-
-    private String createToken(String username, String tokenType) {
-        long expiredTimeMillis = tokenType.equals(ACCESS_TOKEN) ?
-                accessTokenValidityInMillis : refreshTokenValidityInMillis;
+        Date issuedAt = new Date();
+        Date expiresAt = new Date(issuedAt.getTime() + refreshTokenValidityInMillis);
         return Jwts.builder()
                 .setSubject(username)
-                .claim(TOKEN_TYPE, tokenType)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiredTimeMillis))
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiresAt)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -87,15 +77,12 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // 토큰에서 인증 정보 추출
-    public Authentication getAuthentication(String accessToken) {
-        String usernameFromToken = jwtParser.parseClaimsJws(accessToken).getBody().getSubject();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
-
     public String getSubject(String token) {
         return jwtParser.parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Date getExpiration(String token) {
+        return jwtParser.parseClaimsJws(token).getBody().getExpiration();
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -104,5 +91,9 @@ public class JwtTokenProvider {
             return bearerToken.substring(JwtTokenProvider.TOKEN_PREFIX.length());
         }
         return null;
+    }
+
+    public long getRefreshTokenValidityInDay() {
+        return refreshTokenValidityInMillis / (24 * 60 * 60 * 1000);
     }
 }

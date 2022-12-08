@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.common.response.CreateResult;
@@ -163,7 +163,8 @@ class PostControllerTest {
                 .content("edited-content")
                 .build();
 
-        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(postService.isNotOwnedByMember(2L, 10L)).willReturn(false);
         given(postService.edit(any(PostEdit.class), eq(2L))).willReturn(new UpdateResult<>(2L));
 
         // expected
@@ -209,7 +210,8 @@ class PostControllerTest {
                 .content("edited-content")
                 .build();
 
-        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(postService.isNotOwnedByMember(2L, 10L)).willReturn(true);
 
         // expected
         mockMvc.perform(patch("/v1/posts/{postId}", 2L)
@@ -229,7 +231,8 @@ class PostControllerTest {
     @DisplayName("게시물 삭제 API - DOCS")
     void delete_Docs() throws Exception {
         // given
-        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(false);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(postService.isNotOwnedByMember(1L, 10L)).willReturn(false);
         given(postService.delete(1L)).willReturn(new DeleteResult<>(1L));
 
         // expected
@@ -260,7 +263,8 @@ class PostControllerTest {
     @DisplayName("게시물 삭제 API - 소유하지 않은 게시물")
     void delete_NotOwned() throws Exception {
         // given
-        given(postService.isNotOwnedByMember(anyLong(), anyString())).willReturn(true);
+        given(accountService.getMemberId(anyString())).willReturn(10L);
+        given(postService.isNotOwnedByMember(1L, 10L)).willReturn(true);
 
         // expected
         mockMvc.perform(delete("/v1/posts/{postId}", 1L)

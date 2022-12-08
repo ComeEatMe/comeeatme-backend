@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.report.request.ReportCreate;
 import com.comeeatme.domain.report.service.ReportService;
