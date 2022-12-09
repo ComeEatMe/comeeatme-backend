@@ -12,7 +12,7 @@ public class DuplicateResult {
     boolean duplicate;
 
     @Builder
-    private DuplicateResult(boolean duplicate) {
+    public DuplicateResult(boolean duplicate) {
         this.duplicate = duplicate;
     }
 }

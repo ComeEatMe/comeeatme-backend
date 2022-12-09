@@ -68,4 +68,13 @@ public class Account extends BaseTimeEntity {
         this.refreshTokenExpiresAt = LocalDateTime.now();
     }
 
+    public void setMember(Member member) {
+        Assert.isNull(this.member, "회원이 이미 설정된 상태입니다.");
+
+        Assert.notNull(member, "member 는 null 일 수 없습니다.");
+        Assert.notNull(member.getId(), "member.id 는 null 일 수 없습니다.");
+
+        this.member = member;
+    }
+
 }

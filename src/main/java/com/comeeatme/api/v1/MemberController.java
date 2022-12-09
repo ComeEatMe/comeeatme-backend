@@ -1,18 +1,24 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.member.Agreement;
+import com.comeeatme.domain.member.request.MemberSignup;
+import com.comeeatme.domain.member.response.MemberAgreements;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberImageEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
+import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
+import com.comeeatme.error.exception.RequiredAgreementNotAgreeException;
+import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +29,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/v1")
 @RestController
@@ -34,6 +43,8 @@ public class MemberController {
     private final MemberService memberService;
 
     private final ImageService imageService;
+
+    private final MemberNicknameCreator memberNicknameCreator;
 
     @PatchMapping("/member")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
@@ -88,4 +99,33 @@ public class MemberController {
         ApiResult<MemberDetailDto> result = ApiResult.success(memberDetailDto);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/signup")
+    public ResponseEntity<ApiResult<MemberAgreements>> getSignupAgreements() {
+        MemberAgreements memberAgreements = MemberAgreements.create();
+        ApiResult<MemberAgreements> apiResult = ApiResult.success(memberAgreements);
+        return ResponseEntity.ok(apiResult);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResult<CreateResult<Long>>> signup(
+            @Valid @RequestBody MemberSignup memberSignup, @LoginUsername String username) {
+        String nickname = memberNicknameCreator.create();
+        while (memberService.checkNicknameDuplicate(nickname).isDuplicate()) {
+            nickname = memberNicknameCreator.create();
+        }
+        List<Agreement> notAgreedRequired = Arrays.stream(Agreement.values())
+                .filter(Agreement::isRequired)
+                .filter(agreement -> !memberSignup.getAgreeOrNot().getOrDefault(agreement, false))
+                .collect(Collectors.toList());
+        if (!notAgreedRequired.isEmpty()) {
+            throw new RequiredAgreementNotAgreeException(notAgreedRequired.toString());
+        }
+        CreateResult<Long> memberCreateResult = memberService.create(nickname);
+        accountService.signupMember(username, memberCreateResult.getId());
+        ApiResult<CreateResult<Long>> apiResult = ApiResult.success(memberCreateResult);
+        return ResponseEntity.ok(apiResult);
+    }
+    
+    
 }
