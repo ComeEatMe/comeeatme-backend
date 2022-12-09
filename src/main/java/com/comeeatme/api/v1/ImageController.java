@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;

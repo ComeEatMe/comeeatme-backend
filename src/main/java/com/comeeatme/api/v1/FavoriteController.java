@@ -2,7 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.RestaurantWith;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;

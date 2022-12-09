@@ -17,7 +17,7 @@ import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

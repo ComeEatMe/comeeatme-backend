@@ -1,6 +1,6 @@
-package com.comeeatme.security.account.repository;
+package com.comeeatme.domain.account.repository;
 
-import com.comeeatme.security.account.Account;
+import com.comeeatme.domain.account.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

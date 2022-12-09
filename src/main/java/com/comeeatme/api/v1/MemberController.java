@@ -18,7 +18,7 @@ import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.RequiredAgreementNotAgreeException;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

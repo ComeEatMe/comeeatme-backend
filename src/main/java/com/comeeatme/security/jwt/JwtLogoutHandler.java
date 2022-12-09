@@ -1,7 +1,7 @@
 package com.comeeatme.security.jwt;
 
-import com.comeeatme.security.account.Account;
-import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.domain.account.Account;
+import com.comeeatme.domain.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

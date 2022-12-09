@@ -11,7 +11,7 @@ import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.request.PostSearch;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
-import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.domain.account.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

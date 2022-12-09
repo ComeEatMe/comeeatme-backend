@@ -2,7 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.PostWith;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;

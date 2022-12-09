@@ -1,7 +1,7 @@
 package com.comeeatme.security.jwt;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

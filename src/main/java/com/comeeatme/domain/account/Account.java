@@ -1,4 +1,4 @@
-package com.comeeatme.security.account;
+package com.comeeatme.domain.account;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.member.Member;
