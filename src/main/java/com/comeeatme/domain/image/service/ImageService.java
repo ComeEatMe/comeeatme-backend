@@ -144,6 +144,13 @@ public class ImageService {
                 );
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Image> images = imageRepository.findAllByMemberAndUseYnIsTrue(member);
+        images.forEach(Image::delete);
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
