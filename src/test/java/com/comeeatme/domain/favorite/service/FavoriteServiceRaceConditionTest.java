@@ -90,7 +90,7 @@ class FavoriteServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    favoriteService.favorite(restaurant.getId(), member.getId(), null);
+                    favoriteService.favorite(restaurant.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -136,7 +136,7 @@ class FavoriteServiceRaceConditionTest {
                         .build()
                 ).collect(Collectors.toList())
         );
-        members.forEach(member -> favoriteService.favorite(restaurant.getId(), member.getId(), null));
+        members.forEach(member -> favoriteService.favorite(restaurant.getId(), member.getId()));
 
         // when
         int threadCount = 100;
@@ -147,7 +147,7 @@ class FavoriteServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    favoriteService.cancelFavorite(restaurant.getId(), member.getId(), null);
+                    favoriteService.cancelFavorite(restaurant.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }

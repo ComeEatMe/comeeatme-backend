@@ -2,9 +2,10 @@ package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.favorite.Favorite;
-import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,71 +23,22 @@ class FavoriteRepositoryTest {
 
     @Autowired
     private FavoriteRepository favoriteRepository;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Test
-    void existsByMemberAndGroupAndRestaurant() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isTrue();
-    }
-
-    @Test
-    void existsByMemberAndGroupAndRestaurant_GroupNotEqual() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(4L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isFalse();
-    }
-
-    @Test
-    void existsByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(4L).build()
-        )).isFalse();
-    }
-
-    @Test
-    void findByMemberAndGroupAndRestaurant() {
+    void findByRestaurantAndMember() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // when
-        Favorite result = favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
+        Favorite result = favoriteRepository.findByRestaurantAndMember(
+                restaurantRepository.getReferenceById(2L),
+                memberRepository.getReferenceById(1L)
         ).orElseThrow();
 
         // then
@@ -94,35 +46,17 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    void findByMemberAndGroupAndRestaurant_GroupNotEqual() {
+    void findByRestaurantAndMember_RestaurantNotEqual() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // expected
-        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(4L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isEmpty();
-    }
-
-    @Test
-    void findByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
-        Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(4L).build()
-        )).isEmpty();
+        assertThat(favoriteRepository.findByRestaurantAndMember(
+                restaurantRepository.getReferenceById(3L),
+                memberRepository.getReferenceById(1L)
+                )).isEmpty();
     }
 
     @Test
@@ -132,17 +66,14 @@ class FavoriteRepositoryTest {
                 Favorite.builder()
                         .member(Member.builder().id(1L).build())
                         .restaurant(Restaurant.builder().id(2L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
                         .build(),
                 Favorite.builder()
                         .member(Member.builder().id(1L).build())
                         .restaurant(Restaurant.builder().id(4L).build())
-                        .group(FavoriteGroup.builder().id(4L).build())
                         .build(),
                 Favorite.builder()
                         .member(Member.builder().id(2L).build())
                         .restaurant(Restaurant.builder().id(5L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
                         .build()
         ));
 
@@ -162,10 +93,10 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(1L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isTrue();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(2L).build(),
+                Member.builder().id(1L).build()
+                )).isTrue();
     }
 
     @Test
@@ -177,10 +108,10 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isFalse();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(2L).build(),
+                Member.builder().id(3L).build()
+                )).isFalse();
     }
 
     @Test
@@ -192,10 +123,10 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(1L).build(),
-                Restaurant.builder().id(3L).build()
-        )).isFalse();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(3L).build(),
+                Member.builder().id(1L).build()
+                )).isFalse();
     }
 
 }

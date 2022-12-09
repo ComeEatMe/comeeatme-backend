@@ -2,8 +2,6 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.account.service.AccountService;
-import com.comeeatme.domain.favorite.FavoriteGroup;
-import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.favorite.service.FavoriteService;
@@ -64,7 +62,7 @@ class FavoriteControllerTest {
         given(accountService.getMemberId(anyString())).willReturn(2L);
 
         // expected
-        mockMvc.perform(put("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
+        mockMvc.perform(put("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
@@ -73,40 +71,13 @@ class FavoriteControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("groupName").description("맛집 즐겨찾기 그룹"),
                                 parameterWithName("restaurantId").description("음식점 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().favorite(1L, 2L, "그루비룸");
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("맛집 즐겨찾기 (그룹 지정 X) - DOCS")
-    void put_GroupNull_Docs() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(2L);
-
-        // expected
-        mockMvc.perform(put("/v1/member/favorite/{restaurantId}", 1L)
-                        .with(csrf())
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isOk())
-                .andDo(document("v1-favorite-put-group-null",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("restaurantId").description("음식점 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").description("성공여부")
-                        )
-                ));
-        then(favoriteService).should().favorite(1L, 2L, null);
+        then(favoriteService).should().favorite(1L, 2L);
     }
 
     @Test
@@ -117,7 +88,7 @@ class FavoriteControllerTest {
         given(accountService.getMemberId(anyString())).willReturn(2L);
 
         // expected
-        mockMvc.perform(delete("/v1/member/favorite/{groupName}/{restaurantId}", "그루비룸", 1L)
+        mockMvc.perform(delete("/v1/member/favorite/{restaurantId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andExpect(status().isOk())
@@ -126,84 +97,13 @@ class FavoriteControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("groupName").description("맛집 즐겨찾기 그룹"),
                                 parameterWithName("restaurantId").description("음식점 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(favoriteService).should().cancelFavorite(1L, 2L, "그루비룸");
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("맛집 즐겨찾기 취소 (그룹 지정 X) - DOCS")
-    void delete_GroupNull_Docs() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(2L);
-
-        // expected
-        mockMvc.perform(delete("/v1/member/favorite/{restaurantId}", 1L)
-                        .with(csrf())
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isOk())
-                .andDo(document("v1-favorite-delete-group-null",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("restaurantId").description("음식점 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").description("성공여부")
-                        )
-                ));
-        then(favoriteService).should().cancelFavorite(1L, 2L, null);
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("맛집 즐겨찾기 그룹 리스트 조회 - DOCS")
-    void getFavoriteGroups() throws Exception {
-        // given
-        List<FavoriteGroupDto> groups = List.of(
-                FavoriteGroupDto.builder()
-                        .name(FavoriteGroup.ALL_NAME)
-                        .favoriteCount(10)
-                        .build(),
-                FavoriteGroupDto.builder()
-                        .name("그루비룸")
-                        .favoriteCount(2)
-                        .build(),
-                FavoriteGroupDto.builder()
-                        .name("학교 앞")
-                        .favoriteCount(3)
-                        .build()
-        );
-        given(favoriteService.getAllGroupsOfMember(1L)).willReturn(groups);
-
-        // expected
-        mockMvc.perform(get("/v1/members/{memberId}/favorite-groups", 1L)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-favorite-get-favorite-groups",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("memberId").description("회원 ID")
-                        ),
-                        responseFields(
-                                beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("name").description("맛집 즐겨찾기 그룹 이름. 모든 맛집 즐겨찾기는 " +
-                                        FavoriteGroup.ALL_NAME + " 그룹에 포함되어 있음."),
-                                fieldWithPath("favoriteCount").type(Integer.class.getSimpleName())
-                                        .description("맛집 즐겨찾기 그룹에 포함된 즐겨찾기 개수")
-                        )
-                ));
+        then(favoriteService).should().cancelFavorite(1L, 2L);
     }
 
     @Test
@@ -217,11 +117,11 @@ class FavoriteControllerTest {
                 .id(2L)
                 .name("지그재그")
                 .build();
-        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L), eq("그루비룸")))
+        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L)))
                 .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
 
         // expected
-        mockMvc.perform(get("/v1/members/{memberId}/favorite/{groupName}", 1L, "그루비룸")
+        mockMvc.perform(get("/v1/members/{memberId}/favorite", 1L)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -233,9 +133,7 @@ class FavoriteControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("memberId").description("회원 ID"),
-                                parameterWithName("groupName")
-                                        .description("그룹 이름. 모든 그룹을 조회하려면 지정하지 않음.")
+                                parameterWithName("memberId").description("회원 ID")
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
@@ -261,7 +159,7 @@ class FavoriteControllerTest {
                 .id(2L)
                 .name("지그재그")
                 .build();
-        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(memberId), eq("그루비룸")))
+        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(memberId)))
                 .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
 
         RestaurantFavorited restaurantFavorited = RestaurantFavorited.builder()
@@ -271,7 +169,7 @@ class FavoriteControllerTest {
         given(favoriteService.areFavorite(myMemberId, List.of(2L))).willReturn(List.of(restaurantFavorited));
 
         // expected
-        mockMvc.perform(get("/v1/members/{memberId}/favorite/{groupName}", memberId, "그루비룸")
+        mockMvc.perform(get("/v1/members/{memberId}/favorite", memberId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -292,7 +190,7 @@ class FavoriteControllerTest {
                 .id(2L)
                 .name("지그재그")
                 .build();
-        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L), eq(null)))
+        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L)))
                 .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
 
         // expected

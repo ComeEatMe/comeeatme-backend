@@ -1,6 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
@@ -15,6 +16,7 @@ import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
+import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
 import com.comeeatme.domain.account.service.AccountService;
@@ -78,6 +80,12 @@ class MemberControllerTest {
 
     @MockBean
     private MemberNicknameCreator memberNicknameCreator;
+
+    @MockBean
+    private PostService postService;
+
+    @MockBean
+    private CommentService commentService;
 
     @Test
     @WithMockUser
