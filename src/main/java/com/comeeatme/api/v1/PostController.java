@@ -2,7 +2,7 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.PostWith;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.common.response.CreateResult;
@@ -21,7 +21,7 @@ import com.comeeatme.domain.post.response.RestaurantPostDto;
 import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.InvalidImageIdception;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -52,7 +52,7 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<ApiResult<Slice<PostWith<PostDto>>>> getList(
-            Pageable pageable, @ModelAttribute PostSearch postSearch, @CurrentUsername String username) {
+            Pageable pageable, @ModelAttribute PostSearch postSearch, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<PostDto> posts = postService.getList(pageable, postSearch);
         List<Long> postIds = posts.stream()
@@ -74,7 +74,7 @@ public class PostController {
     @GetMapping("/members/{memberId}/posts")
     public ResponseEntity<ApiResult<Slice<PostWith<MemberPostDto>>>> getListOfMember(
             @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable Long memberId, @CurrentUsername String username) {
+            @PathVariable Long memberId, @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<MemberPostDto> posts = postService.getListOfMember(pageable, memberId);
         List<Long> postIds = posts.stream()
@@ -96,7 +96,7 @@ public class PostController {
     @GetMapping("/restaurants/{restaurantId}/posts")
     public ResponseEntity<ApiResult<Slice<PostWith<RestaurantPostDto>>>> getListOfRestaurant(
             @SortDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-            @PathVariable Long restaurantId, @CurrentUsername String username) {
+            @PathVariable Long restaurantId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<RestaurantPostDto> posts = postService.getListOfRestaurant(pageable, restaurantId);
         List<Long> postIds = posts.stream()
@@ -129,7 +129,7 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<ApiResult<PostWith<PostDetailDto>>> get(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<PostWith<PostDetailDto>>> get(@PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         PostDetailDto post = postService.get(postId);
         boolean bookmarked = bookmarkService.isBookmarked(memberId, postId);
@@ -145,7 +145,7 @@ public class PostController {
 
     @PostMapping("/post")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
-            @Valid @RequestBody PostCreate postCreate, @CurrentUsername String username) {
+            @Valid @RequestBody PostCreate postCreate, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         if (!imageService.validateImageIds(postCreate.getImageIds(), memberId)) {
             throw new InvalidImageIdception("imageIds=" + postCreate.getImageIds());
@@ -157,7 +157,7 @@ public class PostController {
 
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
-            @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @CurrentUsername String username) {
+            @Valid @RequestBody PostEdit postEdit, @PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));
@@ -169,7 +169,7 @@ public class PostController {
 
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
-            @PathVariable Long postId, @CurrentUsername String username) {
+            @PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         if (postService.isNotOwnedByMember(postId, memberId)) {
             throw new EntityAccessDeniedException(String.format("postId=%s, username=%s", postId, username));

@@ -1,7 +1,7 @@
 package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;

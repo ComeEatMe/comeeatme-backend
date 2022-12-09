@@ -1,7 +1,9 @@
-package com.comeeatme.security.account.service;
+package com.comeeatme.domain.account.service;
 
-import com.comeeatme.security.account.Account;
-import com.comeeatme.security.account.repository.AccountRepository;
+import com.comeeatme.domain.account.Account;
+import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+
+    private final MemberRepository memberRepository;
 
     public Long getMemberId(String username) {
         Account account = getAccountByUsername(username);
@@ -43,17 +47,34 @@ public class AccountService {
                     .build());
             accountOptional = Optional.of(account);
         }
-        return accountOptional.get();
+        Account account = accountOptional.get();
+        if (Boolean.FALSE.equals(account.getUseYn())) {
+            throw new EntityNotFoundException("deleted Account.username=" + username);
+        }
+        return account;
     }
 
     public Account get(String username) {
         return getAccountByUsername(username);
     }
 
+    @Transactional
+    public void signupMember(String username, Long memberId) {
+        Account account = getAccountByUsername(username);
+        Member member = getMemberById(memberId);
+        account.setMember(member);
+    }
+
     private Account getAccountByUsername(String username) {
         return accountRepository.findByUsername(username)
                 .filter(Account::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Account.username=" + username));
+    }
+
+    private Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member.id=" + memberId));
     }
 
 }

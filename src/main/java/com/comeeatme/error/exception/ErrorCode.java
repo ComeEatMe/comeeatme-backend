@@ -25,6 +25,9 @@ public enum ErrorCode {
     ALREADY_LIKED_POST(SC_CONFLICT, "이미 좋아요한 게시물입니다."),
     ALREADY_BOOKMARKED(SC_CONFLICT, "이미 북마크된 게시물입니다."),
     ALREADY_FAVORITE(SC_CONFLICT, "이미지 맛집 등록한 음식점입니다."),
+    ALREADY_NICKNAME_EXISTS(SC_CONFLICT, "이미지 존재하는 닉네임입니다."),
+
+    REQUIRED_AGREEMENT_NOT_AGREE(SC_BAD_REQUEST, "필수 동의 항목이 동의되지 않았습니다."),
     ;
 
     private final int status;

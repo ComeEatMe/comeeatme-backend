@@ -1,7 +1,7 @@
 package com.comeeatme.security;
 
-import com.comeeatme.security.account.repository.AccountRepository;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.security.jwt.*;
 import com.comeeatme.security.oauth2.OAuth2AuthenticationSuccessHandlerCustom;
 import com.comeeatme.security.oauth2.OAuth2UserServiceCustom;
@@ -89,7 +89,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().antMatchers("/docs/**");
+        return web -> web.ignoring().antMatchers("/docs/**", "/agreement/**");
     }
 
     @Bean

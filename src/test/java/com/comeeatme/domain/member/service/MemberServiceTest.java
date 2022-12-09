@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
@@ -11,8 +12,10 @@ import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
+import com.comeeatme.error.exception.AlreadyNicknameExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -166,5 +170,39 @@ class MemberServiceTest {
         assertThat(dto.getNickname()).isEqualTo("nickname");
         assertThat(dto.getIntroduction()).isEqualTo("introduction");
         assertThat(dto.getImageUrl()).isEqualTo("image-url");
+    }
+
+    @Test
+    void create() {
+        // given
+        given(memberRepository.existsByNickname("nickname")).willReturn(false);
+        ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
+
+        Member member = mock(Member.class);
+        given(member.getId()).willReturn(1L);
+        given(memberRepository.save(memberCaptor.capture())).willReturn(member);
+
+        // when
+        CreateResult<Long> result = memberService.create("nickname");
+
+        // then
+        assertThat(result.getId()).isEqualTo(1L);
+
+        Member captorValue = memberCaptor.getValue();
+        assertThat(captorValue.getImage()).isNull();
+        assertThat(captorValue.getId()).isNull();
+        assertThat(captorValue.getUseYn()).isTrue();
+        assertThat(captorValue.getIntroduction()).isEmpty();
+        assertThat(captorValue.getNickname()).isEqualTo("nickname");
+    }
+
+    @Test
+    void create_NicknameExists() {
+        // given
+        given(memberRepository.existsByNickname("nickname")).willReturn(true);
+
+        // when
+        assertThatThrownBy(() -> memberService.create("nickname"))
+                .isInstanceOf(AlreadyNicknameExistsException.class);
     }
 }

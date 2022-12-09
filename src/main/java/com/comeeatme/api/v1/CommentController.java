@@ -1,7 +1,7 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
@@ -11,7 +11,7 @@ import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.EntityNotFoundException;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,7 +32,7 @@ public class CommentController {
     @PostMapping("/posts/{postId}/comment")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @Valid @RequestBody CommentCreate commentCreate, @PathVariable Long postId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         CreateResult<Long> createResult = commentService.create(commentCreate, memberId, postId);
         ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);
@@ -42,7 +42,7 @@ public class CommentController {
     @PatchMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
             @Valid @RequestBody CommentEdit commentEdit, @PathVariable Long postId, @PathVariable Long commentId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         if (commentService.isNotOwnedByMember(commentId, memberId)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));
@@ -57,7 +57,7 @@ public class CommentController {
 
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(
-            @PathVariable Long postId, @PathVariable Long commentId, @CurrentUsername String username) {
+            @PathVariable Long postId, @PathVariable Long commentId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         if (commentService.isNotOwnedByMember(commentId, memberId)) {
             throw new EntityAccessDeniedException(String.format("commentId=%s, username=%s", commentId, username));

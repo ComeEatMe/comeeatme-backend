@@ -2,12 +2,12 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.RestaurantWith;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.favorite.service.FavoriteService;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,7 +32,7 @@ public class FavoriteController {
     @PutMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
     public ResponseEntity<ApiResult<Void>> put(
             @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         favoriteService.favorite(restaurantId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
@@ -41,7 +41,7 @@ public class FavoriteController {
     @DeleteMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
     public ResponseEntity<ApiResult<Void>> delete(
             @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         favoriteService.cancelFavorite(restaurantId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
@@ -57,7 +57,7 @@ public class FavoriteController {
     @GetMapping({"/members/{memberId}/favorite/{groupName}", "/members/{memberId}/favorite"})
     public ResponseEntity<ApiResult<Slice<RestaurantWith<FavoriteRestaurantDto>>>> getFavoriteList(
             Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<FavoriteRestaurantDto> restaurants = favoriteService.getFavoriteRestaurants(
                 pageable, memberId, groupName);

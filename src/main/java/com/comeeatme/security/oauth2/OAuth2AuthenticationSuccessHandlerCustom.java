@@ -1,8 +1,8 @@
 package com.comeeatme.security.oauth2;
 
 import com.comeeatme.domain.member.Member;
-import com.comeeatme.security.account.Account;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.account.Account;
+import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.security.jwt.JwtTokenProvider;
 import com.comeeatme.security.response.LoginResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

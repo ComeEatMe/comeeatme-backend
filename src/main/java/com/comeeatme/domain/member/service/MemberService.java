@@ -1,5 +1,6 @@
 package com.comeeatme.domain.member.service;
 
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
@@ -12,6 +13,7 @@ import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
+import com.comeeatme.error.exception.AlreadyNicknameExistsException;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -95,5 +97,16 @@ public class MemberService {
         return DuplicateResult.builder()
                 .duplicate(memberRepository.existsByNickname(nickname))
                 .build();
+    }
+
+    public CreateResult<Long> create(String nickname) {
+        if (memberRepository.existsByNickname(nickname)) {
+            throw new AlreadyNicknameExistsException("nickname=" + nickname);
+        }
+        Member member = memberRepository.save(Member.builder()
+                .nickname(nickname)
+                .introduction("")
+                .build());
+        return new CreateResult<>(member.getId());
     }
 }

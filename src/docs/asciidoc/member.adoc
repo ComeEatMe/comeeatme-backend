@@ -44,3 +44,15 @@ operation::v1-member-get-list[snippets='http-request,request-headers,request-par
 == 회원 상세 조회
 
 operation::v1-member-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-member-get-agreements]]
+== 회원 가입 동의서 목록 조회
+
+operation::v1-member-get-agreements[snippets='http-request,request-headers,http-response,response-fields-data']
+
+
+[[v1-member-signup]]
+== 회원 가입
+
+operation::v1-member-signup[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
