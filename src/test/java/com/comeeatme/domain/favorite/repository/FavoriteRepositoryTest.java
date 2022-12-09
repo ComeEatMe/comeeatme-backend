@@ -1,6 +1,9 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
+import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.Favorite;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -10,8 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +34,10 @@ class FavoriteRepositoryTest {
     private MemberRepository memberRepository;
     @Autowired
     private RestaurantRepository restaurantRepository;
+    @Autowired
+    private AddressCodeRepository addressCodeRepository;
+    @Autowired
+    private EntityManagerFactory emf;
 
     @Test
     void findByRestaurantAndMember() {
@@ -127,6 +138,55 @@ class FavoriteRepositoryTest {
                 Restaurant.builder().id(3L).build(),
                 Member.builder().id(1L).build()
                 )).isFalse();
+    }
+
+    @Test
+    void findSliceWithRestaurantByMember() {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+        Restaurant restaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("모노끼 야탑점")
+                        .phone("")
+                        .address(Address.builder()
+                                .name("경기 성남시 분당구")
+                                .roadName("경기 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        List<Favorite> favorites = favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurant)
+                        .build(),
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(11L))
+                        .restaurant(restaurant)
+                        .build()
+        ));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<Favorite> result = favoriteRepository.findSliceWithRestaurantByMember(
+                pageRequest, memberRepository.getReferenceById(10L));
+
+        // then
+        List<Favorite> content = result.getContent();
+        assertThat(content)
+                .hasSize(1)
+                .extracting("id").containsOnly(favorites.get(0).getId());
+        PersistenceUnitUtil persistenceUnitUtil = emf.getPersistenceUnitUtil();
+        assertThat(persistenceUnitUtil.isLoaded(content.get(0).getRestaurant())).isTrue();
     }
 
 }
