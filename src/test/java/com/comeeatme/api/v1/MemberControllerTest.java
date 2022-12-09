@@ -1,19 +1,23 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
-import com.comeeatme.security.account.service.AccountService;
+import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.member.Agreement;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberImageEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.request.MemberSignup;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
+import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
+import com.comeeatme.security.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,10 +35,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -67,6 +75,9 @@ class MemberControllerTest {
 
     @MockBean
     private ImageService imageService;
+
+    @MockBean
+    private MemberNicknameCreator memberNicknameCreator;
 
     @Test
     @WithMockUser
@@ -308,6 +319,77 @@ class MemberControllerTest {
                         )
                 ))
         ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 가입 동의서 목록 조회 - DOCS")
+    void getAgreements() throws Exception {
+        // expected
+        mockMvc.perform(get("/v1/signup")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.agreements[0].code").value(Agreement.TERMS_OF_SERVICE.name()))
+                .andExpect(jsonPath("$.data.agreements[1].code").value(Agreement.PERSONAL_INFORMATION.name()))
+                .andDo(document("v1-member-get-agreements",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("agreements[].code").description("동의서 코드"),
+                                fieldWithPath("agreements[].title").description("동의서 제목"),
+                                fieldWithPath("agreements[].required").description("동의 필수 여부"),
+                                fieldWithPath("agreements[].link").description("동의서 파일 링크")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 가입- DOCS")
+    void signup() throws Exception {
+        // given
+        MemberSignup memberSignup = MemberSignup.builder()
+                .agreeOrNot(
+                        Arrays.stream(Agreement.values())
+                                .collect(Collectors.toMap(Function.identity(), agreement -> true))
+                )
+                .build();
+
+        given(memberNicknameCreator.create()).willReturn("매콤한 떡볶이");
+        given(memberService.checkNicknameDuplicate("매콤한 떡볶이")).willReturn(new DuplicateResult(false));
+        given(memberService.create("매콤한 떡볶이")).willReturn(new CreateResult<>(1L));
+
+        // expected
+        mockMvc.perform(post("/v1/signup").with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(memberSignup))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-member-signup",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestFields(
+                                subsectionWithPath("agreeOrNot")
+                                        .description("동의서 항목에 대해 동의 여부. " +
+                                                "key 는 동의서 code 값, value 는 동의 여부.")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("생성된 회원 ID (memberId)")
+                        )
+                ))
+        ;
+        then(accountService).should().signupMember(anyString(), eq(1L));
     }
 
 }
