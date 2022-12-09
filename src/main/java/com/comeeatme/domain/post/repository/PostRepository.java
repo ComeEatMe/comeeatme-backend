@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
 import javax.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
@@ -24,5 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     Optional<Post> findWithPessimisticLockById(Long id);
 
     boolean existsByIdAndMember(Long id, Member member);
+
+    List<Post> findAllByMemberAndUseYnIsTrue(Member member);
 
 }

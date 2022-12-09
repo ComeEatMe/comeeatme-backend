@@ -209,6 +209,18 @@ public class PostService {
         return !postRepository.existsByIdAndMember(postId, member);
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Post> posts = postRepository.findAllByMemberAndUseYnIsTrue(member);
+        posts.forEach(Post::delete);
+        List<Long> restaurantIds = posts.stream()
+                .map(post -> post.getRestaurant().getId())
+                .collect(Collectors.toList());
+        List<Restaurant> restaurants = restaurantRepository.findAllWithPessimisticLockByIdIn(restaurantIds);
+        restaurants.forEach(Restaurant::decreasePostCount);
+    }
+
     private Map<Long, List<PostImage>> getPostIdToPostImages(List<Post> posts) {
         return postImageRepository.findAllWithImageByPostIn(posts)
                 .stream()
