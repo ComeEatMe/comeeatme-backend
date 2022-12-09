@@ -15,4 +15,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
     boolean existsByIdAndMember(Long id, Member member);
 
+    List<Comment> findAllByMemberAndUseYnIsTrue(Member member);
+
 }

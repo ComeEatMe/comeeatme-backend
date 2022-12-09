@@ -20,7 +20,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -82,6 +86,23 @@ public class CommentService {
         Post post = getPostById(postId);
         return commentRepository.findSliceByPostWithMemberAndImage(pageable, post)
                 .map(CommentDto::of);
+    }
+
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Comment> comments = commentRepository.findAllByMemberAndUseYnIsTrue(member);
+        comments.forEach(Comment::delete);
+        Map<Long, Long> postIdToCount = comments.stream()
+                .map(comment -> comment.getPost().getId())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        List<Post> posts = postRepository.findAllWithPessimisticLockByIdIn(postIdToCount.keySet());
+        posts.forEach(post -> {
+            Long postCount = postIdToCount.get(post.getId());
+            for (int i = 0; i < postCount; i++) {
+                post.decreaseCommentCount();
+            }
+        });
     }
 
     private Member getMemberById(Long id) {
