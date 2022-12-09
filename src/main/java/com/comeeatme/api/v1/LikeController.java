@@ -8,7 +8,7 @@ import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.like.response.LikedPostDto;
 import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.like.service.LikeService;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -33,14 +33,14 @@ public class LikeController {
     private final BookmarkService bookmarkService;
 
     @PutMapping("/member/like/{postId}")
-    public ResponseEntity<ApiResult<Void>> like(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<Void>> like(@PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         likeService.like(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 
     @DeleteMapping("/member/like/{postId}")
-    public ResponseEntity<ApiResult<Void>> unlike(@PathVariable Long postId, @CurrentUsername String username) {
+    public ResponseEntity<ApiResult<Void>> unlike(@PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         likeService.unlike(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
@@ -48,7 +48,7 @@ public class LikeController {
 
     @GetMapping("/members/{memberId}/liked")
     public ResponseEntity<ApiResult<Slice<PostWith<LikedPostDto>>>> getLikedList(
-            Pageable pageable, @PathVariable Long memberId, @CurrentUsername String username) {
+            Pageable pageable, @PathVariable Long memberId, @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<LikedPostDto> posts = likeService.getLikedPosts(pageable, memberId);
         List<Long> postIds = posts.stream()

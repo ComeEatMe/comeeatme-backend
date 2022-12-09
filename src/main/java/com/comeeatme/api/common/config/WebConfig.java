@@ -1,6 +1,6 @@
 package com.comeeatme.api.common.config;
 
-import com.comeeatme.security.argumentresolver.CurrentUsernameArgumentResolver;
+import com.comeeatme.security.argumentresolver.LoginUsernameArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -12,6 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new CurrentUsernameArgumentResolver());
+        resolvers.add(new LoginUsernameArgumentResolver());
     }
 }

@@ -13,7 +13,7 @@ import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -37,7 +37,7 @@ public class MemberController {
 
     @PatchMapping("/member")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
-            @Valid @RequestBody MemberEdit memberEdit, @CurrentUsername String username) {
+            @Valid @RequestBody MemberEdit memberEdit, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         UpdateResult<Long> updateResult = memberService.edit(memberEdit, memberId);
         ApiResult<UpdateResult<Long>> result = ApiResult.success(updateResult);
@@ -46,7 +46,7 @@ public class MemberController {
 
     @PatchMapping("/member/image")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patchImage(
-            @RequestBody @Valid MemberImageEdit memberImageEdit, @CurrentUsername String username) {
+            @RequestBody @Valid MemberImageEdit memberImageEdit, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Long imageId = memberImageEdit.getImageId();
         if (imageService.isNotOwnedByMember(memberId, imageId)) {
@@ -59,7 +59,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/member/image")
-    public ResponseEntity<ApiResult<DeleteResult<Long>>> deleteImage(@CurrentUsername String username) {
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> deleteImage(@LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         DeleteResult<Long> deleteResult = memberService.deleteImage(memberId);
         ApiResult<DeleteResult<Long>> result = ApiResult.success(deleteResult);

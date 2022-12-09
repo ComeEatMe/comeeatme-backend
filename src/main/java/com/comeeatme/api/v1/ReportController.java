@@ -5,7 +5,7 @@ import com.comeeatme.security.account.service.AccountService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.report.request.ReportCreate;
 import com.comeeatme.domain.report.service.ReportService;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +24,7 @@ public class ReportController {
     @PostMapping("/posts/{postId}/report")
     public ResponseEntity<ApiResult<CreateResult<Long>>> post(
             @PathVariable Long postId, @Valid @RequestBody ReportCreate reportCreate,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         CreateResult<Long> createResult = reportService.report(postId, reportCreate.getReason(), memberId);
         ApiResult<CreateResult<Long>> result = ApiResult.success(createResult);

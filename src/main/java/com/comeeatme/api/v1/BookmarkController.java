@@ -9,7 +9,7 @@ import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
 import com.comeeatme.domain.like.response.PostLiked;
 import com.comeeatme.domain.like.service.LikeService;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -36,7 +36,7 @@ public class BookmarkController {
     @PutMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
     public ResponseEntity<ApiResult<Void>> bookmark(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         bookmarkService.bookmark(postId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
@@ -45,7 +45,7 @@ public class BookmarkController {
     @DeleteMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
     public ResponseEntity<ApiResult<Void>> delete(
             @PathVariable(required = false) String groupName, @PathVariable Long postId,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         bookmarkService.cancelBookmark(postId, memberId, groupName);
         return ResponseEntity.ok(ApiResult.success());
@@ -61,7 +61,7 @@ public class BookmarkController {
     @GetMapping({"/members/{memberId}/bookmarked/{groupName}", "/members/{memberId}/bookmarked"})
     public ResponseEntity<ApiResult<Slice<PostWith<BookmarkedPostDto>>>> getBookmarkedList(
             Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
-            @CurrentUsername String username) {
+            @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
         Slice<BookmarkedPostDto> posts = bookmarkService.getBookmarkedPosts(pageable, memberId, groupName);
         List<Long> postIds = posts.stream()

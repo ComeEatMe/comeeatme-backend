@@ -6,7 +6,7 @@ import com.comeeatme.domain.common.response.CreateResults;
 import com.comeeatme.domain.image.response.RestaurantImage;
 import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.error.exception.InvalidImageException;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +30,7 @@ public class ImageController {
 
     @PostMapping("/images/scaled")
     public ResponseEntity<ApiResult<CreateResults<Long>>> postScaled(
-            @RequestPart List<MultipartFile> images, @CurrentUsername String username) {
+            @RequestPart List<MultipartFile> images, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         validateMultipartFileImages(images);
         List<Resource> resources = images.stream()

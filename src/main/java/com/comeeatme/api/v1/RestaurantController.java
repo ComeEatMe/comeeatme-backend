@@ -12,7 +12,7 @@ import com.comeeatme.domain.restaurant.request.RestaurantSearch;
 import com.comeeatme.domain.restaurant.response.RestaurantDto;
 import com.comeeatme.domain.restaurant.response.RestaurantSimpleDto;
 import com.comeeatme.domain.restaurant.service.RestaurantService;
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -58,7 +58,7 @@ public class RestaurantController {
 
     @GetMapping("/restaurants")
     public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> search(
-            Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch, @CurrentUsername String username) {
+            Pageable pageable, @ModelAttribute RestaurantSearch restaurantSearch, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         Slice<RestaurantDto> restaurants = restaurantService.search(pageable, restaurantSearch);
         List<Long> restaurantIds = restaurants.stream()
@@ -87,7 +87,7 @@ public class RestaurantController {
 
     @GetMapping("/restaurants/order")
     public ResponseEntity<ApiResult<Slice<RestaurantWith<RestaurantDto>>>> getRankedList(
-            @CurrentUsername String username, Pageable pageable,
+            @LoginUsername String username, Pageable pageable,
             @RequestParam(required = false) String addressCode,
             @RequestParam(required = false) @Valid @Max(10) @Min(1) Integer perImageNum) {
         Long memberId = accountService.getMemberId(username);
@@ -126,7 +126,7 @@ public class RestaurantController {
 
     @GetMapping("/restaurants/{restaurantId}")
     public ResponseEntity<ApiResult<RestaurantWith<RestaurantDto>>> get(
-            @PathVariable Long restaurantId, @CurrentUsername String username) {
+            @PathVariable Long restaurantId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
         RestaurantDto restaurant = restaurantService.get(restaurantId);
         boolean favorited = favoriteService.isFavorite(memberId, restaurant.getId());

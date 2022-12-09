@@ -1,6 +1,6 @@
 package com.comeeatme.security.argumentresolver;
 
-import com.comeeatme.security.annotation.CurrentUsername;
+import com.comeeatme.security.annotation.LoginUsername;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,11 +11,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import static java.util.Objects.nonNull;
 
-public class CurrentUsernameArgumentResolver implements HandlerMethodArgumentResolver {
+public class LoginUsernameArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        boolean hasCurrentUsernameAnnotation = parameter.hasParameterAnnotation(CurrentUsername.class);
+        boolean hasCurrentUsernameAnnotation = parameter.hasParameterAnnotation(LoginUsername.class);
         boolean hasStringType = (String.class == parameter.getParameterType());
         return hasCurrentUsernameAnnotation && hasStringType;
     }
