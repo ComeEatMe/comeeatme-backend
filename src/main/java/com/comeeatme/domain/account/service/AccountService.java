@@ -47,7 +47,11 @@ public class AccountService {
                     .build());
             accountOptional = Optional.of(account);
         }
-        return accountOptional.get();
+        Account account = accountOptional.get();
+        if (Boolean.FALSE.equals(account.getUseYn())) {
+            throw new EntityNotFoundException("deleted Account.username=" + username);
+        }
+        return account;
     }
 
     public Account get(String username) {
