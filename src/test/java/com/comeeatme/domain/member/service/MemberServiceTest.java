@@ -12,6 +12,7 @@ import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
+import com.comeeatme.error.exception.AlreadyNicknameExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -192,5 +194,15 @@ class MemberServiceTest {
         assertThat(captorValue.getUseYn()).isTrue();
         assertThat(captorValue.getIntroduction()).isEmpty();
         assertThat(captorValue.getNickname()).isEqualTo("nickname");
+    }
+
+    @Test
+    void create_NicknameExists() {
+        // given
+        given(memberRepository.existsByNickname("nickname")).willReturn(true);
+
+        // when
+        assertThatThrownBy(() -> memberService.create("nickname"))
+                .isInstanceOf(AlreadyNicknameExistsException.class);
     }
 }
