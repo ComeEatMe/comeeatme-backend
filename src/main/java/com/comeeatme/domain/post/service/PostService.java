@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -214,11 +215,17 @@ public class PostService {
         Member member = getMemberById(memberId);
         List<Post> posts = postRepository.findAllByMemberAndUseYnIsTrue(member);
         posts.forEach(Post::delete);
-        List<Long> restaurantIds = posts.stream()
+        Map<Long, Long> restaurantIdToCount = posts.stream()
                 .map(post -> post.getRestaurant().getId())
-                .collect(Collectors.toList());
-        List<Restaurant> restaurants = restaurantRepository.findAllWithPessimisticLockByIdIn(restaurantIds);
-        restaurants.forEach(Restaurant::decreasePostCount);
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        List<Restaurant> restaurants = restaurantRepository.findAllWithPessimisticLockByIdIn(
+                restaurantIdToCount.keySet());
+        restaurants.forEach(restaurant -> {
+            Long restaurantCount = restaurantIdToCount.get(restaurant.getId());
+            for (int i = 0; i < restaurantCount; i++) {
+                restaurant.decreasePostCount();
+            }
+        });
     }
 
     private Map<Long, List<PostImage>> getPostIdToPostImages(List<Post> posts) {

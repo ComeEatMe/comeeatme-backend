@@ -914,13 +914,17 @@ class PostServiceTest {
         Post post1 = mock(Post.class);
         given(post1.getRestaurant()).willReturn(restaurant1);
         Post post2 = mock(Post.class);
-        given(post2.getRestaurant()).willReturn(restaurant2);
+        given(post2.getRestaurant()).willReturn(restaurant1);
+        Post post3 = mock(Post.class);
+        given(post3.getRestaurant()).willReturn(restaurant2);
         given(postRepository.findAllByMemberAndUseYnIsTrue(member))
-                .willReturn(List.of(post1, post2));
+                .willReturn(List.of(post1, post2, post3));
 
         Restaurant lockedRestaurant1 = mock(Restaurant.class);
+        given(lockedRestaurant1.getId()).willReturn(10L);
         Restaurant lockedRestaurant2 = mock(Restaurant.class);
-        given(restaurantRepository.findAllWithPessimisticLockByIdIn(List.of(10L, 20L)))
+        given(lockedRestaurant2.getId()).willReturn(20L);
+        given(restaurantRepository.findAllWithPessimisticLockByIdIn(Set.of(10L, 20L)))
                 .willReturn(List.of(lockedRestaurant1, lockedRestaurant2));
 
         // when
@@ -928,10 +932,10 @@ class PostServiceTest {
 
         // then
         then(post1).should().delete();
-        then(post2).should().delete();
+        then(post3).should().delete();
 
-        then(lockedRestaurant1).should().decreasePostCount();
-        then(lockedRestaurant2).should().decreasePostCount();
+        then(lockedRestaurant1).should(times(2)).decreasePostCount();
+        then(lockedRestaurant2).should(times(1)).decreasePostCount();
     }
 
 }
