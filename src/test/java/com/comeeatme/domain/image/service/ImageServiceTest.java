@@ -31,6 +31,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 
@@ -305,6 +306,24 @@ class ImageServiceTest {
         assertThat(result.get(2L))
                 .hasSize(1)
                 .containsOnly("url-3");
+    }
+
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        List<Image> images = List.of(mock(Image.class), mock(Image.class), mock(Image.class));
+        given(imageRepository.findAllByMemberAndUseYnIsTrue(member))
+                .willReturn(images);
+
+        // when
+        imageService.deleteAllOfMember(1L);
+
+        // then
+        images.forEach(image -> then(image).should().delete());
     }
 
 }
