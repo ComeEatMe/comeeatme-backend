@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -137,6 +139,66 @@ class CommentServiceRaceConditionTest {
         // then
         Post foundPost = postRepository.findById(post.getId()).orElseThrow();
         assertThat(foundPost.getCommentCount()).isEqualTo(100);
+    }
+
+    @Test
+    void deleteAllOfMember() throws InterruptedException {
+        // given
+        int numMember = 100;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, numMember)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        int numCommentPerMember = 3;
+        List<Post> posts = postRepository.saveAll(
+                IntStream.range(0, numCommentPerMember)
+                        .mapToObj(i -> Post.builder()
+                                .member(memberRepository.getReferenceById(100L))
+                                .restaurant(restaurantRepository.getReferenceById(200L))
+                                .content("content-" + i)
+                                .build()
+                        ).collect(Collectors.toList())
+        );
+
+        for (int i = 0; i < numMember; i++) {
+            Member member = members.get(i);
+            for (int j = 0; j < numCommentPerMember; j++) {
+                Post post = posts.get(j);
+                CommentCreate commentCreate = CommentCreate.builder()
+                        .parentId(null)
+                        .content("comment-" + j)
+                        .build();
+                commentService.create(commentCreate, member.getId(), post.getId());
+            }
+        }
+
+        // when
+        int threadCount = numMember;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    commentService.deleteAllOfMember(member.getId());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        List<Post> foundPosts = postRepository.findAll();
+        for (Post foundPost : foundPosts) {
+            assertThat(foundPost.getCommentCount()).isZero();
+        }
     }
 
 }

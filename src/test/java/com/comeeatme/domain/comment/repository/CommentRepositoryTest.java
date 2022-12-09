@@ -5,6 +5,7 @@ import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,6 +26,8 @@ class CommentRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void existsByIdAndPostAndUseYnIsTrue_True() {
@@ -144,6 +147,49 @@ class CommentRepositoryTest {
         assertThat(commentRepository.existsByIdAndMember(
                 comment.getId() + 1, memberRepository.getReferenceById(10L + 1L)
         )).isFalse();
+    }
+
+    @Test
+    void findAllByMemberAndUseYnIsTrue() {
+        List<Comment> comments = commentRepository.saveAll(List.of(
+                Comment.builder()
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
+                        .content("content-1")
+                        .build(),
+                Comment.builder()   // post id different
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(11L))
+                        .content("content-2")
+                        .build(),
+                Comment.builder()   // parent comment id different
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
+                        .parent(commentRepository.getReferenceById(20L))
+                        .content("content-3")
+                        .build(),
+                Comment.builder()   // deleted
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
+                        .content("content-4")
+                        .build(),
+                Comment.builder()   // member id different
+                        .member(memberRepository.getReferenceById(2L))
+                        .post(postRepository.getReferenceById(10L))
+                        .content("content-5")
+                        .build()
+        ));
+
+        comments.get(3).delete();
+
+        // when
+        List<Comment> result = commentRepository.findAllByMemberAndUseYnIsTrue(memberRepository.getReferenceById(1L));
+
+        // then
+        assertThat(result)
+                .hasSize(3)
+                .extracting("id").containsOnly(
+                        comments.get(0).getId(), comments.get(1).getId(), comments.get(2).getId());
     }
 
 }

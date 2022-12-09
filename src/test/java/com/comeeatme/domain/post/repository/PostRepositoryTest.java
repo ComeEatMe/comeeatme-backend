@@ -366,4 +366,35 @@ class PostRepositoryTest {
                 .extracting("id").containsOnly(posts.get(0).getId());
     }
 
+    @Test
+    void findAllWithPessimisticLockByIdIn() {
+        // given
+        List<Post> posts = postRepository.saveAll(List.of(
+                Post.builder()
+                        .content("content-1")
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build(),
+                Post.builder()
+                        .content("content-2")
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build(),
+                Post.builder()
+                        .content("content-3")
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build()
+        ));
+
+        // when
+        List<Post> result = postRepository.findAllWithPessimisticLockByIdIn(
+                List.of(posts.get(0).getId(), posts.get(1).getId()));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(posts.get(0).getId(), posts.get(1).getId());
+    }
+
 }
