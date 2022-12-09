@@ -334,4 +334,36 @@ class PostRepositoryTest {
                 .isFalse();
     }
 
+    @Test
+    void findAllByMemberAndUseYnIsTrue() {
+        // given
+        List<Post> posts = postRepository.saveAll(List.of(
+                Post.builder()
+                        .content("content-1")
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build(),
+                Post.builder()
+                        .content("content-2")
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build(),
+                Post.builder()
+                        .content("content-3")
+                        .member(memberRepository.getReferenceById(2L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build()
+        ));
+
+        posts.get(1).delete();
+
+        // when
+        List<Post> result = postRepository.findAllByMemberAndUseYnIsTrue(memberRepository.getReferenceById(1L));
+
+        // then
+        assertThat(result)
+                .hasSize(1)
+                .extracting("id").containsOnly(posts.get(0).getId());
+    }
+
 }

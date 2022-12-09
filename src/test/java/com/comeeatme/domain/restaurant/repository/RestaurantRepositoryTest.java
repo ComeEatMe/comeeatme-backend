@@ -277,4 +277,57 @@ class RestaurantRepositoryTest {
                 );
     }
 
+    @Test
+    void findAllWithPessimisticLockByIdIn() {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("4113510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        List<Restaurant> restaurants = restaurantRepository.saveAll(List.of(
+                Restaurant.builder()
+                        .name("음식점1")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점2")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build(),
+                Restaurant.builder()
+                        .name("음식점3")
+                        .phone("031-000-0000")
+                        .address(Address.builder()
+                                .name("경기도 성남시 분당구 야탑동")
+                                .roadName("경기도 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        ));
+
+        // when
+        List<Restaurant> result = restaurantRepository.findAllWithPessimisticLockByIdIn(
+                List.of(restaurants.get(0).getId(), restaurants.get(1).getId()));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(restaurants.get(0).getId(), restaurants.get(1).getId());
+    }
+
 }
