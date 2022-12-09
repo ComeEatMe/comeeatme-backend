@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Table(name = "favorite",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "UK_favorite_favorite_group_restaurant",
-                        columnNames = {"favorite_group_id", "restaurant_id"})
+                        name = "UK_favorite_restaurant_member",
+                        columnNames = {"restaurant_id", "member_id"})
         },
         indexes = {
                 @Index(name = "IX_favorite_member", columnList = "member_id"),
@@ -36,19 +36,14 @@ public class Favorite extends BaseCreatedAtEntity {
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "favorite_group_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private FavoriteGroup group;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "restaurant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Restaurant restaurant;
 
     @Builder
-    private Favorite(@Nullable Long id, Member member, FavoriteGroup group, Restaurant restaurant) {
+    private Favorite(@Nullable Long id, Member member, Restaurant restaurant) {
         this.id = id;
         this.member = member;
-        this.group = group;
         this.restaurant = restaurant;
     }
 
