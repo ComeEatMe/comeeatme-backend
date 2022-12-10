@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long>, FavoriteRepositoryCustom {
@@ -20,5 +21,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>, Favor
 
     @EntityGraph(attributePaths = "restaurant")
     Slice<Favorite> findSliceWithRestaurantByMember(Pageable pageable, Member member);
+
+    List<Favorite> findAllByMember(Member member);
 
 }

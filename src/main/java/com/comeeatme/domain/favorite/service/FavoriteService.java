@@ -93,6 +93,18 @@ public class FavoriteService {
                 );
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Favorite> favorites = favoriteRepository.findAllByMember(member);
+        favoriteRepository.deleteAll(favorites);
+        List<Long> restaurantIds = favorites.stream()
+                .map(favorite -> favorite.getRestaurant().getId())
+                .collect(Collectors.toList());
+        List<Restaurant> restaurants = restaurantRepository.findAllWithPessimisticLockByIdIn(restaurantIds);
+        restaurants.forEach(Restaurant::decreaseFavoriteCount);
+    }
+
     private Restaurant getRestaurantById(Long id) {
         return restaurantRepository.findById(id)
                 .filter(Restaurant::getUseYn)
