@@ -130,4 +130,18 @@ class AccountServiceTest {
         then(account).should().setMember(member);
     }
 
+    @Test
+    void delete() {
+        // given
+        Account account = mock(Account.class);
+        given(account.getUseYn()).willReturn(true);
+        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+
+        // when
+        accountService.delete("username");
+
+        // then
+        then(account).should().delete();
+    }
+
 }

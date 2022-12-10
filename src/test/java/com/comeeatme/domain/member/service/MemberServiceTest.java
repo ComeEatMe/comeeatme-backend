@@ -205,4 +205,20 @@ class MemberServiceTest {
         assertThatThrownBy(() -> memberService.create("nickname"))
                 .isInstanceOf(AlreadyNicknameExistsException.class);
     }
+
+    @Test
+    void delete() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(member.getId()).willReturn(1L);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        // when
+        DeleteResult<Long> result = memberService.delete(1L);
+
+        // then
+        assertThat(result.getId()).isEqualTo(1L);
+        then(member).should().delete();
+    }
 }
