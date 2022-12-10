@@ -101,7 +101,7 @@ public class MemberService {
     @Transactional
     public DeleteResult<Long> delete(Long memberId) {
         Member member = getMemberById(memberId);
-
+        member.delete();
         return new DeleteResult<>(member.getId());
     }
 
