@@ -56,3 +56,9 @@ operation::v1-member-get-agreements[snippets='http-request,request-headers,http-
 == 회원 가입
 
 operation::v1-member-signup[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+
+
+[[v1-member-delete]]
+== 회원 탈퇴
+
+operation::v1-member-delete[snippets='http-request,request-headers,http-response,response-fields-data']
