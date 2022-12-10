@@ -231,4 +231,31 @@ class BookmarkRepositoryTest {
         assertThat(persistenceUnitUtil.isLoaded(foundBookmark.getPost().getMember())).isTrue();
     }
 
+    @Test
+    void findAllByMember() {
+        // given
+        List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
+                        .build(),
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(11L))
+                        .build(),
+                Bookmark.builder()  // memberId different
+                        .member(memberRepository.getReferenceById(2L))
+                        .post(postRepository.getReferenceById(10L))
+                        .build()
+        ));
+
+        // when
+        List<Bookmark> result = bookmarkRepository.findAllByMember(memberRepository.getReferenceById(1L));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(bookmarks.get(0).getId(), bookmarks.get(1).getId());
+    }
+
 }

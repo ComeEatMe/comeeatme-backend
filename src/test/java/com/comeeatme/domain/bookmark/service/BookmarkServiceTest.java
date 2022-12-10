@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class BookmarkServiceTest {
@@ -314,6 +315,44 @@ class BookmarkServiceTest {
         for (BookmarkedPostDto bookmarkedPostDto : content) {
             assertThat(bookmarkedPostDto.getImageUrls())
                     .containsExactly("url-1", "url-2");
+        }
+    }
+
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        // given
+        Post post1 = mock(Post.class);
+        given(post1.getId()).willReturn(10L);
+        Post post2 = mock(Post.class);
+        given(post2.getId()).willReturn(11L);
+
+        Bookmark bookmark1 = mock(Bookmark.class);
+        given(bookmark1.getPost()).willReturn(post1);
+        Bookmark bookmark2 = mock(Bookmark.class);
+        given(bookmark2.getPost()).willReturn(post2);
+
+        List<Bookmark> bookmarks = List.of(bookmark1, bookmark2);
+        given(bookmarkRepository.findAllByMember(member)).willReturn(bookmarks);
+
+        Post lockedPost1 = mock(Post.class);
+        Post lockedPost2 = mock(Post.class);
+        List<Post> lockedPosts = List.of(lockedPost1, lockedPost2);
+        given(postRepository.findAllWithPessimisticLockByIdIn(List.of(10L, 11L)))
+                .willReturn(lockedPosts);
+
+        // when
+        bookmarkService.deleteAllOfMember(1L);
+
+        // then
+        then(bookmarkRepository).should().deleteAll(bookmarks);
+
+        for (Post lockedPost : lockedPosts) {
+            then(lockedPost).should(times(1)).decreaseBookmarkCount();
         }
     }
 
