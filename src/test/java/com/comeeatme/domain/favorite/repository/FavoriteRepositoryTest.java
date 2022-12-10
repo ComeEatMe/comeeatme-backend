@@ -189,4 +189,31 @@ class FavoriteRepositoryTest {
         assertThat(persistenceUnitUtil.isLoaded(content.get(0).getRestaurant())).isTrue();
     }
 
+    @Test
+    void findAllByMember() {
+        // given
+        List<Favorite> favorites = favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(memberRepository.getReferenceById(10L))
+                        .build(),
+                Favorite.builder()
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .member(memberRepository.getReferenceById(10L))
+                        .build(),
+                Favorite.builder()      // memberId different
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(memberRepository.getReferenceById(11L))
+                        .build()
+        ));
+
+        // when
+        List<Favorite> result = favoriteRepository.findAllByMember(memberRepository.getReferenceById(10L));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(favorites.get(0).getId(), favorites.get(1).getId());
+    }
+
 }

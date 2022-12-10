@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class FavoriteServiceTest {
@@ -194,6 +195,41 @@ class FavoriteServiceTest {
 
         // expected
         assertThat(favoriteService.isFavorite(1L, 2L)).isFalse();
+    }
+
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant1 = mock(Restaurant.class);
+        given(restaurant1.getId()).willReturn(10L);
+        Restaurant restaurant2 = mock(Restaurant.class);
+        given(restaurant2.getId()).willReturn(11L);
+
+        Favorite favorite1 = mock(Favorite.class);
+        given(favorite1.getRestaurant()).willReturn(restaurant1);
+        Favorite favorite2 = mock(Favorite.class);
+        given(favorite2.getRestaurant()).willReturn(restaurant2);
+
+        List<Favorite> favorites = List.of(favorite1, favorite2);
+        given(favoriteRepository.findAllByMember(member))
+                .willReturn(favorites);
+
+        Restaurant lockedRestaurant1 = mock(Restaurant.class);
+        Restaurant lockedRestaurant2 = mock(Restaurant.class);
+        given(restaurantRepository.findAllWithPessimisticLockByIdIn(List.of(10L, 11L)))
+                .willReturn(List.of(lockedRestaurant1, lockedRestaurant2));
+
+        // when
+        favoriteService.deleteAllOfMember(1L);
+
+        // then
+        then(favoriteRepository).should().deleteAll(favorites);
+        then(lockedRestaurant1).should(times(1)).decreaseFavoriteCount();
+        then(lockedRestaurant2).should(times(1)).decreaseFavoriteCount();
     }
 
 }
