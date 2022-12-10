@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
@@ -20,5 +21,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, Bookm
 
     @EntityGraph(attributePaths = {"post", "post.restaurant", "post.member"})
     Slice<Bookmark> findSliceWithByMember(Pageable pageable, Member member);
+
+    List<Bookmark> findAllByMember(Member member);
 
 }

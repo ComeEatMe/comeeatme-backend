@@ -109,6 +109,18 @@ public class BookmarkService {
                 ).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMember(member);
+        bookmarkRepository.deleteAll(bookmarks);
+        List<Long> postIds = bookmarks.stream()
+                .map(bookmark -> bookmark.getPost().getId())
+                .collect(Collectors.toList());
+        List<Post> posts = postRepository.findAllWithPessimisticLockByIdIn(postIds);
+        posts.forEach(Post::decreaseBookmarkCount);
+    }
+
     public boolean isBookmarked(Long memberId, Long postId) {
         Member member = getMemberById(memberId);
         Post post = getPostById(postId);
