@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositoryCustom {
@@ -18,5 +19,7 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
 
     @EntityGraph(attributePaths = "post")
     Slice<Like> findSliceWithPostByMember(Pageable pageable, Member member);
+
+    List<Like> findAllByMember(Member member);
 
 }

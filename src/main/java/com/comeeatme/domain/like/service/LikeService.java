@@ -105,6 +105,18 @@ public class LikeService {
                 );
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Like> likes = likeRepository.findAllByMember(member);
+        List<Long> postIds = likes.stream()
+                .map(like -> like.getPost().getId())
+                .collect(Collectors.toList());
+        likeRepository.deleteAll(likes);
+        List<Post> posts = postRepository.findAllWithPessimisticLockByIdIn(postIds);
+        posts.forEach(Post::decreaseLikeCount);
+    }
+
     private Post getPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(Post::getUseYn)
