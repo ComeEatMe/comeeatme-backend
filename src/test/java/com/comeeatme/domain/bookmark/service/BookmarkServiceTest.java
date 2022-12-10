@@ -325,7 +325,6 @@ class BookmarkServiceTest {
         given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
-        // given
         Post post1 = mock(Post.class);
         given(post1.getId()).willReturn(10L);
         Post post2 = mock(Post.class);

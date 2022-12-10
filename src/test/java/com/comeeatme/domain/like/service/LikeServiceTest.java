@@ -34,8 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LikeServiceTest {
@@ -255,6 +254,43 @@ class LikeServiceTest {
         assertThat(imageUrls)
                 .hasSize(1)
                 .containsExactly("url-1");
+    }
+
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post1 = mock(Post.class);
+        given(post1.getId()).willReturn(10L);
+        Post post2 = mock(Post.class);
+        given(post2.getId()).willReturn(11L);
+
+        Like like1 = mock(Like.class);
+        given(like1.getPost()).willReturn(post1);
+        Like like2 = mock(Like.class);
+        given(like2.getPost()).willReturn(post2);
+
+        List<Like> likes = List.of(like1, like2);
+        given(likeRepository.findAllByMember(member)).willReturn(likes);
+
+        Post lockedPost1 = mock(Post.class);
+        Post lockedPost2 = mock(Post.class);
+        List<Post> lockedPosts = List.of(lockedPost1, lockedPost2);
+        given(postRepository.findAllWithPessimisticLockByIdIn(List.of(10L, 11L)))
+                .willReturn(lockedPosts);
+
+        // when
+        likeService.deleteAllOfMember(1L);
+
+        // then
+        then(likeRepository).should().deleteAll(likes);
+
+        for (Post lockedPost : lockedPosts) {
+            then(lockedPost).should(times(1)).decreaseLikeCount();
+        }
     }
 
 }
