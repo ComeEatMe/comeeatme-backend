@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Table(name = "bookmark",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "UK_bookmark_bookmark_group_post",
-                        columnNames = {"bookmark_group_id", "post_id"})
+                        name = "UK_bookmark_post_member",
+                        columnNames = {"post_id", "member_id"})
         },
         indexes = {
                 @Index(name = "IX_bookmark_member", columnList = "member_id"),
@@ -36,19 +36,14 @@ public class Bookmark extends BaseCreatedAtEntity {
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "bookmark_group_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private BookmarkGroup group;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Post post;
 
     @Builder
-    private Bookmark(@Nullable Long id, Member member, @Nullable BookmarkGroup group, Post post) {
+    private Bookmark(@Nullable Long id, Member member, Post post) {
         this.id = id;
         this.member = member;
-        this.group = group;
         this.post = post;
     }
 }
