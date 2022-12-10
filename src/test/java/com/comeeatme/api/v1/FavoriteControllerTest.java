@@ -5,6 +5,9 @@ import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.favorite.service.FavoriteService;
+import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.post.Hashtag;
+import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,10 +26,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -53,6 +58,12 @@ class FavoriteControllerTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private ImageService imageService;
+
+    @MockBean
+    private PostHashtagService postHashtagService;
 
     @Test
     @WithMockUser
@@ -111,46 +122,6 @@ class FavoriteControllerTest {
     @DisplayName("맛집 즐겨찾기된 음식점 조회 - DOCS")
     void getFavoriteList_Docs() throws Exception {
         // given
-        given(accountService.getMemberId(anyString())).willReturn(1L);
-
-        FavoriteRestaurantDto favoriteRestaurantDto = FavoriteRestaurantDto.builder()
-                .id(2L)
-                .name("지그재그")
-                .build();
-        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L)))
-                .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
-
-        // expected
-        mockMvc.perform(get("/v1/members/{memberId}/favorite", 1L)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-favorite-get-favorite-list",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("memberId").description("회원 ID")
-                        ),
-                        responseFields(
-                                beneathPath("data.content[]").withSubsectionId("content"),
-                                fieldWithPath("id").type(Long.class.getSimpleName())
-                                        .description("음식점 ID"),
-                                fieldWithPath("name").description("음식점 이름"),
-                                fieldWithPath("favorited").description("맛집 즐겨찾기 등록 여부")
-                        )
-                ))
-        ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("맛집 즐겨찾기된 음식점 조회 - 본인 이외 회원 조회")
-    void getFavoriteList_MemberIdNotEqual() throws Exception {
-        // given
         long memberId = 1L;
         long myMemberId = 5L;
         given(accountService.getMemberId(anyString())).willReturn(myMemberId);
@@ -168,6 +139,57 @@ class FavoriteControllerTest {
                 .build();
         given(favoriteService.areFavorite(myMemberId, List.of(2L))).willReturn(List.of(restaurantFavorited));
 
+
+        given(imageService.getRestaurantIdToImages(List.of(2L), 3))
+                .willReturn(Map.of(2L, List.of("image-url-1", "image-url-2")));
+
+        given(postHashtagService.getHashtagsOfRestaurants(List.of(2L)))
+                .willReturn(Map.of(2L, List.of(Hashtag.DATE, Hashtag.STRONG_TASTE)));
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}/favorite", memberId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("perImageNum", "3"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-favorite-get-favorite-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName())
+                                        .description("음식점 ID"),
+                                fieldWithPath("name").description("음식점 이름"),
+                                fieldWithPath("favorited").description("맛집 즐겨찾기 등록 여부"),
+                                fieldWithPath("hashtags").description("해당 음식점 게시물의 해쉬태그"),
+                                fieldWithPath("imageUrls").description("해당 음식점 게시물 이미지")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("맛집 즐겨찾기된 음식점 조회 - 본인 회원 조회")
+    void getFavoriteList_MyFavoriteList() throws Exception {
+        // given
+        long memberId = 1L;
+        given(accountService.getMemberId(anyString())).willReturn(memberId);
+
+        FavoriteRestaurantDto favoriteRestaurantDto = FavoriteRestaurantDto.builder()
+                .id(2L)
+                .name("지그재그")
+                .build();
+        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(memberId)))
+                .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
+
         // expected
         mockMvc.perform(get("/v1/members/{memberId}/favorite", memberId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
@@ -177,36 +199,7 @@ class FavoriteControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
         ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("맛집 즐겨찾기된 음식점 조회 - 전체 그룹 조회")
-    void getFavoriteList_GroupNull() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(1L);
-
-        FavoriteRestaurantDto favoriteRestaurantDto = FavoriteRestaurantDto.builder()
-                .id(2L)
-                .name("지그재그")
-                .build();
-        given(favoriteService.getFavoriteRestaurants(any(Pageable.class), eq(1L)))
-                .willReturn(new SliceImpl<>(List.of(favoriteRestaurantDto)));
-
-        // expected
-        mockMvc.perform(get("/v1/members/{memberId}/favorite", 1L)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-favorite-get-favorite-list-group-null",
-                        pathParameters(
-                                parameterWithName("memberId").description("회원 ID")
-                        )
-                ))
-        ;
+        then(favoriteService).should(never()).areFavorite(anyLong(), anyList());
     }
 
 }
