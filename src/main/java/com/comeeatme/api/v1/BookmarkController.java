@@ -3,7 +3,6 @@ package com.comeeatme.api.v1;
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.PostWith;
 import com.comeeatme.domain.account.service.AccountService;
-import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
@@ -33,37 +32,27 @@ public class BookmarkController {
 
     private final LikeService likeService;
 
-    @PutMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
+    @PutMapping("/member/bookmark/{postId}")
     public ResponseEntity<ApiResult<Void>> bookmark(
-            @PathVariable(required = false) String groupName, @PathVariable Long postId,
-            @LoginUsername String username) {
+            @PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        bookmarkService.bookmark(postId, memberId, groupName);
+        bookmarkService.bookmark(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 
-    @DeleteMapping({"/member/bookmark/{groupName}/{postId}", "/member/bookmark/{postId}"})
+    @DeleteMapping("/member/bookmark/{postId}")
     public ResponseEntity<ApiResult<Void>> delete(
-            @PathVariable(required = false) String groupName, @PathVariable Long postId,
-            @LoginUsername String username) {
+            @PathVariable Long postId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        bookmarkService.cancelBookmark(postId, memberId, groupName);
+        bookmarkService.cancelBookmark(postId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 
-    @GetMapping("/members/{memberId}/bookmark-groups")
-    public ResponseEntity<ApiResult<List<BookmarkGroupDto>>> getBookmarkGroups(@PathVariable Long memberId) {
-        List<BookmarkGroupDto> groups = bookmarkService.getAllGroupsOfMember(memberId);
-        ApiResult<List<BookmarkGroupDto>> apiResult = ApiResult.success(groups);
-        return ResponseEntity.ok(apiResult);
-    }
-
-    @GetMapping({"/members/{memberId}/bookmarked/{groupName}", "/members/{memberId}/bookmarked"})
+    @GetMapping( "/members/{memberId}/bookmarked")
     public ResponseEntity<ApiResult<Slice<PostWith<BookmarkedPostDto>>>> getBookmarkedList(
-            Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
-            @LoginUsername String username) {
+            Pageable pageable, @PathVariable Long memberId, @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
-        Slice<BookmarkedPostDto> posts = bookmarkService.getBookmarkedPosts(pageable, memberId, groupName);
+        Slice<BookmarkedPostDto> posts = bookmarkService.getBookmarkedPosts(pageable, memberId);
         List<Long> postIds = posts.stream()
                 .map(BookmarkedPostDto::getId)
                 .collect(Collectors.toList());

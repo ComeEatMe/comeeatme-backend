@@ -1,11 +1,16 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.bookmark.service.BookmarkService;
+import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
+import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.member.Agreement;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberImageEdit;
@@ -15,12 +20,13 @@ import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
+import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.ErrorCode;
 import com.comeeatme.security.SecurityConfig;
-import com.comeeatme.domain.account.service.AccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -43,6 +49,7 @@ import java.util.stream.Collectors;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -78,6 +85,21 @@ class MemberControllerTest {
 
     @MockBean
     private MemberNicknameCreator memberNicknameCreator;
+
+    @MockBean
+    private PostService postService;
+
+    @MockBean
+    private CommentService commentService;
+
+    @MockBean
+    private FavoriteService favoriteService;
+
+    @MockBean
+    private BookmarkService bookmarkService;
+
+    @MockBean
+    private LikeService likeService;
 
     @Test
     @WithMockUser
@@ -390,6 +412,57 @@ class MemberControllerTest {
                 ))
         ;
         then(accountService).should().signupMember(anyString(), eq(1L));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴 - DOCS")
+    void delete_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(1L);
+        given(memberService.delete(1L)).willReturn(new DeleteResult<>(1L));
+
+        // expected
+        mockMvc.perform(delete("/v1/member").with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-member-delete",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        responseFields(
+                                beneathPath("data").withSubsectionId("data"),
+                                fieldWithPath("id").description("삭제된 회원 ID")
+                        )
+                ))
+        ;
+        then(postService).should().deleteAllOfMember(1L);
+        then(imageService).should().deleteAllOfMember(1L);
+        then(commentService).should().deleteAllOfMember(1L);
+        then(favoriteService).should().deleteAllOfMember(1L);
+        then(bookmarkService).should().deleteAllOfMember(1L);
+        then(likeService).should().deleteAllOfMember(1L);
+        then(accountService).should().delete(anyString());
+
+        InOrder inOrder = inOrder(postService,
+                imageService,
+                commentService,
+                favoriteService,
+                bookmarkService,
+                likeService,
+                accountService);
+        inOrder.verify(postService).deleteAllOfMember(1L);
+        inOrder.verify(imageService).deleteAllOfMember(1L);
+        inOrder.verify(commentService).deleteAllOfMember(1L);
+        inOrder.verify(favoriteService).deleteAllOfMember(1L);
+        inOrder.verify(bookmarkService).deleteAllOfMember(1L);
+        inOrder.verify(likeService).deleteAllOfMember(1L);
+        inOrder.verify(accountService).delete(anyString());
     }
 
 }

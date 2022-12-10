@@ -1,16 +1,24 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
+import com.comeeatme.domain.address.Address;
+import com.comeeatme.domain.address.AddressCode;
+import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.Favorite;
-import com.comeeatme.domain.favorite.FavoriteGroup;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,71 +30,26 @@ class FavoriteRepositoryTest {
 
     @Autowired
     private FavoriteRepository favoriteRepository;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+    @Autowired
+    private AddressCodeRepository addressCodeRepository;
+    @Autowired
+    private EntityManagerFactory emf;
 
     @Test
-    void existsByMemberAndGroupAndRestaurant() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isTrue();
-    }
-
-    @Test
-    void existsByMemberAndGroupAndRestaurant_GroupNotEqual() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(4L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isFalse();
-    }
-
-    @Test
-    void existsByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
-        // given
-        favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.existsByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(4L).build()
-        )).isFalse();
-    }
-
-    @Test
-    void findByMemberAndGroupAndRestaurant() {
+    void findByRestaurantAndMember() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // when
-        Favorite result = favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
+        Favorite result = favoriteRepository.findByRestaurantAndMember(
+                restaurantRepository.getReferenceById(2L),
+                memberRepository.getReferenceById(1L)
         ).orElseThrow();
 
         // then
@@ -94,35 +57,17 @@ class FavoriteRepositoryTest {
     }
 
     @Test
-    void findByMemberAndGroupAndRestaurant_GroupNotEqual() {
+    void findByRestaurantAndMember_RestaurantNotEqual() {
         Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // expected
-        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(4L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isEmpty();
-    }
-
-    @Test
-    void findByMemberAndGroupAndRestaurant_RestaurantNotEqual() {
-        Favorite favorite = favoriteRepository.save(Favorite.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
-                .group(FavoriteGroup.builder().id(3L).build())
-                .build());
-
-        // expected
-        assertThat(favoriteRepository.findByMemberAndGroupAndRestaurant(
-                Member.builder().id(1L).build(),
-                FavoriteGroup.builder().id(3L).build(),
-                Restaurant.builder().id(4L).build()
-        )).isEmpty();
+        assertThat(favoriteRepository.findByRestaurantAndMember(
+                restaurantRepository.getReferenceById(3L),
+                memberRepository.getReferenceById(1L)
+                )).isEmpty();
     }
 
     @Test
@@ -132,17 +77,14 @@ class FavoriteRepositoryTest {
                 Favorite.builder()
                         .member(Member.builder().id(1L).build())
                         .restaurant(Restaurant.builder().id(2L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
                         .build(),
                 Favorite.builder()
                         .member(Member.builder().id(1L).build())
                         .restaurant(Restaurant.builder().id(4L).build())
-                        .group(FavoriteGroup.builder().id(4L).build())
                         .build(),
                 Favorite.builder()
                         .member(Member.builder().id(2L).build())
                         .restaurant(Restaurant.builder().id(5L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
                         .build()
         ));
 
@@ -162,10 +104,10 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(1L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isTrue();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(2L).build(),
+                Member.builder().id(1L).build()
+                )).isTrue();
     }
 
     @Test
@@ -177,10 +119,10 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(3L).build(),
-                Restaurant.builder().id(2L).build()
-        )).isFalse();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(2L).build(),
+                Member.builder().id(3L).build()
+                )).isFalse();
     }
 
     @Test
@@ -192,10 +134,86 @@ class FavoriteRepositoryTest {
                 .build());
 
         // expected
-        assertThat(favoriteRepository.existsByMemberAndRestaurant(
-                Member.builder().id(1L).build(),
-                Restaurant.builder().id(3L).build()
-        )).isFalse();
+        assertThat(favoriteRepository.existsByRestaurantAndMember(
+                Restaurant.builder().id(3L).build(),
+                Member.builder().id(1L).build()
+                )).isFalse();
+    }
+
+    @Test
+    void findSliceWithRestaurantByMember() {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+        Restaurant restaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("모노끼 야탑점")
+                        .phone("")
+                        .address(Address.builder()
+                                .name("경기 성남시 분당구")
+                                .roadName("경기 성남시 분당구 야탑로")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        List<Favorite> favorites = favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurant)
+                        .build(),
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(11L))
+                        .restaurant(restaurant)
+                        .build()
+        ));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<Favorite> result = favoriteRepository.findSliceWithRestaurantByMember(
+                pageRequest, memberRepository.getReferenceById(10L));
+
+        // then
+        List<Favorite> content = result.getContent();
+        assertThat(content)
+                .hasSize(1)
+                .extracting("id").containsOnly(favorites.get(0).getId());
+        PersistenceUnitUtil persistenceUnitUtil = emf.getPersistenceUnitUtil();
+        assertThat(persistenceUnitUtil.isLoaded(content.get(0).getRestaurant())).isTrue();
+    }
+
+    @Test
+    void findAllByMember() {
+        // given
+        List<Favorite> favorites = favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(memberRepository.getReferenceById(10L))
+                        .build(),
+                Favorite.builder()
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .member(memberRepository.getReferenceById(10L))
+                        .build(),
+                Favorite.builder()      // memberId different
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .member(memberRepository.getReferenceById(11L))
+                        .build()
+        ));
+
+        // when
+        List<Favorite> result = favoriteRepository.findAllByMember(memberRepository.getReferenceById(10L));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(favorites.get(0).getId(), favorites.get(1).getId());
     }
 
 }

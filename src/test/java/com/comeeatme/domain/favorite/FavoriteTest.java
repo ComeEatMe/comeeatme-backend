@@ -3,7 +3,9 @@ package com.comeeatme.domain.favorite;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,6 +26,12 @@ class FavoriteTest {
     @Autowired
     private FavoriteRepository favoriteRepository;
 
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
     @Test
     void save() {
         assertThatNoException().isThrownBy(() -> favoriteRepository.save(
@@ -35,17 +43,15 @@ class FavoriteTest {
     }
 
     @Test
-    void unique_FavoriteGroup_Restaurant() {
+    void unique_Member_Restaurant() {
         assertThatThrownBy(() -> favoriteRepository.saveAll(List.of(
                 Favorite.builder()
-                        .member(Member.builder().id(1L).build())
-                        .restaurant(Restaurant.builder().id(2L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
                         .build(),
                 Favorite.builder()
-                        .member(Member.builder().id(1L).build())
-                        .restaurant(Restaurant.builder().id(2L).build())
-                        .group(FavoriteGroup.builder().id(3L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
                         .build()
                 )
         )).isInstanceOf(DataIntegrityViolationException.class);

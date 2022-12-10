@@ -81,18 +81,6 @@ public class MemberService {
         return MemberDetailDto.of(member);
     }
 
-    private Member getMemberById(Long id) {
-        return memberRepository.findById(id)
-                .filter(Member::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Member id=" + id));
-    }
-
-    private Image getImageById(Long imageId) {
-        return imageRepository.findById(imageId)
-                .filter(Image::getUseYn)
-                .orElseThrow(() -> new EntityNotFoundException("Images id=" + imageId));
-    }
-
     public DuplicateResult checkNicknameDuplicate(String nickname) {
         return DuplicateResult.builder()
                 .duplicate(memberRepository.existsByNickname(nickname))
@@ -108,5 +96,24 @@ public class MemberService {
                 .introduction("")
                 .build());
         return new CreateResult<>(member.getId());
+    }
+
+    @Transactional
+    public DeleteResult<Long> delete(Long memberId) {
+        Member member = getMemberById(memberId);
+        member.delete();
+        return new DeleteResult<>(member.getId());
+    }
+
+    private Member getMemberById(Long id) {
+        return memberRepository.findById(id)
+                .filter(Member::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Member id=" + id));
+    }
+
+    private Image getImageById(Long imageId) {
+        return imageRepository.findById(imageId)
+                .filter(Image::getUseYn)
+                .orElseThrow(() -> new EntityNotFoundException("Images id=" + imageId));
     }
 }

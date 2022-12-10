@@ -3,6 +3,7 @@ package com.comeeatme.domain.like.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
@@ -34,6 +35,8 @@ class LikeRepositoryTest {
 
     @Autowired
     private EntityManager em;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     void findByPostAndMember_Present() {
@@ -168,6 +171,33 @@ class LikeRepositoryTest {
             assertThat(persistenceUnitUtil.isLoaded(foundLike.getPost())).isTrue();
         }
 
+    }
+
+    @Test
+    void findAllByMember() {
+        // given
+        List<Like> likes = likeRepository.saveAll(List.of(
+                Like.builder()
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
+                        .build(),
+                Like.builder()  // postId different
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(11L))
+                        .build(),
+                Like.builder()  // memberId different
+                        .member(memberRepository.getReferenceById(2L))
+                        .post(postRepository.getReferenceById(10L))
+                        .build()
+        ));
+
+        // when
+        List<Like> result = likeRepository.findAllByMember(memberRepository.getReferenceById(1L));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(likes.get(0).getId(), likes.get(1).getId());
     }
 
 }

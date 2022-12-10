@@ -1,24 +1,29 @@
 package com.comeeatme.api.v1;
 
 import com.comeeatme.api.common.response.ApiResult;
+import com.comeeatme.domain.account.service.AccountService;
+import com.comeeatme.domain.bookmark.service.BookmarkService;
+import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.DuplicateResult;
 import com.comeeatme.domain.common.response.UpdateResult;
+import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.member.Agreement;
-import com.comeeatme.domain.member.request.MemberSignup;
-import com.comeeatme.domain.member.response.MemberAgreements;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberImageEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
+import com.comeeatme.domain.member.request.MemberSignup;
+import com.comeeatme.domain.member.response.MemberAgreements;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
 import com.comeeatme.domain.member.service.MemberService;
+import com.comeeatme.domain.post.service.PostService;
 import com.comeeatme.error.exception.EntityAccessDeniedException;
 import com.comeeatme.error.exception.RequiredAgreementNotAgreeException;
-import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +50,16 @@ public class MemberController {
     private final ImageService imageService;
 
     private final MemberNicknameCreator memberNicknameCreator;
+
+    private final PostService postService;
+
+    private final CommentService commentService;
+
+    private final FavoriteService favoriteService;
+
+    private final BookmarkService bookmarkService;
+
+    private final LikeService likeService;
 
     @PatchMapping("/member")
     public ResponseEntity<ApiResult<UpdateResult<Long>>> patch(
@@ -126,6 +141,21 @@ public class MemberController {
         ApiResult<CreateResult<Long>> apiResult = ApiResult.success(memberCreateResult);
         return ResponseEntity.ok(apiResult);
     }
-    
-    
+
+    @DeleteMapping("/member")
+    public ResponseEntity<ApiResult<DeleteResult<Long>>> delete(@LoginUsername String username) {
+        Long memberId = accountService.getMemberId(username);
+
+        postService.deleteAllOfMember(memberId);
+        imageService.deleteAllOfMember(memberId);
+        commentService.deleteAllOfMember(memberId);
+        favoriteService.deleteAllOfMember(memberId);
+        bookmarkService.deleteAllOfMember(memberId);
+        likeService.deleteAllOfMember(memberId);
+        DeleteResult<Long> deleteResult = memberService.delete(memberId);
+        accountService.delete(username);
+
+        ApiResult<DeleteResult<Long>> apiResult = ApiResult.success(deleteResult);
+        return ResponseEntity.ok(apiResult);
+    }
 }

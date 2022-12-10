@@ -26,12 +26,15 @@ import org.springframework.data.domain.SliceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
@@ -227,4 +230,43 @@ class CommentServiceTest {
                 .containsExactly("nickname-1", "nickname-2", null);
         assertThat(content).extracting("member").extracting("imageUrl").containsExactly("image-url-1", null, null);
     }
+
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post1 = mock(Post.class);
+        given(post1.getId()).willReturn(10L);
+        Post post2 = mock(Post.class);
+        given(post2.getId()).willReturn(11L);
+
+        Comment comment1 = mock(Comment.class);
+        given(comment1.getPost()).willReturn(post1);
+        Comment comment2 = mock(Comment.class);
+        given(comment2.getPost()).willReturn(post1);
+        Comment comment3 = mock(Comment.class);
+        given(comment3.getPost()).willReturn(post2);
+        List<Comment> comments = List.of(comment1, comment2, comment3);
+        given(commentRepository.findAllByMemberAndUseYnIsTrue(member))
+                .willReturn(comments);
+
+        Post lockedPost1 = mock(Post.class);
+        given(lockedPost1.getId()).willReturn(10L);
+        Post lockedPost2 = mock(Post.class);
+        given(lockedPost2.getId()).willReturn(11L);
+        given(postRepository.findAllWithPessimisticLockByIdIn(Set.of(10L, 11L)))
+                .willReturn(List.of(lockedPost1, lockedPost2));
+
+        // when
+        commentService.deleteAllOfMember(1L);
+
+        // then
+        comments.forEach(comment -> then(comment).should().delete());
+        then(lockedPost1).should(times(2)).decreaseCommentCount();
+        then(lockedPost2).should(times(1)).decreaseCommentCount();
+    }
+
 }

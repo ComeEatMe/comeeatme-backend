@@ -3,10 +3,12 @@ package com.comeeatme.api.v1;
 import com.comeeatme.api.common.response.ApiResult;
 import com.comeeatme.api.common.response.RestaurantWith;
 import com.comeeatme.domain.account.service.AccountService;
-import com.comeeatme.domain.favorite.response.FavoriteGroupDto;
 import com.comeeatme.domain.favorite.response.FavoriteRestaurantDto;
 import com.comeeatme.domain.favorite.response.RestaurantFavorited;
 import com.comeeatme.domain.favorite.service.FavoriteService;
+import com.comeeatme.domain.image.service.ImageService;
+import com.comeeatme.domain.post.Hashtag;
+import com.comeeatme.domain.post.service.PostHashtagService;
 import com.comeeatme.security.annotation.LoginUsername;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +16,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequestMapping("/v1")
@@ -29,38 +31,33 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-    @PutMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
+    private final ImageService imageService;
+
+    private final PostHashtagService postHashtagService;
+
+    @PutMapping("/member/favorite/{restaurantId}")
     public ResponseEntity<ApiResult<Void>> put(
-            @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
-            @LoginUsername String username) {
+            @PathVariable Long restaurantId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        favoriteService.favorite(restaurantId, memberId, groupName);
+        favoriteService.favorite(restaurantId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 
-    @DeleteMapping({"/member/favorite/{groupName}/{restaurantId}", "/member/favorite/{restaurantId}"})
+    @DeleteMapping("/member/favorite/{restaurantId}")
     public ResponseEntity<ApiResult<Void>> delete(
-            @PathVariable(required = false) String groupName, @PathVariable Long restaurantId,
-            @LoginUsername String username) {
+            @PathVariable Long restaurantId, @LoginUsername String username) {
         Long memberId = accountService.getMemberId(username);
-        favoriteService.cancelFavorite(restaurantId, memberId, groupName);
+        favoriteService.cancelFavorite(restaurantId, memberId);
         return ResponseEntity.ok(ApiResult.success());
     }
 
-    @GetMapping("/members/{memberId}/favorite-groups")
-    public ResponseEntity<ApiResult<List<FavoriteGroupDto>>> getFavoriteGroups(@PathVariable Long memberId) {
-        List<FavoriteGroupDto> groups = favoriteService.getAllGroupsOfMember(memberId);
-        ApiResult<List<FavoriteGroupDto>> apiResult = ApiResult.success(groups);
-        return ResponseEntity.ok(apiResult);
-    }
-
-    @GetMapping({"/members/{memberId}/favorite/{groupName}", "/members/{memberId}/favorite"})
+    @GetMapping( "/members/{memberId}/favorite")
     public ResponseEntity<ApiResult<Slice<RestaurantWith<FavoriteRestaurantDto>>>> getFavoriteList(
-            Pageable pageable, @PathVariable Long memberId, @PathVariable(required = false) String groupName,
+            Pageable pageable, @PathVariable Long memberId,
+            @RequestParam(required = false) @Valid @Max(10) @Min(1) Integer perImageNum,
             @LoginUsername String username) {
         Long myMemberId = accountService.getMemberId(username);
-        Slice<FavoriteRestaurantDto> restaurants = favoriteService.getFavoriteRestaurants(
-                pageable, memberId, groupName);
+        Slice<FavoriteRestaurantDto> restaurants = favoriteService.getFavoriteRestaurants(pageable, memberId);
         List<Long> restaurantIds = restaurants.stream()
                 .map(FavoriteRestaurantDto::getId)
                 .collect(Collectors.toList());
@@ -70,10 +67,20 @@ public class FavoriteController {
                         .filter(RestaurantFavorited::getFavorited)
                         .map(RestaurantFavorited::getRestaurantId)
                         .collect(Collectors.toSet());
+        Map<Long, List<String>> restaurantIdToImages = Optional.ofNullable(perImageNum)
+                .map(num -> imageService.getRestaurantIdToImages(restaurantIds, num))
+                .orElse(null);
+        Map<Long, List<Hashtag>> restaurantIdToHashtags = postHashtagService.getHashtagsOfRestaurants(restaurantIds);
         Slice<RestaurantWith<FavoriteRestaurantDto>> restaurantWiths = restaurants
                 .map(restaurant -> RestaurantWith.<FavoriteRestaurantDto>builder()
                         .restaurant(restaurant)
                         .favorited(favoriteRestaurantIds.contains(restaurant.getId()))
+                        .hashtags(restaurantIdToHashtags.getOrDefault(restaurant.getId(), Collections.emptyList()))
+                        .imageUrls(Optional.ofNullable(restaurantIdToImages)
+                                .map(idToImages -> idToImages.getOrDefault(restaurant.getId(),
+                                        Collections.emptyList()))
+                                .orElse(null)
+                        )
                         .build()
                 );
         ApiResult<Slice<RestaurantWith<FavoriteRestaurantDto>>> apiResult = ApiResult.success(restaurantWiths);

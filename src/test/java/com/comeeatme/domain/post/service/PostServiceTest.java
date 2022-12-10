@@ -899,4 +899,43 @@ class PostServiceTest {
         assertThat(result.getMember().getImageUrl()).isNull();
     }
 
+    @Test
+    void deleteAllOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Restaurant restaurant1 = mock(Restaurant.class);
+        given(restaurant1.getId()).willReturn(10L);
+        Restaurant restaurant2 = mock(Restaurant.class);
+        given(restaurant2.getId()).willReturn(20L);
+
+        Post post1 = mock(Post.class);
+        given(post1.getRestaurant()).willReturn(restaurant1);
+        Post post2 = mock(Post.class);
+        given(post2.getRestaurant()).willReturn(restaurant1);
+        Post post3 = mock(Post.class);
+        given(post3.getRestaurant()).willReturn(restaurant2);
+        given(postRepository.findAllByMemberAndUseYnIsTrue(member))
+                .willReturn(List.of(post1, post2, post3));
+
+        Restaurant lockedRestaurant1 = mock(Restaurant.class);
+        given(lockedRestaurant1.getId()).willReturn(10L);
+        Restaurant lockedRestaurant2 = mock(Restaurant.class);
+        given(lockedRestaurant2.getId()).willReturn(20L);
+        given(restaurantRepository.findAllWithPessimisticLockByIdIn(Set.of(10L, 20L)))
+                .willReturn(List.of(lockedRestaurant1, lockedRestaurant2));
+
+        // when
+        postService.deleteAllOfMember(1L);
+
+        // then
+        then(post1).should().delete();
+        then(post3).should().delete();
+
+        then(lockedRestaurant1).should(times(2)).decreasePostCount();
+        then(lockedRestaurant2).should(times(1)).decreasePostCount();
+    }
+
 }

@@ -12,39 +12,13 @@
 [[v1-favorite-put]]
 == 음식점 맛집 즐겨찾기
 
-=== 그룹 지정 O 요청
-
-operation::v1-favorite-put[snippets='http-request,request-headers,path-parameters']
-
-=== 그룹 지정 X 요청
-
-operation::v1-favorite-put-group-null[snippets='http-request,request-headers,path-parameters']
-
-=== Response
-
-operation::v1-favorite-put[snippets='http-response,response-fields']
+operation::v1-favorite-put[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
 
 [[v1-favorite-delete]]
-== 음식점 맛집 즐겨찾기
+== 음식점 맛집 즐겨찾기 취소
 
-=== 그룹 지정 O 요청
-
-operation::v1-favorite-delete[snippets='http-request,request-headers,path-parameters']
-
-=== 그룹 지정 X 요청
-
-operation::v1-favorite-delete-group-null[snippets='http-request,request-headers,path-parameters']
-
-=== Response
-
-operation::v1-favorite-delete[snippets='http-response,response-fields']
-
-
-[[v1-favorite-get-favorite-groups]]
-== 북마크 그룹 리스트 조회
-
-operation::v1-favorite-get-favorite-groups[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+operation::v1-favorite-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
 
 [[v1-favorite-get-favorite-list]]
@@ -55,16 +29,5 @@ sort 파라미터 사용 불가능
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-favorite-get-favorite-list[snippets='http-request,request-headers']
+operation::v1-favorite-get-favorite-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
 
-=== 전체 그룹 조회
-
-include::{snippets}/v1-favorite-get-favorite-list-group-null/path-parameters.adoc[]
-
-=== 특정 그룹 조회
-
-include::{snippets}/v1-favorite-get-favorite-list/path-parameters.adoc[]
-
-=== Response
-
-operation::v1-favorite-get-favorite-list[snippets='http-response,response-fields-content']

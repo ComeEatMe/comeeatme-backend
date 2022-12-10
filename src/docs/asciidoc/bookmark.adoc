@@ -12,39 +12,14 @@
 [[v1-bookmark-bookmark]]
 == 게시물 북마크
 
-=== 그룹 지정 O 요청
-
-operation::v1-bookmark-bookmark[snippets='http-request,request-headers,path-parameters']
-
-=== 그룹 지정 X 요청
-
-operation::v1-bookmark-bookmark-group-null[snippets='http-request,request-headers,path-parameters']
-
-=== Response
-
-operation::v1-bookmark-bookmark[snippets='http-response,response-fields']
+operation::v1-bookmark-bookmark[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
 
 [[v1-bookmark-cancel-bookmark]]
 == 게시물 북마크 취소
 
-=== 그룹이 있는 북마크
+operation::v1-bookmark-cancel-bookmark[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
 
-operation::v1-bookmark-cancel-bookmark[snippets='http-request,request-headers,path-parameters']
-
-=== 그룹이 없는 북마크
-
-operation::v1-bookmark-cancel-bookmark-group-null[snippets='http-request,request-headers,path-parameters']
-
-=== Response
-
-operation::v1-bookmark-cancel-bookmark[snippets='http-response,response-fields']
-
-
-[[v1-bookmark-get-bookmark-groups]]
-== 북마크 그룹 리스트 조회
-
-operation::v1-bookmark-get-bookmark-groups[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
 
 
 [[v1-bookmark-get-bookmarked-list]]
@@ -55,16 +30,4 @@ sort 파라미터 사용 불가능
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-bookmark-get-bookmarked-list[snippets='http-request,request-headers']
-
-=== 전체 그룹 조회
-
-include::{snippets}/v1-bookmark-get-bookmarked-list-group-null/path-parameters.adoc[]
-
-=== 특정 그룹 조회
-
-include::{snippets}/v1-bookmark-get-bookmarked-list/path-parameters.adoc[]
-
-=== Response
-
-operation::v1-bookmark-get-bookmarked-list[snippets='http-response,response-fields-content']
+operation::v1-bookmark-get-bookmarked-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']

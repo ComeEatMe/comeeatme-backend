@@ -1,10 +1,7 @@
 package com.comeeatme.domain.bookmark.service;
 
 import com.comeeatme.domain.bookmark.Bookmark;
-import com.comeeatme.domain.bookmark.BookmarkGroup;
-import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
-import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.image.Image;
@@ -22,16 +19,16 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookmarkService {
-
-    private final BookmarkGroupRepository bookmarkGroupRepository;
 
     private final BookmarkRepository bookmarkRepository;
 
@@ -42,59 +39,37 @@ public class BookmarkService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void bookmark(Long postId, Long memberId, String groupName) {
+    public void bookmark(Long postId, Long memberId) {
         Post post = getPostWithPessimisticLockById(postId);
         Member member = getMemberById(memberId);
-        BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        if (bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)) {
+        if (bookmarkRepository.existsByPostAndMember(post, member)) {
             throw new AlreadyBookmarkedException(String.format(
-                    "member.id=%s, bookmark.group=%s, post.id=%s",
-                    member.getId(), groupName, post.getId()
+                    "member.id=%s, post.id=%s", member.getId(), post.getId()
             ));
         }
 
         bookmarkRepository.save(Bookmark.builder()
                 .member(member)
-                .group(group)
                 .post(post)
                 .build());
-        Optional.ofNullable(group).ifPresent(BookmarkGroup::incrBookmarkCount);
         post.increaseBookmarkCount();
     }
 
     @Transactional
-    public void cancelBookmark(Long postId, Long memberId, String groupName) {
+    public void cancelBookmark(Long postId, Long memberId) {
         Post post = getPostWithPessimisticLockById(postId);
         Member member = getMemberById(memberId);
-        BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        Bookmark bookmark = bookmarkRepository.findByMemberAndGroupAndPost(member, group, post)
-                .orElseThrow(() -> new EntityNotFoundException("group=" + groupName + ", post.id=" + postId));
+        Bookmark bookmark = bookmarkRepository.findByPostAndMember(post, member)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(
+                        "memberId=%s, postId=%s", memberId, postId
+                )));
         bookmarkRepository.delete(bookmark);
-        Optional.ofNullable(group).ifPresent(BookmarkGroup::decrBookmarkCount);
         post.decreaseBookmarkCount();
     }
 
-    public List<BookmarkGroupDto> getAllGroupsOfMember(Long memberId) {
+    public Slice<BookmarkedPostDto> getBookmarkedPosts(Pageable pageable, Long memberId) {
         Member member = getMemberById(memberId);
-        List<BookmarkGroup> groups = bookmarkGroupRepository.findAllByMember(member);
-        int allCount = bookmarkRepository.countByMember(member);
-        List<BookmarkGroupDto> groupDtos = new ArrayList<>();
-        groupDtos.add(BookmarkGroupDto.builder()
-                .name(BookmarkGroup.ALL_NAME)
-                .bookmarkCount(allCount)
-                .build());
-        groupDtos.addAll(groups.stream().map(group -> BookmarkGroupDto.builder()
-                        .name(group.getName())
-                        .bookmarkCount(group.getBookmarkCount())
-                        .build())
-                .collect(Collectors.toList()));
-        return groupDtos;
-    }
-
-    public Slice<BookmarkedPostDto> getBookmarkedPosts(Pageable pageable, Long memberId, @Nullable String groupName) {
-        Member member = getMemberById(memberId);
-        BookmarkGroup group = getBookmarkGroupByMemberAndName(member, groupName);
-        Slice<Post> bookmarkedPosts = bookmarkRepository.findSliceWithByMemberAndGroup(pageable, member, group)
+        Slice<Post> bookmarkedPosts = bookmarkRepository.findSliceWithByMember(pageable, member)
                 .map(Bookmark::getPost);
         Map<Long, List<PostImage>> postIdToPostImages = postImageRepository.findAllWithImageByPostIn(
                         bookmarkedPosts.getContent())
@@ -134,10 +109,22 @@ public class BookmarkService {
                 ).collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteAllOfMember(Long memberId) {
+        Member member = getMemberById(memberId);
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMember(member);
+        bookmarkRepository.deleteAll(bookmarks);
+        List<Long> postIds = bookmarks.stream()
+                .map(bookmark -> bookmark.getPost().getId())
+                .collect(Collectors.toList());
+        List<Post> posts = postRepository.findAllWithPessimisticLockByIdIn(postIds);
+        posts.forEach(Post::decreaseBookmarkCount);
+    }
+
     public boolean isBookmarked(Long memberId, Long postId) {
         Member member = getMemberById(memberId);
         Post post = getPostById(postId);
-        return bookmarkRepository.existsByMemberAndPost(member, post);
+        return bookmarkRepository.existsByPostAndMember(post, member);
     }
 
     private Post getPostById(Long postId) {
@@ -156,15 +143,6 @@ public class BookmarkService {
         return memberRepository.findById(id)
                 .filter(Member::getUseYn)
                 .orElseThrow(() -> new EntityNotFoundException("Member.id=" + id));
-    }
-
-    @Nullable
-    private BookmarkGroup getBookmarkGroupByMemberAndName(Member member, @Nullable String name) {
-        return Optional.ofNullable(name)
-                .map(groupName -> bookmarkGroupRepository.findByMemberAndName(member, groupName)
-                        .orElseThrow(() -> new EntityNotFoundException(String.format(
-                                "BookmarkGroup member.id=%s, name=%s", member.getId(), groupName)))
-                ).orElse(null);
     }
 
 }

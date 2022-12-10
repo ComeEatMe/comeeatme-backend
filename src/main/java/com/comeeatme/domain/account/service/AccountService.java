@@ -65,6 +65,12 @@ public class AccountService {
         account.setMember(member);
     }
 
+    @Transactional
+    public void delete(String username) {
+        Account account = getAccountByUsername(username);
+        account.delete();
+    }
+
     private Account getAccountByUsername(String username) {
         return accountRepository.findByUsername(username)
                 .filter(Account::getUseYn)

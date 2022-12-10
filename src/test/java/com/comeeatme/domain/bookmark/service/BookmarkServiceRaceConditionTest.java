@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class BookmarkServiceRaceConditionTest {
@@ -76,7 +75,7 @@ class BookmarkServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    bookmarkService.bookmark(post.getId(), member.getId(), null);
+                    bookmarkService.bookmark(post.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -110,7 +109,7 @@ class BookmarkServiceRaceConditionTest {
                         .build()
         );
 
-        members.forEach(member -> bookmarkService.bookmark(post.getId(), member.getId(), null));
+        members.forEach(member -> bookmarkService.bookmark(post.getId(), member.getId()));
 
         // when
         int threadCount = 100;
@@ -121,7 +120,7 @@ class BookmarkServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    bookmarkService.cancelBookmark(post.getId(), member.getId(), null);
+                    bookmarkService.cancelBookmark(post.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -134,5 +133,62 @@ class BookmarkServiceRaceConditionTest {
         Post foundPost = postRepository.findById(post.getId()).orElseThrow();
         assertThat(foundPost.getBookmarkCount()).isEqualTo(100);
     }
+
+    @Test
+    void deleteAllOfMember() throws InterruptedException {
+        // given
+        int numMember = 100;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, numMember)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        int numPost = 3;
+        List<Post> posts = postRepository.saveAll(
+                IntStream.range(0, numPost)
+                        .mapToObj(i -> Post.builder()
+                                .member(memberRepository.getReferenceById(100L))
+                                .restaurant(restaurantRepository.getReferenceById(200L))
+                                .content("content-" + i)
+                                .build()
+                        ).collect(Collectors.toList())
+        );
+
+        for (int i = 0; i < numMember; i++) {
+            Member member = members.get(i);
+            for (int j = 0; j < numPost; j++) {
+                Post post = posts.get(j);
+                bookmarkService.bookmark(post.getId(), member.getId());
+            }
+        }
+
+        // when
+        int threadCount = numMember;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    bookmarkService.deleteAllOfMember(member.getId());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        List<Post> foundPosts = postRepository.findAll();
+        for (Post foundPost : foundPosts) {
+            assertThat(foundPost.getBookmarkCount()).isZero();
+        }
+    }
+
 
 }

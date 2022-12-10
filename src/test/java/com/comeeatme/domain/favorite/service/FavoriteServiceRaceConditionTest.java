@@ -90,7 +90,7 @@ class FavoriteServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    favoriteService.favorite(restaurant.getId(), member.getId(), null);
+                    favoriteService.favorite(restaurant.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -136,7 +136,7 @@ class FavoriteServiceRaceConditionTest {
                         .build()
                 ).collect(Collectors.toList())
         );
-        members.forEach(member -> favoriteService.favorite(restaurant.getId(), member.getId(), null));
+        members.forEach(member -> favoriteService.favorite(restaurant.getId(), member.getId()));
 
         // when
         int threadCount = 100;
@@ -147,7 +147,7 @@ class FavoriteServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    favoriteService.cancelFavorite(restaurant.getId(), member.getId(), null);
+                    favoriteService.cancelFavorite(restaurant.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -159,6 +159,75 @@ class FavoriteServiceRaceConditionTest {
         // then
         Restaurant foundRestaurant = restaurantRepository.findById(restaurant.getId()).orElseThrow();
         assertThat(foundRestaurant.getFavoriteCount()).isEqualTo(100);
+    }
+
+    @Test
+    void deleteAllOfMember() throws InterruptedException {
+        // given
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+
+        int numMember = 100;
+        List<Member> members = memberRepository.saveAll(IntStream.range(0, numMember)
+                .mapToObj(i -> Member.builder()
+                        .nickname("nickname-" + i)
+                        .introduction("")
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        int numRestaurant = 3;
+        List<Restaurant> restaurants = restaurantRepository.saveAll(IntStream.range(0, numRestaurant)
+                .mapToObj(i -> Restaurant.builder()
+                        .name("restaurant-" + i)
+                        .phone("")
+                        .address(Address.builder()
+                                .name("address-name")
+                                .roadName("road-address-name")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+                ).collect(Collectors.toList())
+        );
+
+        for (int i = 0; i < numMember; i++) {
+            Member member = members.get(i);
+            for (int j = 0; j < numRestaurant; j++) {
+                Restaurant restaurant = restaurants.get(j);
+                favoriteService.favorite(restaurant.getId(), member.getId());
+            }
+        }
+
+        // when
+        int threadCount = numMember;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Member member = members.get(i);
+            executorService.submit(() -> {
+                try {
+                    favoriteService.deleteAllOfMember(member.getId());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        List<Restaurant> foundRestaurants = restaurantRepository.findAll();
+        for (Restaurant foundRestaurant : foundRestaurants) {
+            assertThat(foundRestaurant.getFavoriteCount()).isZero();
+        }
     }
 
 }
