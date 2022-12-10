@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class BookmarkServiceRaceConditionTest {
@@ -76,7 +75,7 @@ class BookmarkServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    bookmarkService.bookmark(post.getId(), member.getId(), null);
+                    bookmarkService.bookmark(post.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -110,7 +109,7 @@ class BookmarkServiceRaceConditionTest {
                         .build()
         );
 
-        members.forEach(member -> bookmarkService.bookmark(post.getId(), member.getId(), null));
+        members.forEach(member -> bookmarkService.bookmark(post.getId(), member.getId()));
 
         // when
         int threadCount = 100;
@@ -121,7 +120,7 @@ class BookmarkServiceRaceConditionTest {
             Member member = members.get(i);
             executorService.submit(() -> {
                 try {
-                    bookmarkService.cancelBookmark(post.getId(), member.getId(), null);
+                    bookmarkService.cancelBookmark(post.getId(), member.getId());
                 } finally {
                     latch.countDown();
                 }

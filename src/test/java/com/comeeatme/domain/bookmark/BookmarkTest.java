@@ -35,17 +35,15 @@ class BookmarkTest {
     }
 
     @Test
-    void Unique_BookmarkGroup_post() {
+    void Unique_Post_Member() {
         assertThatThrownBy(() -> bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
                         .member(Member.builder().id(1L).build())
                         .post(Post.builder().id(2L).build())
-                        .group(BookmarkGroup.builder().id(3L).build())
                         .build(),
                 Bookmark.builder()
                         .member(Member.builder().id(1L).build())
                         .post(Post.builder().id(2L).build())
-                        .group(BookmarkGroup.builder().id(3L).build())
                         .build()
         ))).isInstanceOf(DataIntegrityViolationException.class);;
     }

@@ -2,8 +2,6 @@ package com.comeeatme.api.v1;
 
 import com.comeeatme.common.RestDocsConfig;
 import com.comeeatme.domain.account.service.AccountService;
-import com.comeeatme.domain.bookmark.BookmarkGroup;
-import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.bookmark.service.BookmarkService;
@@ -70,7 +68,7 @@ class BookmarkControllerTest {
         given(accountService.getMemberId(anyString())).willReturn(2L);
 
         //expected
-        mockMvc.perform(put("/v1/member/bookmark/{groupName}/{postId}", "그루비룸", 1L)
+        mockMvc.perform(put("/v1/member/bookmark/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
@@ -80,41 +78,13 @@ class BookmarkControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("groupName").description("북마크 그룹"),
                                 parameterWithName("postId").description("게시물 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().bookmark(1L, 2L, "그루비룸");
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 북마크 (그룹 지정 X) - DOCS")
-    void bookmark_GroupNull_Docs() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(2L);
-
-        //expected
-        mockMvc.perform(put("/v1/member/bookmark/{postId}", 1L)
-                        .with(csrf())
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("v1-bookmark-bookmark-group-null",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("postId").description("게시물 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").description("성공여부")
-                        )
-                ));
-        then(bookmarkService).should().bookmark(1L, 2L, null);
+        then(bookmarkService).should().bookmark(1L, 2L);
     }
 
     @Test
@@ -125,7 +95,7 @@ class BookmarkControllerTest {
         given(accountService.getMemberId(anyString())).willReturn(2L);
 
         //expected
-        mockMvc.perform(delete("/v1/member/bookmark/{groupName}/{postId}", "그루비룸", 1L)
+        mockMvc.perform(delete("/v1/member/bookmark/{postId}", 1L)
                         .with(csrf())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
                 .andDo(print())
@@ -135,86 +105,13 @@ class BookmarkControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("groupName").description("북마크 그룹"),
                                 parameterWithName("postId").description("게시물 ID")
                         ),
                         responseFields(
                                 fieldWithPath("success").description("성공여부")
                         )
                 ));
-        then(bookmarkService).should().cancelBookmark(1L, 2L, "그루비룸");
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("게시물 북마크 취소 (그룹 지정 X) - DOCS")
-    void cancelBookmark_Docs_GroupNull_Docs() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(2L);
-
-        //expected
-        mockMvc.perform(delete("/v1/member/bookmark/{postId}", 1L)
-                        .with(csrf())
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andDo(document("v1-bookmark-cancel-bookmark-group-null",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("postId").description("게시물 ID")
-                        ),
-                        responseFields(
-                                fieldWithPath("success").description("성공여부")
-                        )
-                ));
-        then(bookmarkService).should().cancelBookmark(1L, 2L, null);
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("북마크 그룹 리스트 조회 - DOCS")
-    void getBookmarkGroups_Docs() throws Exception {
-        // given
-        List<BookmarkGroupDto> groups = List.of(
-                BookmarkGroupDto.builder()
-                        .name(BookmarkGroup.ALL_NAME)
-                        .bookmarkCount(10)
-                        .build(),
-                BookmarkGroupDto.builder()
-                        .name("그루비룸")
-                        .bookmarkCount(2)
-                        .build(),
-                BookmarkGroupDto.builder()
-                        .name("국밥")
-                        .bookmarkCount(3)
-                        .build()
-        );
-        given(bookmarkService.getAllGroupsOfMember(1L)).willReturn(groups);
-
-        // expected
-        mockMvc.perform(get("/v1/members/{memberId}/bookmark-groups", 1L)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-bookmark-get-bookmark-groups",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
-                        ),
-                        pathParameters(
-                                parameterWithName("memberId").description("회원 ID")
-                        ),
-                        responseFields(
-                                beneathPath("data").withSubsectionId("data"),
-                                fieldWithPath("name").description("북마크 그룹 이름. 모든 북마크는 " +
-                                        BookmarkGroup.ALL_NAME + " 그룹에 포함되어 있음."),
-                                fieldWithPath("bookmarkCount").type(Integer.class.getSimpleName())
-                                        .description("북마크 그룹에 포함된 북마크 개수")
-                        )
-                ));
+        then(bookmarkService).should().cancelBookmark(1L, 2L);
     }
 
     @Test
@@ -236,7 +133,7 @@ class BookmarkControllerTest {
                 .restaurantId(4L)
                 .restaurantName("지그재그")
                 .build();
-        given(bookmarkService.getBookmarkedPosts(any(Pageable.class), eq(memberId), eq("그루비룸")))
+        given(bookmarkService.getBookmarkedPosts(any(Pageable.class), eq(memberId)))
                 .willReturn(new SliceImpl<>(List.of(bookmarkedPostDto)));
 
         PostLiked postLiked = PostLiked.builder()
@@ -246,7 +143,7 @@ class BookmarkControllerTest {
         given(likeService.areLiked(memberId, List.of(2L))).willReturn(List.of(postLiked));
 
         // expected
-        mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")
+        mockMvc.perform(get("/v1/members/{memberId}/bookmarked", memberId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -258,9 +155,7 @@ class BookmarkControllerTest {
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
                         ),
                         pathParameters(
-                                parameterWithName("memberId").description("회원 ID"),
-                                parameterWithName("groupName")
-                                        .description("북마크 그룹 이름. 모든 북마크 그룹을 조회하려면 지정하지 않음.")
+                                parameterWithName("memberId").description("회원 ID")
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
@@ -303,7 +198,7 @@ class BookmarkControllerTest {
                 .restaurantId(4L)
                 .restaurantName("지그재그")
                 .build();
-        given(bookmarkService.getBookmarkedPosts(any(Pageable.class), eq(memberId), eq("그루비룸")))
+        given(bookmarkService.getBookmarkedPosts(any(Pageable.class), eq(memberId)))
                 .willReturn(new SliceImpl<>(List.of(bookmarkedPostDto)));
 
 
@@ -320,57 +215,13 @@ class BookmarkControllerTest {
         given(bookmarkService.areBookmarked(myMemberId, List.of(2L))).willReturn(List.of(postBookmarked));
 
         // expected
-        mockMvc.perform(get("/v1/members/{memberId}/bookmarked/{groupName}", memberId, "그루비룸")
+        mockMvc.perform(get("/v1/members/{memberId}/bookmarked", memberId)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-        ;
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("북마크된 게시물 조회 - 전체 그룹 조회")
-    void getBookmarkedList_GroupNull() throws Exception {
-        // given
-        given(accountService.getMemberId(anyString())).willReturn(1L);
-
-        BookmarkedPostDto bookmarkedPostDto = BookmarkedPostDto.builder()
-                .id(2L)
-                .imageUrls(List.of("image-url-1", "image-url-1"))
-                .content("content")
-                .createdAt(LocalDateTime.of(2022, 10, 30, 14, 35))
-                .memberId(3L)
-                .memberNickname("nickname")
-                .memberImageUrl("member-image-url")
-                .restaurantId(4L)
-                .restaurantName("지그재그")
-                .build();
-        given(bookmarkService.getBookmarkedPosts(any(Pageable.class), eq(1L), eq(null)))
-                .willReturn(new SliceImpl<>(List.of(bookmarkedPostDto)));
-
-
-        PostLiked postLiked = PostLiked.builder()
-                .postId(2L)
-                .liked(true)
-                .build();
-        given(likeService.areLiked(1L, List.of(2L))).willReturn(List.of(postLiked));
-
-        // expected
-        mockMvc.perform(get("/v1/members/{memberId}/bookmarked", 1L)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andDo(document("v1-bookmark-get-bookmarked-list-group-null",
-                        pathParameters(
-                                parameterWithName("memberId").description("회원 ID")
-                        )
-                ))
         ;
     }
 

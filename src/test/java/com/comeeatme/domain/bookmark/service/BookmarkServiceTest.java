@@ -1,10 +1,7 @@
 package com.comeeatme.domain.bookmark.service;
 
 import com.comeeatme.domain.bookmark.Bookmark;
-import com.comeeatme.domain.bookmark.BookmarkGroup;
-import com.comeeatme.domain.bookmark.repository.BookmarkGroupRepository;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
-import com.comeeatme.domain.bookmark.response.BookmarkGroupDto;
 import com.comeeatme.domain.bookmark.response.BookmarkedPostDto;
 import com.comeeatme.domain.bookmark.response.PostBookmarked;
 import com.comeeatme.domain.image.Image;
@@ -46,9 +43,6 @@ class BookmarkServiceTest {
     private BookmarkService bookmarkService;
 
     @Mock
-    private BookmarkGroupRepository bookmarkGroupRepository;
-
-    @Mock
     private BookmarkRepository bookmarkRepository;
 
     @Mock
@@ -61,38 +55,6 @@ class BookmarkServiceTest {
     private PostImageRepository postImageRepository;
 
     @Test
-    void bookmark_GroupNotNull() {
-        // given
-        Post post = mock(Post.class);
-        given(post.getUseYn()).willReturn(true);
-        given(postRepository.findWithPessimisticLockById(1L)).willReturn(Optional.of(post));
-
-        Member member = mock(Member.class);
-        given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findById(2L)).willReturn(Optional.of(member));
-
-        BookmarkGroup group = mock(BookmarkGroup.class);
-        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
-
-        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)).willReturn(false);
-
-        // when
-        bookmarkService.bookmark(1L, 2L, "그루비룸");
-
-        // then
-        ArgumentCaptor<Bookmark> bookmarkCaptor = ArgumentCaptor.forClass(Bookmark.class);
-        then(bookmarkRepository).should().save(bookmarkCaptor.capture());
-
-        Bookmark captorValue = bookmarkCaptor.getValue();
-        assertThat(captorValue.getMember()).isEqualTo(member);
-        assertThat(captorValue.getGroup()).isEqualTo(group);
-        assertThat(captorValue.getPost()).isEqualTo(post);
-
-        then(group).should().incrBookmarkCount();
-        then(post).should().increaseBookmarkCount();
-    }
-
-    @Test
     void bookmark_GroupNull() {
         // given
         Post post = mock(Post.class);
@@ -103,10 +65,10 @@ class BookmarkServiceTest {
         given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
-        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, null, post)).willReturn(false);
+        given(bookmarkRepository.existsByPostAndMember(post, member)).willReturn(false);
 
         // when
-        bookmarkService.bookmark(1L, 2L, null);
+        bookmarkService.bookmark(1L, 2L);
 
         // then
         ArgumentCaptor<Bookmark> bookmarkCaptor = ArgumentCaptor.forClass(Bookmark.class);
@@ -114,7 +76,6 @@ class BookmarkServiceTest {
 
         Bookmark captorValue = bookmarkCaptor.getValue();
         assertThat(captorValue.getMember()).isEqualTo(member);
-        assertThat(captorValue.getGroup()).isNull();
         assertThat(captorValue.getPost()).isEqualTo(post);
 
         then(post).should().increaseBookmarkCount();
@@ -131,13 +92,10 @@ class BookmarkServiceTest {
         given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
-        BookmarkGroup group = mock(BookmarkGroup.class);
-        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
-
-        given(bookmarkRepository.existsByMemberAndGroupAndPost(member, group, post)).willReturn(true);
+        given(bookmarkRepository.existsByPostAndMember(post, member)).willReturn(true);
 
         // expected
-        assertThatThrownBy(() -> bookmarkService.bookmark(1L, 2L, "그루비룸"))
+        assertThatThrownBy(() -> bookmarkService.bookmark(1L, 2L))
                 .isInstanceOf(AlreadyBookmarkedException.class);
     }
 
@@ -152,47 +110,16 @@ class BookmarkServiceTest {
         given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(2L)).willReturn(Optional.of(member));
 
-        BookmarkGroup group = mock(BookmarkGroup.class);
-        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸")).willReturn(Optional.of(group));
-
         Bookmark bookmark = mock(Bookmark.class);
-        given(bookmarkRepository.findByMemberAndGroupAndPost(member, group, post)).willReturn(Optional.of(bookmark));
+        given(bookmarkRepository.findByPostAndMember(post, member)).willReturn(Optional.of(bookmark));
 
         // when
-        bookmarkService.cancelBookmark(1L, 2L, "그루비룸");
+        bookmarkService.cancelBookmark(1L, 2L);
 
         // then
         then(bookmarkRepository).should().delete(bookmark);
 
-        then(group).should().decrBookmarkCount();
         then(post).should().decreaseBookmarkCount();
-    }
-
-    @Test
-    void getAllGroupsOfMember() {
-        // given
-        Member member = mock(Member.class);
-        given(member.getUseYn()).willReturn(true);
-        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
-
-        BookmarkGroup group1 = mock(BookmarkGroup.class);
-        given(group1.getName()).willReturn("그루비룸-1");
-        given(group1.getBookmarkCount()).willReturn(1);
-
-        BookmarkGroup group2 = mock(BookmarkGroup.class);
-        given(group2.getName()).willReturn("그루비룸-2");
-        given(group2.getBookmarkCount()).willReturn(2);
-        given(bookmarkGroupRepository.findAllByMember(member)).willReturn(List.of(group1, group2));
-
-        given(bookmarkRepository.countByMember(member)).willReturn(10);
-
-        // when
-        List<BookmarkGroupDto> result = bookmarkService.getAllGroupsOfMember(1L);
-
-        // then
-        assertThat(result).hasSize(3);
-        assertThat(result).extracting("name").containsExactly(BookmarkGroup.ALL_NAME, "그루비룸-1", "그루비룸-2");
-        assertThat(result).extracting("bookmarkCount").containsExactly(10, 1, 2);
     }
 
     @Test
@@ -232,7 +159,7 @@ class BookmarkServiceTest {
         given(post.getUseYn()).willReturn(true);
         given(postRepository.findById(2L)).willReturn(Optional.of(post));
 
-        given(bookmarkRepository.existsByMemberAndPost(member, post)).willReturn(true);
+        given(bookmarkRepository.existsByPostAndMember(post, member)).willReturn(true);
 
         // when
         boolean result = bookmarkService.isBookmarked(1L, 2L);
@@ -252,7 +179,7 @@ class BookmarkServiceTest {
         given(post.getUseYn()).willReturn(true);
         given(postRepository.findById(2L)).willReturn(Optional.of(post));
 
-        given(bookmarkRepository.existsByMemberAndPost(member, post)).willReturn(false);
+        given(bookmarkRepository.existsByPostAndMember(post, member)).willReturn(false);
 
         // when
         boolean result = bookmarkService.isBookmarked(1L, 2L);
@@ -274,10 +201,6 @@ class BookmarkServiceTest {
         given(member.getImage()).willReturn(memberImage);
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
-        BookmarkGroup group = mock(BookmarkGroup.class);
-        given(bookmarkGroupRepository.findByMemberAndName(member, "그루비룸"))
-                .willReturn(Optional.of(group));
-
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(2L);
         given(restaurant.getName()).willReturn("지그재그");
@@ -291,7 +214,7 @@ class BookmarkServiceTest {
 
         Bookmark bookmark = mock(Bookmark.class);
         given(bookmark.getPost()).willReturn(post);
-        given(bookmarkRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(group)))
+        given(bookmarkRepository.findSliceWithByMember(any(Pageable.class), eq(member)))
                 .willReturn(new SliceImpl<>(List.of(bookmark)));
 
         Image image1 = mock(Image.class);
@@ -311,7 +234,7 @@ class BookmarkServiceTest {
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L, "그루비룸");
+        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L);
 
         // then
         List<BookmarkedPostDto> content = result.getContent();
@@ -353,7 +276,7 @@ class BookmarkServiceTest {
 
         Bookmark bookmark = mock(Bookmark.class);
         given(bookmark.getPost()).willReturn(post);
-        given(bookmarkRepository.findSliceWithByMemberAndGroup(any(Pageable.class), eq(member), eq(null)))
+        given(bookmarkRepository.findSliceWithByMember(any(Pageable.class), eq(member)))
                 .willReturn(new SliceImpl<>(List.of(bookmark)));
 
         Image image1 = mock(Image.class);
@@ -375,7 +298,7 @@ class BookmarkServiceTest {
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L, null);
+        Slice<BookmarkedPostDto> result = bookmarkService.getBookmarkedPosts(pageRequest, 1L);
 
         // then
         List<BookmarkedPostDto> content = result.getContent();
