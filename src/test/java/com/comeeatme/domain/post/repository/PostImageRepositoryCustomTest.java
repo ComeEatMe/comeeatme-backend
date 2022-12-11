@@ -155,23 +155,23 @@ class PostImageRepositoryCustomTest {
 
         List<PostImage> postImages = postImageRepository.saveAll(List.of(
                 PostImage.builder()
-                        .image(Image.builder().id(30L).build())
+                        .image(imageRepository.getReferenceById(30L))
                         .post(posts.get(0))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(31L).build())
+                        .image(imageRepository.getReferenceById(31L))
                         .post(posts.get(0))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(32L).build())
+                        .image(imageRepository.getReferenceById(32L))
                         .post(posts.get(1))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(33L).build())
+                        .image(imageRepository.getReferenceById(33L))
                         .post(posts.get(1))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(34L).build())
+                        .image(imageRepository.getReferenceById(34L))
                         .post(posts.get(1))
                         .build()
         ));

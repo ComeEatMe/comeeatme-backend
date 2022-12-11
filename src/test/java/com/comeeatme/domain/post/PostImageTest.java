@@ -1,7 +1,7 @@
 package com.comeeatme.domain.post;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.image.Image;
+import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +19,15 @@ class PostImageTest {
 
     @Autowired
     private PostImageRepository postImageRepository;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Test
     @DisplayName("PostImage 생성 및 저장")
     void save() {
         assertThatNoException().isThrownBy(() -> postImageRepository.saveAndFlush(PostImage.builder()
                 .post(Post.builder().id(1L).build())
-                .image(Image.builder().id(2L).build())
+                .image(imageRepository.getReferenceById(2L))
                 .build()
         ));
     }
