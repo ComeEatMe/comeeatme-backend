@@ -1,6 +1,7 @@
 package com.comeeatme.domain.comment.service;
 
 import com.comeeatme.domain.comment.Comment;
+import com.comeeatme.domain.comment.CommentEditor;
 import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
@@ -95,19 +96,22 @@ class CommentServiceTest {
         CommentEdit commentEdit = CommentEdit.builder()
                 .content("edited-content")
                 .build();
-        Comment comment = Comment.builder()
-                .id(commentId)
-                .member(Member.builder().id(2L).build())
-                .post(Post.builder().id(3L).build())
-                .content("test-content")
-                .build();
+        Comment comment = mock(Comment.class);
+        given(comment.getUseYn()).willReturn(true);
+        given(comment.getId()).willReturn(commentId);
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        CommentEditor.CommentEditorBuilder editorBuilder = mock(CommentEditor.CommentEditorBuilder.class);
+        given(comment.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.content("edited-content")).willReturn(editorBuilder);
+        CommentEditor editor = mock(CommentEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
 
         // when
         UpdateResult<Long> updateResult = commentService.edit(commentEdit, commentId);
 
         // then
-        assertThat(comment.getContent()).isEqualTo("edited-content");
+        then(comment).should().edit(editor);
         assertThat(updateResult.getId()).isEqualTo(commentId);
     }
 
