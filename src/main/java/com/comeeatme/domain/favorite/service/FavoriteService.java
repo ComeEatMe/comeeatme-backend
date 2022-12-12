@@ -62,7 +62,11 @@ public class FavoriteService {
     }
 
     public List<RestaurantFavorited> areFavorite(Long memberId, List<Long> restaurantIds) {
-        List<Favorite> favorites = favoriteRepository.findAllByMemberIdAndRestaurantIds(memberId, restaurantIds);
+        Member member = memberRepository.getReferenceById(memberId);
+        List<Restaurant> restaurants = restaurantIds.stream()
+                .map(restaurantRepository::getReferenceById)
+                .collect(Collectors.toList());
+        List<Favorite> favorites = favoriteRepository.findAllByMemberAndRestaurantIn(member, restaurants);
         Set<Long> favoriteRestaurantIds = favorites.stream()
                 .map(favorite -> favorite.getRestaurant().getId())
                 .collect(Collectors.toSet());

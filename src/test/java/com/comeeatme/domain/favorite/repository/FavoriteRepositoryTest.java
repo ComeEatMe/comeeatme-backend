@@ -215,4 +215,37 @@ class FavoriteRepositoryTest {
                 .extracting("id").containsOnly(favorites.get(0).getId(), favorites.get(1).getId());
     }
 
+    @Test
+    void findAllByMemberAndRestaurantIn() {
+        // given
+        List<Favorite> favorites = favoriteRepository.saveAll(List.of(
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(1L))
+                        .build(),
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(2L))
+                        .build(),
+                Favorite.builder()
+                        .member(memberRepository.getReferenceById(11L))
+                        .restaurant(restaurantRepository.getReferenceById(3L))
+                        .build()
+        ));
+
+        // when
+        List<Favorite> result = favoriteRepository.findAllByMemberAndRestaurantIn(
+                memberRepository.getReferenceById(10L),
+                List.of(
+                        restaurantRepository.getReferenceById(1L),
+                        restaurantRepository.getReferenceById(2L),
+                        restaurantRepository.getReferenceById(3L)
+                ));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(favorites.get(0).getId(), favorites.get(1).getId());
+    }
+
 }
