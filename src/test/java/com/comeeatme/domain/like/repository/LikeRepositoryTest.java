@@ -2,7 +2,6 @@ package com.comeeatme.domain.like.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.like.Like;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
@@ -44,12 +43,12 @@ class LikeRepositoryTest {
         Like like = likeRepository.saveAndFlush(
                 Like.builder()
                         .post(Post.builder().id(1L).build())
-                        .member(Member.builder().id(2L).build())
+                        .member(memberRepository.getReferenceById(2L))
                         .build());
 
         // when
         Optional<Like> foundLike = likeRepository.findByPostAndMember(
-                Post.builder().id(1L).build(), Member.builder().id(2L).build());
+                Post.builder().id(1L).build(), memberRepository.getReferenceById(2L));
 
         // then
         assertThat(foundLike).isPresent();
@@ -61,17 +60,17 @@ class LikeRepositoryTest {
         likeRepository.saveAllAndFlush(List.of(
                 Like.builder() // Not equal post id
                         .post(Post.builder().id(2L).build())
-                        .member(Member.builder().id(2L).build())
+                        .member(memberRepository.getReferenceById(2L))
                         .build(),
                 Like.builder() // Not equal member id
                         .post(Post.builder().id(1L).build())
-                        .member(Member.builder().id(3L).build())
+                        .member(memberRepository.getReferenceById(3L))
                         .build()
         ));
 
         // when
         Optional<Like> foundLike = likeRepository.findByPostAndMember(
-                Post.builder().id(1L).build(), Member.builder().id(2L).build());
+                Post.builder().id(1L).build(), memberRepository.getReferenceById(2L));
 
         // then
         assertThat(foundLike).isEmpty();
@@ -82,13 +81,13 @@ class LikeRepositoryTest {
         // given
         likeRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
                 Post.builder().id(1L).build(),
-                Member.builder().id(2L).build()
+                memberRepository.getReferenceById(2L)
         );
 
         // then
@@ -100,13 +99,13 @@ class LikeRepositoryTest {
         // given
         likeRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
                 Post.builder().id(2L).build(),
-                Member.builder().id(2L).build()
+                memberRepository.getReferenceById(2L)
         );
 
         // then
@@ -118,13 +117,13 @@ class LikeRepositoryTest {
         // given
         likeRepository.save(Like.builder()
                 .post(Post.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
                 Post.builder().id(1L).build(),
-                Member.builder().id(1L).build()
+                memberRepository.getReferenceById(1L)
         );
 
         // then
@@ -137,17 +136,17 @@ class LikeRepositoryTest {
         Post post = postRepository.save(Post.builder()
                 .content("content")
                 .restaurant(Restaurant.builder().id(10L).build())
-                .member(Member.builder().id(20L).build())
+                .member(memberRepository.getReferenceById(20L))
                 .build());
 
         List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
                         .post(post)
-                        .member(Member.builder().id(21L).build())
+                        .member(memberRepository.getReferenceById(21L))
                         .build(),
                 Like.builder()
                         .post(post)
-                        .member(Member.builder().id(22L).build())
+                        .member(memberRepository.getReferenceById(22L))
                         .build()
         ));
 
@@ -157,7 +156,7 @@ class LikeRepositoryTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<Like> result = likeRepository.findSliceWithPostByMember(
-                pageRequest, Member.builder().id(21L).build());
+                pageRequest, memberRepository.getReferenceById(21L));
 
 
         // then

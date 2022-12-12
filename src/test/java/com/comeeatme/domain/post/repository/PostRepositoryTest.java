@@ -87,12 +87,12 @@ class PostRepositoryTest {
 
         List<Post> posts = postRepository.saveAll(List.of(
                 Post.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .restaurant(restaurant)
                         .content("content-1")
                         .build(),
                 Post.builder()
-                        .member(Member.builder().id(2L).build())
+                        .member(memberRepository.getReferenceById(2L))
                         .restaurant(restaurant)
                         .content("content-2")
                         .build()
@@ -104,7 +104,7 @@ class PostRepositoryTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<Post> result = postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(
-                pageRequest, Member.builder().id(1L).build());
+                pageRequest, memberRepository.getReferenceById(1L));
 
         // then
         List<Post> content = result.getContent();
@@ -154,7 +154,7 @@ class PostRepositoryTest {
 
         Post post = postRepository.save(
                 Post.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .restaurant(restaurant)
                         .content("content-1")
                         .build()
@@ -167,7 +167,7 @@ class PostRepositoryTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<Post> result = postRepository.findSliceWithRestaurantByMemberAndUseYnIsTrue(
-                pageRequest, Member.builder().id(1L).build());
+                pageRequest, memberRepository.getReferenceById(1L));
 
         // then
         List<Post> content = result.getContent();
@@ -178,7 +178,6 @@ class PostRepositoryTest {
     void findSliceWithMemberByRestaurantAndUseYnIsTrue() {
         // given
         Member member = memberRepository.save(Member.builder()
-                .id(10L)
                 .nickname("nickname")
                 .introduction("intro")
                 .build());
@@ -226,7 +225,6 @@ class PostRepositoryTest {
     void findSliceWithMemberByRestaurantAndUseYnIsTrue_Deleted() {
         // given
         Member member = memberRepository.save(Member.builder()
-                .id(10L)
                 .nickname("nickname")
                 .introduction("intro")
                 .build());
@@ -265,7 +263,7 @@ class PostRepositoryTest {
         // given
         Post post = postRepository.save(
                 Post.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .restaurant(Restaurant.builder().id(2L).build())
                         .content("content")
                         .build()

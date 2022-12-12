@@ -36,11 +36,9 @@ public class Member extends BaseTimeEntity {
 
     @Builder
     private Member(
-            @Nullable Long id,
             String nickname,
             String introduction,
             @Nullable Image image) {
-        this.id = id;
         this.nickname = nickname;
         this.introduction = introduction;
         this.image = image;

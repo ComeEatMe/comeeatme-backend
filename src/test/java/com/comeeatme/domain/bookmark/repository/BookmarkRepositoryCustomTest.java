@@ -3,7 +3,6 @@ package com.comeeatme.domain.bookmark.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.bookmark.Bookmark;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
@@ -47,15 +46,15 @@ class BookmarkRepositoryCustomTest {
         // given
         List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(1L).build())
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(2L).build())
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(11L).build())
+                        .member(memberRepository.getReferenceById(11L))
                         .post(Post.builder().id(3L).build())
                         .build()
         ));
@@ -75,15 +74,15 @@ class BookmarkRepositoryCustomTest {
         // given
         List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(1L).build())
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(2L).build())
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(11L).build())
+                        .member(memberRepository.getReferenceById(11L))
                         .post(Post.builder().id(1L).build())
                         .build()
         ));

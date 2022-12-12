@@ -3,7 +3,7 @@ package com.comeeatme.domain.post.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
-import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.response.RestaurantPostImage;
@@ -39,20 +39,22 @@ class PostImageRepositoryCustomTest {
 
     @Autowired
     private EntityManagerFactory emf;
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Test
     void findSliceWithImageByRestaurant() {
         // given
         Post post = postRepository.save(Post.builder()
                 .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -78,14 +80,14 @@ class PostImageRepositoryCustomTest {
         // given
         Post post = postRepository.save(Post.builder()
                 .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -108,14 +110,14 @@ class PostImageRepositoryCustomTest {
         // given
         Post post = postRepository.save(Post.builder()
                 .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -137,17 +139,17 @@ class PostImageRepositoryCustomTest {
         // given
         List<Post> posts = postRepository.saveAll(List.of(
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .restaurant(Restaurant.builder().id(20L).build())
                         .content("content-1")
                         .build(),
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .restaurant(Restaurant.builder().id(21L).build())
                         .content("content-2")
                         .build(),
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .restaurant(Restaurant.builder().id(21L).build())
                         .content("content-3")
                         .build()

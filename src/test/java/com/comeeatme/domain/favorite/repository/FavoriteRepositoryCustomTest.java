@@ -1,11 +1,9 @@
 package com.comeeatme.domain.favorite.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.favorite.Favorite;
-import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
-import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,25 +23,22 @@ class FavoriteRepositoryCustomTest {
     private FavoriteRepository favoriteRepository;
 
     @Autowired
-    private RestaurantRepository restaurantRepository;
-
-    @Autowired
-    private AddressCodeRepository addressCodeRepository;
+    private MemberRepository memberRepository;
 
     @Test
     void findAllByMemberIdAndRestaurantIds() {
         // given
         List<Favorite> favorites = favoriteRepository.saveAll(List.of(
                 Favorite.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .restaurant(Restaurant.builder().id(1L).build())
                         .build(),
                 Favorite.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .restaurant(Restaurant.builder().id(2L).build())
                         .build(),
                 Favorite.builder()
-                        .member(Member.builder().id(11L).build())
+                        .member(memberRepository.getReferenceById(11L))
                         .restaurant(Restaurant.builder().id(3L).build())
                         .build()
         ));

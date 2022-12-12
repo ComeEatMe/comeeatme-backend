@@ -3,7 +3,6 @@ package com.comeeatme.domain.like.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.like.Like;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import org.junit.jupiter.api.Test;
@@ -35,15 +34,15 @@ class LikeRepositoryCustomTest {
         // given
         List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(1L).build())
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(2L).build())
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(11L).build())
+                        .member(memberRepository.getReferenceById(11L))
                         .post(Post.builder().id(3L).build())
                         .build()
         ));
@@ -63,15 +62,15 @@ class LikeRepositoryCustomTest {
         // given
         List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(1L).build())
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(10L))
                         .post(Post.builder().id(2L).build())
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(11L).build())
+                        .member(memberRepository.getReferenceById(11L))
                         .post(Post.builder().id(1L).build())
                         .build()
         ));

@@ -2,7 +2,6 @@ package com.comeeatme.domain.favorite;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.favorite.repository.FavoriteRepository;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
@@ -36,7 +35,7 @@ class FavoriteTest {
     void save() {
         assertThatNoException().isThrownBy(() -> favoriteRepository.save(
                 Favorite.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .restaurant(Restaurant.builder().id(2L).build())
                         .build()
         ));

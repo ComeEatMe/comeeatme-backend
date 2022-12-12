@@ -2,7 +2,6 @@ package com.comeeatme.domain.comment.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.comment.Comment;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
@@ -33,7 +32,7 @@ class CommentRepositoryTest {
     void existsByIdAndPostAndUseYnIsTrue_True() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .post(Post.builder().id(2L).build())
                 .content("test-comment-content")
                 .build());
@@ -47,7 +46,7 @@ class CommentRepositoryTest {
     void existsByIdAndPostAndUseYnIsTrue_DiffPostId_False() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .post(Post.builder().id(1L).build())
                 .content("test-comment-content")
                 .build());
@@ -61,7 +60,7 @@ class CommentRepositoryTest {
     void existsByIdAndPostAndUseYnIsTrue_Deleted_False() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .post(Post.builder().id(2L).build())
                 .content("test-comment-content")
                 .build());
@@ -77,17 +76,17 @@ class CommentRepositoryTest {
         // given
         List<Comment> comments = commentRepository.saveAllAndFlush(List.of(
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .post(Post.builder().id(10L).build())
                         .content("content1")
                         .build(),
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .post(Post.builder().id(20L).build())
                         .content("content2")
                         .build(),
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(1L))
                         .post(Post.builder().id(10L).build())
                         .content("content3")
                         .build()
