@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,5 +22,7 @@ public interface LikeRepository extends JpaRepository<Like, Long>, LikeRepositor
     Slice<Like> findSliceWithPostByMember(Pageable pageable, Member member);
 
     List<Like> findAllByMember(Member member);
+
+    List<Like> findAllByMemberAndPostIn(Member member, Collection<Post> posts);
 
 }

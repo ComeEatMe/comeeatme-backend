@@ -201,4 +201,38 @@ class LikeRepositoryTest {
                 .extracting("id").containsOnly(likes.get(0).getId(), likes.get(1).getId());
     }
 
+    @Test
+    void findAllByMemberAndPostIn() {
+        // given
+        List<Like> likes = likeRepository.saveAll(List.of(
+                Like.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(1L))
+                        .build(),
+                Like.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(2L))
+                        .build(),
+                Like.builder()  // member different
+                        .member(memberRepository.getReferenceById(11L))
+                        .post(postRepository.getReferenceById(3L))
+                        .build()
+        ));
+
+        // when
+        List<Like> result = likeRepository.findAllByMemberAndPostIn(
+                memberRepository.getReferenceById(10L),
+                List.of(
+                        postRepository.getReferenceById(1L),
+                        postRepository.getReferenceById(2L),
+                        postRepository.getReferenceById(3L)
+                )
+        );
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(likes.get(0).getId(), likes.get(1).getId());
+    }
+
 }

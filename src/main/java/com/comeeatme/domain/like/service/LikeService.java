@@ -65,7 +65,11 @@ public class LikeService {
     }
 
     public List<PostLiked> areLiked(Long memberId, List<Long> postIds) {
-        List<Like> likes = likeRepository.findByMemberIdAndPostIds(memberId, postIds);
+        Member member = memberRepository.getReferenceById(memberId);
+        List<Post> posts = postIds.stream()
+                .map(postRepository::getReferenceById)
+                .collect(Collectors.toList());
+        List<Like> likes = likeRepository.findAllByMemberAndPostIn(member, posts);
         Set<Long> existingPostIds = likes.stream()
                 .map(like -> like.getPost().getId())
                 .collect(Collectors.toSet());
