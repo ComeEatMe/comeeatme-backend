@@ -4,7 +4,6 @@ import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import com.comeeatme.domain.bookmark.Bookmark;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
@@ -47,15 +46,15 @@ class BookmarkRepositoryCustomTest {
         List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(10L))
-                        .post(Post.builder().id(1L).build())
+                        .post(postRepository.getReferenceById(1L))
                         .build(),
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(10L))
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .build(),
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(11L))
-                        .post(Post.builder().id(3L).build())
+                        .post(postRepository.getReferenceById(3L))
                         .build()
         ));
 
@@ -75,20 +74,20 @@ class BookmarkRepositoryCustomTest {
         List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(10L))
-                        .post(Post.builder().id(1L).build())
+                        .post(postRepository.getReferenceById(1L))
                         .build(),
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(10L))
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .build(),
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(11L))
-                        .post(Post.builder().id(1L).build())
+                        .post(postRepository.getReferenceById(1L))
                         .build()
         ));
 
         // when
-        bookmarkRepository.deleteAllByPost(Post.builder().id(1L).build());
+        bookmarkRepository.deleteAllByPost(postRepository.getReferenceById(1L));
 
         // then
         List<Bookmark> foundBookmarks = bookmarkRepository.findAll();

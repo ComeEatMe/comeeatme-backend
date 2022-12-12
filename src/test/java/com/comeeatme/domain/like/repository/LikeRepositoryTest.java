@@ -42,13 +42,13 @@ class LikeRepositoryTest {
         // given
         Like like = likeRepository.saveAndFlush(
                 Like.builder()
-                        .post(Post.builder().id(1L).build())
+                        .post(postRepository.getReferenceById(1L))
                         .member(memberRepository.getReferenceById(2L))
                         .build());
 
         // when
         Optional<Like> foundLike = likeRepository.findByPostAndMember(
-                Post.builder().id(1L).build(), memberRepository.getReferenceById(2L));
+                postRepository.getReferenceById(1L), memberRepository.getReferenceById(2L));
 
         // then
         assertThat(foundLike).isPresent();
@@ -59,18 +59,18 @@ class LikeRepositoryTest {
         // given
         likeRepository.saveAllAndFlush(List.of(
                 Like.builder() // Not equal post id
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .member(memberRepository.getReferenceById(2L))
                         .build(),
                 Like.builder() // Not equal member id
-                        .post(Post.builder().id(1L).build())
+                        .post(postRepository.getReferenceById(1L))
                         .member(memberRepository.getReferenceById(3L))
                         .build()
         ));
 
         // when
         Optional<Like> foundLike = likeRepository.findByPostAndMember(
-                Post.builder().id(1L).build(), memberRepository.getReferenceById(2L));
+                postRepository.getReferenceById(1L), memberRepository.getReferenceById(2L));
 
         // then
         assertThat(foundLike).isEmpty();
@@ -80,13 +80,13 @@ class LikeRepositoryTest {
     void existsByPostAndMember() {
         // given
         likeRepository.save(Like.builder()
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
-                Post.builder().id(1L).build(),
+                postRepository.getReferenceById(1L),
                 memberRepository.getReferenceById(2L)
         );
 
@@ -98,13 +98,13 @@ class LikeRepositoryTest {
     void existsByPostAndMember_PostNotEqual() {
         // given
         likeRepository.save(Like.builder()
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
-                Post.builder().id(2L).build(),
+                postRepository.getReferenceById(2L),
                 memberRepository.getReferenceById(2L)
         );
 
@@ -116,13 +116,13 @@ class LikeRepositoryTest {
     void existsByPostAndMember_MemberNotEqual() {
         // given
         likeRepository.save(Like.builder()
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .member(memberRepository.getReferenceById(2L))
                 .build());
 
         // when
         boolean result = likeRepository.existsByPostAndMember(
-                Post.builder().id(1L).build(),
+                postRepository.getReferenceById(1L),
                 memberRepository.getReferenceById(1L)
         );
 

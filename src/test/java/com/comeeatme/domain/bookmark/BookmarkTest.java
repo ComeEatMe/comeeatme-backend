@@ -3,7 +3,7 @@ package com.comeeatme.domain.bookmark;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.bookmark.repository.BookmarkRepository;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,13 +25,15 @@ class BookmarkTest {
     private BookmarkRepository bookmarkRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void createAndSave() {
         assertThatNoException().isThrownBy(() -> bookmarkRepository.save(
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .build()
         ));
     }
@@ -41,11 +43,11 @@ class BookmarkTest {
         assertThatThrownBy(() -> bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .build(),
                 Bookmark.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .post(Post.builder().id(2L).build())
+                        .post(postRepository.getReferenceById(2L))
                         .build()
         ))).isInstanceOf(DataIntegrityViolationException.class);;
     }

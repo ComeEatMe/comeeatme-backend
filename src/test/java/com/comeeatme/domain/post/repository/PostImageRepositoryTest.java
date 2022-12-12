@@ -136,7 +136,7 @@ class PostImageRepositoryTest {
                 .url("image-url-1")
                 .build());
         PostImage postImage1 = postImageRepository.save(PostImage.builder()
-                .post(Post.builder().id(2L).build())
+                .post(postRepository.getReferenceById(2L))
                 .image(image1)
                 .build());
 
@@ -147,7 +147,7 @@ class PostImageRepositoryTest {
                 .url("image-url-1")
                 .build());
         PostImage postImage2 = postImageRepository.save(PostImage.builder()
-                .post(Post.builder().id(3L).build())
+                .post(postRepository.getReferenceById(3L))
                 .image(image2)
                 .build());
 
@@ -155,7 +155,7 @@ class PostImageRepositoryTest {
         em.clear();
 
         // when
-        List<PostImage> result = postImageRepository.findAllWithImageByPost(Post.builder().id(2L).build());
+        List<PostImage> result = postImageRepository.findAllWithImageByPost(postRepository.getReferenceById(2L));
 
         // then
         PersistenceUnitUtil unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();

@@ -3,7 +3,7 @@ package com.comeeatme.domain.like;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,12 +25,14 @@ class LikeTest {
     private LikeRepository likesRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void createAndSave() {
         assertThatNoException().isThrownBy(() -> likesRepository.saveAndFlush(Like.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .post(Post.builder().id(2L).build())
+                .post(postRepository.getReferenceById(2L))
                 .build()));
     }
 
@@ -40,11 +42,11 @@ class LikeTest {
                 List.of(
                         Like.builder()
                                 .member(memberRepository.getReferenceById(1L))
-                                .post(Post.builder().id(2L).build())
+                                .post(postRepository.getReferenceById(2L))
                                 .build(),
                         Like.builder()
                                 .member(memberRepository.getReferenceById(1L))
-                                .post(Post.builder().id(2L).build())
+                                .post(postRepository.getReferenceById(2L))
                                 .build()
                 )
         ))

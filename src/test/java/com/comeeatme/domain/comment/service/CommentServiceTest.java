@@ -140,13 +140,12 @@ class CommentServiceTest {
     @Test
     void isNotBelongToPost() {
         // given
-        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
-        given(commentRepository.existsByIdAndPostAndUseYnIsTrue(eq(1L), postCaptor.capture())).willReturn(true);
+        Post post = mock(Post.class);
+        given(postRepository.getReferenceById(2L)).willReturn(post);
+        given(commentRepository.existsByIdAndPostAndUseYnIsTrue(1L, post)).willReturn(true);
 
         // expected
         assertThat(commentService.isNotBelongToPost(1L, 2L)).isFalse();
-        Post postCaptorValue = postCaptor.getValue();
-        assertThat(postCaptorValue.getId()).isEqualTo(2L);
     }
 
     @Test

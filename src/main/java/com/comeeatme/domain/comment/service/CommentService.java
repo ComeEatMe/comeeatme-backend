@@ -70,7 +70,8 @@ public class CommentService {
     }
 
     public boolean isNotBelongToPost(Long commentId, Long postId) {
-        return !commentRepository.existsByIdAndPostAndUseYnIsTrue(commentId, Post.builder().id(postId).build());
+        Post post = postRepository.getReferenceById(postId);
+        return !commentRepository.existsByIdAndPostAndUseYnIsTrue(commentId, post);
     }
 
     @Transactional
