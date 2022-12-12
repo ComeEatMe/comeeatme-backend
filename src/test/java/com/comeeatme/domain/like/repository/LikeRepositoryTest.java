@@ -5,7 +5,7 @@ import com.comeeatme.domain.like.Like;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
-import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -36,6 +36,8 @@ class LikeRepositoryTest {
     private EntityManager em;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Test
     void findByPostAndMember_Present() {
@@ -135,7 +137,7 @@ class LikeRepositoryTest {
         // given
         Post post = postRepository.save(Post.builder()
                 .content("content")
-                .restaurant(Restaurant.builder().id(10L).build())
+                .restaurant(restaurantRepository.getReferenceById(10L))
                 .member(memberRepository.getReferenceById(20L))
                 .build());
 

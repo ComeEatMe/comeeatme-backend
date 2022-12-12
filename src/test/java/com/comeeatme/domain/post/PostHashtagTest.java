@@ -3,7 +3,7 @@ package com.comeeatme.domain.post;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
-import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,13 +21,15 @@ class PostHashtagTest {
     private PostRepository postRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Test
     void createAndSave() {
         // given
         Post post = postRepository.save(Post.builder()
                 .member(memberRepository.getReferenceById(2L))
-                .restaurant(Restaurant.builder().id(1L).build())
+                .restaurant(restaurantRepository.getReferenceById(1L))
                 .content("test-content")
                 .build()
         );

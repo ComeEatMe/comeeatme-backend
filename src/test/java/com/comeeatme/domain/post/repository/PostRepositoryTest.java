@@ -191,12 +191,12 @@ class PostRepositoryTest {
 
         List<Post> posts = postRepository.saveAll(List.of(
                 Post.builder()
-                        .restaurant(Restaurant.builder().id(1L).build())
+                        .restaurant(restaurantRepository.getReferenceById(1L))
                         .content("content-1")
                         .member(member)
                         .build(),
                 Post.builder()
-                        .restaurant(Restaurant.builder().id(2L).build())
+                        .restaurant(restaurantRepository.getReferenceById(2L))
                         .content("content-1")
                         .member(member)
                         .build()
@@ -208,7 +208,7 @@ class PostRepositoryTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<Post> result = postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(
-                pageRequest, Restaurant.builder().id(1L).build());
+                pageRequest, restaurantRepository.getReferenceById(1L));
 
         // then
         List<Post> content = result.getContent();
@@ -238,7 +238,7 @@ class PostRepositoryTest {
 
         Post post = postRepository.save(
                 Post.builder()
-                        .restaurant(Restaurant.builder().id(1L).build())
+                        .restaurant(restaurantRepository.getReferenceById(1L))
                         .content("content-1")
                         .member(member)
                         .build()
@@ -251,7 +251,7 @@ class PostRepositoryTest {
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<Post> result = postRepository.findSliceWithMemberByRestaurantAndUseYnIsTrue(
-                pageRequest, Restaurant.builder().id(1L).build());
+                pageRequest, restaurantRepository.getReferenceById(1L));
 
         // then
         List<Post> content = result.getContent();
@@ -264,7 +264,7 @@ class PostRepositoryTest {
         Post post = postRepository.save(
                 Post.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .restaurant(Restaurant.builder().id(2L).build())
+                        .restaurant(restaurantRepository.getReferenceById(2L))
                         .content("content")
                         .build()
         );
@@ -286,7 +286,7 @@ class PostRepositoryTest {
                 .build());
         Post post = postRepository.save(Post.builder()
                 .member(member)
-                .restaurant(Restaurant.builder().id(10L).build())
+                .restaurant(restaurantRepository.getReferenceById(10L))
                 .content("test-content")
                 .build());
 
@@ -304,7 +304,7 @@ class PostRepositoryTest {
                 .build());
         Post post = postRepository.save(Post.builder()
                 .member(member)
-                .restaurant(Restaurant.builder().id(10L).build())
+                .restaurant(restaurantRepository.getReferenceById(10L))
                 .content("test-content")
                 .build());
 
@@ -322,7 +322,7 @@ class PostRepositoryTest {
                 .build());
         Post post = postRepository.save(Post.builder()
                 .member(member)
-                .restaurant(Restaurant.builder().id(10L).build())
+                .restaurant(restaurantRepository.getReferenceById(10L))
                 .content("test-content")
                 .build());
 

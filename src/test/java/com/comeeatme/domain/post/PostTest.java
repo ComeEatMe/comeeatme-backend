@@ -3,7 +3,7 @@ package com.comeeatme.domain.post;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
-import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +23,15 @@ class PostTest {
     private PostRepository postRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Test
     @DisplayName("Post 생성 및 저장")
     void save() {
         assertThatNoException().isThrownBy(() -> postRepository.saveAndFlush(Post.builder()
                 .member(memberRepository.getReferenceById(2L))
-                .restaurant(Restaurant.builder().id(1L).build())
+                .restaurant(restaurantRepository.getReferenceById(1L))
                 .content("test-content")
                 .build()
         ));

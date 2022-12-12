@@ -75,15 +75,15 @@ class FavoriteRepositoryTest {
         favoriteRepository.saveAll(List.of(
                 Favorite.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .restaurant(Restaurant.builder().id(2L).build())
+                        .restaurant(restaurantRepository.getReferenceById(2L))
                         .build(),
                 Favorite.builder()
                         .member(memberRepository.getReferenceById(1L))
-                        .restaurant(Restaurant.builder().id(4L).build())
+                        .restaurant(restaurantRepository.getReferenceById(4L))
                         .build(),
                 Favorite.builder()
                         .member(memberRepository.getReferenceById(2L))
-                        .restaurant(Restaurant.builder().id(5L).build())
+                        .restaurant(restaurantRepository.getReferenceById(5L))
                         .build()
         ));
 
@@ -99,12 +99,12 @@ class FavoriteRepositoryTest {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(favoriteRepository.existsByRestaurantAndMember(
-                Restaurant.builder().id(2L).build(),
+                restaurantRepository.getReferenceById(2L),
                 memberRepository.getReferenceById(1L)
                 )).isTrue();
     }
@@ -114,12 +114,12 @@ class FavoriteRepositoryTest {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(favoriteRepository.existsByRestaurantAndMember(
-                Restaurant.builder().id(2L).build(),
+                restaurantRepository.getReferenceById(2L),
                 memberRepository.getReferenceById(3L)
                 )).isFalse();
     }
@@ -129,12 +129,12 @@ class FavoriteRepositoryTest {
         // given
         favoriteRepository.save(Favorite.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(favoriteRepository.existsByRestaurantAndMember(
-                Restaurant.builder().id(3L).build(),
+                restaurantRepository.getReferenceById(3L),
                 memberRepository.getReferenceById(1L)
                 )).isFalse();
     }

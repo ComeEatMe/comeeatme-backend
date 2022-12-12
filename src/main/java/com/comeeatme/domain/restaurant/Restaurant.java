@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -44,11 +43,9 @@ public class Restaurant extends BaseTimeEntity {
 
     @Builder
     private Restaurant(
-            @Nullable Long id,
             String name,
             String phone,
             Address address) {
-        this.id = id;
         this.name = name;
         this.phone = phone;
         this.address = address;

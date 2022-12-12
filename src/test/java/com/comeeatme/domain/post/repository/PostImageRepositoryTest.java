@@ -6,7 +6,6 @@ import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
-import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +53,7 @@ class PostImageRepositoryTest {
         // given
         Post post1 = postRepository.save(Post.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-1")
                 .build());
         Image image1 = imageRepository.save(Image.builder()
@@ -70,7 +69,7 @@ class PostImageRepositoryTest {
 
         Post post2 = postRepository.save(Post.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-2")
                 .build());
         Image image2_1 = imageRepository.save(Image.builder()
@@ -96,7 +95,7 @@ class PostImageRepositoryTest {
 
         Post post3 = postRepository.save(Post.builder()
                 .member(memberRepository.getReferenceById(1L))
-                .restaurant(Restaurant.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-3")
                 .build());
         Image image3 = imageRepository.save(Image.builder()
