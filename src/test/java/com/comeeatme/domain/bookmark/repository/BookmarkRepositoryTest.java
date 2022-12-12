@@ -258,4 +258,37 @@ class BookmarkRepositoryTest {
                 .extracting("id").containsOnly(bookmarks.get(0).getId(), bookmarks.get(1).getId());
     }
 
+    @Test
+    void findAllByMemberAndPostIn() {
+        List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(1L))
+                        .build(),
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(2L))
+                        .build(),
+                Bookmark.builder()  // member different
+                        .member(memberRepository.getReferenceById(11L))
+                        .post(postRepository.getReferenceById(3L))
+                        .build()
+        ));
+
+        // when
+        List<Bookmark> result = bookmarkRepository.findAllByMemberAndPostIn(
+                memberRepository.getReferenceById(10L),
+                List.of(
+                        postRepository.getReferenceById(1L),
+                        postRepository.getReferenceById(2L),
+                        postRepository.getReferenceById(3L)
+                )
+        );
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(bookmarks.get(0).getId(), bookmarks.get(1).getId());
+    }
+
 }

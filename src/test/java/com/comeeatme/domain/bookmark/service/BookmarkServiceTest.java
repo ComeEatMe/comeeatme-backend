@@ -126,6 +126,16 @@ class BookmarkServiceTest {
     @Test
     void areBookmarked() {
         // given
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(3L)).willReturn(member);
+
+        Post refPost1 = mock(Post.class);
+        given(postRepository.getReferenceById(1L)).willReturn(refPost1);
+        Post refPost2 = mock(Post.class);
+        given(postRepository.getReferenceById(2L)).willReturn(refPost2);
+        Post refPost3 = mock(Post.class);
+        given(postRepository.getReferenceById(3L)).willReturn(refPost3);
+
         Post post1 = mock(Post.class);
         given(post1.getId()).willReturn(1L);
         Bookmark bookmark1 = mock(Bookmark.class);
@@ -137,7 +147,7 @@ class BookmarkServiceTest {
         given(bookmark2.getPost()).willReturn(post2);
 
         List<Bookmark> bookmarks = List.of(bookmark1, bookmark2);
-        given(bookmarkRepository.findByMemberIdAndPostIds(3L, List.of(1L, 2L, 3L)))
+        given(bookmarkRepository.findAllByMemberAndPostIn(member, List.of(refPost1, refPost2, refPost3)))
                 .willReturn(bookmarks);
 
         // when

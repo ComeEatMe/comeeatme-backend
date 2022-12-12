@@ -8,6 +8,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +24,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, Bookm
     Slice<Bookmark> findSliceWithByMember(Pageable pageable, Member member);
 
     List<Bookmark> findAllByMember(Member member);
+
+    List<Bookmark> findAllByMemberAndPostIn(Member member, Collection<Post> posts);
 
 }
