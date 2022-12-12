@@ -144,6 +144,16 @@ class LikeServiceTest {
     @Test
     void areLiked() {
         // given
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(3L)).willReturn(member);
+
+        Post refPost1 = mock(Post.class);
+        given(postRepository.getReferenceById(1L)).willReturn(refPost1);
+        Post refPost2 = mock(Post.class);
+        given(postRepository.getReferenceById(2L)).willReturn(refPost2);
+        Post refPost3 = mock(Post.class);
+        given(postRepository.getReferenceById(3L)).willReturn(refPost3);
+
         Post post1 = mock(Post.class);
         given(post1.getId()).willReturn(1L);
         Like like1 = mock(Like.class);
@@ -155,7 +165,7 @@ class LikeServiceTest {
         given(like2.getPost()).willReturn(post2);
 
         List<Like> likes = List.of(like1, like2);
-        given(likeRepository.findByMemberIdAndPostIds(3L, List.of(1L, 2L, 3L)))
+        given(likeRepository.findAllByMemberAndPostIn(member, List.of(refPost1, refPost2, refPost3)))
                 .willReturn(likes);
 
         // when

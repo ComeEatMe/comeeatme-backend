@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -40,12 +39,10 @@ public class Image extends BaseTimeEntity {
 
     @Builder
     private Image(
-            @Nullable Long id,
             Member member,
             String originName,
             String storedName,
             String url) {
-        this.id = id;
         this.member = member;
         this.originName = originName;
         this.storedName = storedName;

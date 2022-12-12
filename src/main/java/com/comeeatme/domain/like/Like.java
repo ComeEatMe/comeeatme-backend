@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -39,8 +38,7 @@ public class Like extends BaseCreatedAtEntity {
     private Member member;
 
     @Builder
-    private Like(@Nullable Long id, Post post, Member member) {
-        this.id = id;
+    private Like(Post post, Member member) {
         this.post = post;
         this.member = member;
     }

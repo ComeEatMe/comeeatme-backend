@@ -50,14 +50,14 @@ class BookmarkRepositoryTest {
     void findByPostAndMember() {
         // given
         Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(10L).build())
-                .post(Post.builder().id(20L).build())
+                .member(memberRepository.getReferenceById(10L))
+                .post(postRepository.getReferenceById(20L))
                 .build());
 
         // when
         Bookmark result = bookmarkRepository.findByPostAndMember(
-                Post.builder().id(20L).build(),
-                Member.builder().id(10L).build()
+                postRepository.getReferenceById(20L),
+                memberRepository.getReferenceById(10L)
         ).orElseThrow();
 
         // then
@@ -68,14 +68,14 @@ class BookmarkRepositoryTest {
     void findByPostAndMember_MemberNotEqual() {
         // given
         Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(10L).build())
-                .post(Post.builder().id(20L).build())
+                .member(memberRepository.getReferenceById(10L))
+                .post(postRepository.getReferenceById(20L))
                 .build());
 
         // expected
         assertThat(bookmarkRepository.findByPostAndMember(
-                Post.builder().id(20L).build(),
-                Member.builder().id(11L).build()
+                postRepository.getReferenceById(20L),
+                memberRepository.getReferenceById(11L)
         )).isEmpty();
     }
 
@@ -83,14 +83,14 @@ class BookmarkRepositoryTest {
     void findByMemberAndGroupAndPost_PostNotEqual() {
         // given
         Bookmark bookmark = bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(10L).build())
-                .post(Post.builder().id(20L).build())
+                .member(memberRepository.getReferenceById(10L))
+                .post(postRepository.getReferenceById(20L))
                 .build());
 
         // expected
         assertThat(bookmarkRepository.findByPostAndMember(
-                Post.builder().id(40L).build(),
-                Member.builder().id(10L).build()
+                postRepository.getReferenceById(40L),
+                memberRepository.getReferenceById(10L)
         )).isEmpty();
     }
 
@@ -99,21 +99,21 @@ class BookmarkRepositoryTest {
         // given
         bookmarkRepository.saveAll(List.of(
                 Bookmark.builder()
-                        .member(Member.builder().id(1L).build())
-                        .post(Post.builder().id(2L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(2L))
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(1L).build())
-                        .post(Post.builder().id(3L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(3L))
                         .build(),
                 Bookmark.builder()
-                        .member(Member.builder().id(2L).build())
-                        .post(Post.builder().id(4L).build())
+                        .member(memberRepository.getReferenceById(2L))
+                        .post(postRepository.getReferenceById(4L))
                         .build()
         ));
 
         // when
-        int result = bookmarkRepository.countByMember(Member.builder().id(1L).build());
+        int result = bookmarkRepository.countByMember(memberRepository.getReferenceById(1L));
 
         // then
         assertThat(result).isEqualTo(2);
@@ -123,14 +123,14 @@ class BookmarkRepositoryTest {
     void existsByPostAndMember() {
         // given
         bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(bookmarkRepository.existsByPostAndMember(
-                Post.builder().id(2L).build(),
-                Member.builder().id(1L).build()
+                postRepository.getReferenceById(2L),
+                memberRepository.getReferenceById(1L)
         )).isTrue();
     }
 
@@ -138,14 +138,14 @@ class BookmarkRepositoryTest {
     void existsByPostAndMember_MemberNotEqual() {
         // given
         bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(bookmarkRepository.existsByPostAndMember(
-                Post.builder().id(2L).build(),
-                Member.builder().id(3L).build()
+                postRepository.getReferenceById(2L),
+                memberRepository.getReferenceById(3L)
         )).isFalse();
     }
 
@@ -153,14 +153,14 @@ class BookmarkRepositoryTest {
     void existsByPostAndMember_PostNotEqual() {
         // given
         bookmarkRepository.save(Bookmark.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(2L))
                 .build());
 
         // expected
         assertThat(bookmarkRepository.existsByPostAndMember(
-                Post.builder().id(3L).build(),
-                Member.builder().id(1L).build()
+                postRepository.getReferenceById(3L),
+                memberRepository.getReferenceById(1L)
         )).isFalse();
     }
 
@@ -251,6 +251,39 @@ class BookmarkRepositoryTest {
 
         // when
         List<Bookmark> result = bookmarkRepository.findAllByMember(memberRepository.getReferenceById(1L));
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("id").containsOnly(bookmarks.get(0).getId(), bookmarks.get(1).getId());
+    }
+
+    @Test
+    void findAllByMemberAndPostIn() {
+        List<Bookmark> bookmarks = bookmarkRepository.saveAll(List.of(
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(1L))
+                        .build(),
+                Bookmark.builder()
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(2L))
+                        .build(),
+                Bookmark.builder()  // member different
+                        .member(memberRepository.getReferenceById(11L))
+                        .post(postRepository.getReferenceById(3L))
+                        .build()
+        ));
+
+        // when
+        List<Bookmark> result = bookmarkRepository.findAllByMemberAndPostIn(
+                memberRepository.getReferenceById(10L),
+                List.of(
+                        postRepository.getReferenceById(1L),
+                        postRepository.getReferenceById(2L),
+                        postRepository.getReferenceById(3L)
+                )
+        );
 
         // then
         assertThat(result)

@@ -7,6 +7,7 @@ import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
 import com.comeeatme.domain.member.request.MemberSearch;
@@ -28,11 +29,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -49,12 +48,16 @@ class MemberServiceTest {
     @Test
     void edit() {
         // given
-        Member member = Member.builder()
-                .id(1L)
-                .nickname("nickname")
-                .introduction("introduction")
-                .build();
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        MemberEditor.MemberEditorBuilder editorBuilder = mock(MemberEditor.MemberEditorBuilder.class);
+        given(member.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.nickname("edited-nickname")).willReturn(editorBuilder);
+        given(editorBuilder.introduction("edited-introduction")).willReturn(editorBuilder);
+        MemberEditor editor = mock(MemberEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
 
         MemberEdit memberEdit = MemberEdit.builder()
                 .nickname("edited-nickname")
@@ -65,34 +68,35 @@ class MemberServiceTest {
         UpdateResult<Long> updateResult = memberService.edit(memberEdit, 1L);
 
         // then
-        then(imageRepository).should(never()).findById(anyLong());
         assertThat(updateResult.getId()).isEqualTo(member.getId());
-        assertThat(member.getNickname()).isEqualTo("edited-nickname");
-        assertThat(member.getIntroduction()).isEqualTo("edited-introduction");
+        then(member).should().edit(editor);
     }
 
     @Test
     void editImage() {
         // given
         Image image = mock(Image.class);
-        Member member = Member.builder()
-                .id(1L)
-                .nickname("nickname")
-                .introduction("introduction")
-                .image(image)
-                .build();
+        Member member = mock(Member.class);
+        given(member.getImage()).willReturn(image);
+        given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         Image editedImage = mock(Image.class);
         given(editedImage.getUseYn()).willReturn(true);
         given(imageRepository.findById(2L)).willReturn(Optional.of(editedImage));
 
+        MemberEditor.MemberEditorBuilder editorBuilder = mock(MemberEditor.MemberEditorBuilder.class);
+        given(member.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.image(editedImage)).willReturn(editorBuilder);
+        MemberEditor editor = mock(MemberEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
+
         // when
         UpdateResult<Long> result = memberService.editImage(1L, 2L);
 
         // then
         then(image).should().delete();
-        assertThat(member.getImage()).isEqualTo(editedImage);
+        then(member).should().edit(editor);
         assertThat(result.getId()).isEqualTo(member.getId());
     }
 
@@ -100,20 +104,22 @@ class MemberServiceTest {
     void deleteImage() {
         // given
         Image image = mock(Image.class);
-        Member member = Member.builder()
-                .id(1L)
-                .nickname("nickname")
-                .introduction("introduction")
-                .image(image)
-                .build();
+        Member member = mock(Member.class);
+        given(member.getImage()).willReturn(image);
+        given(member.getUseYn()).willReturn(true);
         given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        MemberEditor.MemberEditorBuilder editorBuilder = mock(MemberEditor.MemberEditorBuilder.class);
+        given(member.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.image(null)).willReturn(editorBuilder);
+        MemberEditor editor = mock(MemberEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
 
         // when
         DeleteResult<Long> result = memberService.deleteImage(1L);
 
         // then
         then(image).should().delete();
-        assertThat(member.getImage()).isNull();
         assertThat(result.getId()).isEqualTo(member.getId());
     }
 

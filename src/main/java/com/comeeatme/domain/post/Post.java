@@ -57,12 +57,10 @@ public class Post extends BaseTimeEntity {
 
     @Builder
     private Post(
-            @Nullable Long id,
             Member member,
             Restaurant restaurant,
             @Nullable Set<PostHashtag> postHashtags,
             String content) {
-        this.id = id;
         this.member = member;
         this.restaurant = restaurant;
         this.postHashtags = Optional.ofNullable(postHashtags).orElse(new HashSet<>());

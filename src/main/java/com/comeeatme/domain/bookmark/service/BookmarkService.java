@@ -97,7 +97,11 @@ public class BookmarkService {
     }
 
     public List<PostBookmarked> areBookmarked(Long memberId, List<Long> postIds) {
-        List<Bookmark> bookmarks = bookmarkRepository.findByMemberIdAndPostIds(memberId, postIds);
+        Member member = memberRepository.getReferenceById(memberId);
+        List<Post> posts = postIds.stream()
+                .map(postRepository::getReferenceById)
+                .collect(Collectors.toList());
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMemberAndPostIn(member, posts);
         Set<Long> existentPostIds = bookmarks.stream()
                 .map(bookmark -> bookmark.getPost().getId())
                 .collect(Collectors.toSet());

@@ -118,12 +118,21 @@ class FavoriteServiceTest {
     @Test
     void areFavorite() {
         // given
+        Member member = mock(Member.class);
+        given(memberRepository.getReferenceById(3L)).willReturn(member);
+
+        Restaurant refRestaurant1 = mock(Restaurant.class);
+        given(restaurantRepository.getReferenceById(1L)).willReturn(refRestaurant1);
+        Restaurant refRestaurant2 = mock(Restaurant.class);
+        given(restaurantRepository.getReferenceById(2L)).willReturn(refRestaurant2);
+
         Restaurant restaurant = mock(Restaurant.class);
         given(restaurant.getId()).willReturn(1L);
         Favorite favorite = mock(Favorite.class);
         given(favorite.getRestaurant()).willReturn(restaurant);
 
-        given(favoriteRepository.findAllByMemberIdAndRestaurantIds(3L, List.of(1L, 2L)))
+        given(favoriteRepository.findAllByMemberAndRestaurantIn(
+                member, List.of(refRestaurant1, refRestaurant2)))
                 .willReturn(List.of(favorite));
 
         // when

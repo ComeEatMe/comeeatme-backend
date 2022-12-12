@@ -2,9 +2,7 @@ package com.comeeatme.domain.comment.repository;
 
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.comment.Comment;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,43 +31,43 @@ class CommentRepositoryTest {
     void existsByIdAndPostAndUseYnIsTrue_True() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(2L))
                 .content("test-comment-content")
                 .build());
 
         // expected
         assertThat(commentRepository.existsByIdAndPostAndUseYnIsTrue(
-                comment.getId(), Post.builder().id(2L).build())).isTrue();
+                comment.getId(), postRepository.getReferenceById(2L))).isTrue();
     }
 
     @Test
     void existsByIdAndPostAndUseYnIsTrue_DiffPostId_False() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(1L))
                 .content("test-comment-content")
                 .build());
 
         // expected
         assertThat(commentRepository.existsByIdAndPostAndUseYnIsTrue(
-                comment.getId(), Post.builder().id(2L).build())).isFalse();
+                comment.getId(), postRepository.getReferenceById(2L))).isFalse();
     }
 
     @Test
     void existsByIdAndPostAndUseYnIsTrue_Deleted_False() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .member(Member.builder().id(1L).build())
-                .post(Post.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .post(postRepository.getReferenceById(2L))
                 .content("test-comment-content")
                 .build());
         comment.delete();
 
         // expected
         assertThat(commentRepository.existsByIdAndPostAndUseYnIsTrue(
-                comment.getId(), Post.builder().id(2L).build())).isFalse();
+                comment.getId(), postRepository.getReferenceById(2L))).isFalse();
     }
 
     @Test
@@ -77,18 +75,18 @@ class CommentRepositoryTest {
         // given
         List<Comment> comments = commentRepository.saveAllAndFlush(List.of(
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
-                        .post(Post.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
                         .content("content1")
                         .build(),
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
-                        .post(Post.builder().id(20L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(20L))
                         .content("content2")
                         .build(),
                 Comment.builder()
-                        .member(Member.builder().id(1L).build())
-                        .post(Post.builder().id(10L).build())
+                        .member(memberRepository.getReferenceById(1L))
+                        .post(postRepository.getReferenceById(10L))
                         .content("content3")
                         .build()
         ));
@@ -96,7 +94,7 @@ class CommentRepositoryTest {
 
         // when
         List<Comment> result = commentRepository.findAllByPostAndUseYnIsTrue(
-                Post.builder().id(10L).build());
+                postRepository.getReferenceById(10L));
 
         // then
         assertThat(result)
@@ -109,7 +107,7 @@ class CommentRepositoryTest {
         // given
         Comment comment = commentRepository.save(Comment.builder()
                 .member(memberRepository.getReferenceById(10L))
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .content("test-comment-content")
                 .build());
 
@@ -124,7 +122,7 @@ class CommentRepositoryTest {
         // given
         Comment comment = commentRepository.save(Comment.builder()
                 .member(memberRepository.getReferenceById(10L))
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .content("test-comment-content")
                 .build());
 
@@ -139,7 +137,7 @@ class CommentRepositoryTest {
         // given
         Comment comment = commentRepository.save(Comment.builder()
                 .member(memberRepository.getReferenceById(10L))
-                .post(Post.builder().id(1L).build())
+                .post(postRepository.getReferenceById(1L))
                 .content("test-comment-content")
                 .build());
 

@@ -62,7 +62,7 @@ class MemberRepositoryTest {
                 .originName("origin-name")
                 .storedName("stored-name")
                 .url("image-url")
-                .member(Member.builder().id(10L).build())
+                .member(memberRepository.getReferenceById(10L))
                 .build());
         Member member1 = memberRepository.saveAndFlush(Member.builder()
                 .nickname("nickname-1")

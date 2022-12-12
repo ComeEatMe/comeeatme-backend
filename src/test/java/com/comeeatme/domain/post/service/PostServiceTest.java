@@ -12,9 +12,7 @@ import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.like.repository.LikeRepository;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Hashtag;
-import com.comeeatme.domain.post.Post;
-import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.*;
 import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
@@ -41,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,34 +145,50 @@ class PostServiceTest {
         Restaurant postRestaurant = mock(Restaurant.class);
         given(postRestaurant.getId()).willReturn(2L);
 
-        Post post = Post.builder()
-                .id(1L)
-                .restaurant(postRestaurant)
-                .content("post-content")
-                .build();
-        post.addHashtag(Hashtag.STRONG_TASTE);
-        post.addHashtag(Hashtag.DATE);
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getRestaurant()).willReturn(postRestaurant);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
+        PostEditor.PostEditorBuilder editorBuilder = mock(PostEditor.PostEditorBuilder.class);
+        given(post.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.content("edited-content")).willReturn(editorBuilder);
+
+        Restaurant editedRestaurant = mock(Restaurant.class);
+        given(editedRestaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findById(3L)).willReturn(Optional.of(editedRestaurant));
+        given(editorBuilder.restaurant(editedRestaurant)).willReturn(editorBuilder);
+
+        PostEditor editor = mock(PostEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
+
+        given(post.getHashtags()).willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));
+
+        PostHashtag postHashtag1 = mock(PostHashtag.class);
+        given(postHashtag1.getHashtag()).willReturn(Hashtag.STRONG_TASTE);
+        PostHashtag postHashtag2 = mock(PostHashtag.class);
+        given(postHashtag2.getHashtag()).willReturn(Hashtag.COST_EFFECTIVENESS);
+        PostHashtag postHashtag3 = mock(PostHashtag.class);
+        given(postHashtag3.getHashtag()).willReturn(Hashtag.CLEANLINESS);
+
+        Set<PostHashtag> postHashtags = mock(Set.class);
+        given(postHashtags.stream()).willReturn(Stream.of(postHashtag1, postHashtag2, postHashtag3));
+        given(post.getPostHashtags())
+                .willReturn(postHashtags);
+
+        // when
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(3L)
                 .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS))
                 .content("edited-content")
                 .build();
-
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
-
-        Restaurant editedRestaurant = mock(Restaurant.class);
-        given(editedRestaurant.getId()).willReturn(3L);
-        given(editedRestaurant.getUseYn()).willReturn(true);
-        given(restaurantRepository.findById(3L)).willReturn(Optional.of(editedRestaurant));
-
-        // when
         UpdateResult<Long> updateResult = postService.edit(postEdit, 1L);
 
         // then
-        assertThat(post.getRestaurant().getId()).isEqualTo(3L);
-        assertThat(post.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
-        assertThat(post.getContent()).isEqualTo("edited-content");
+        then(post).should().edit(editor);
+        then(post).should().addHashtag(Hashtag.CLEANLINESS);
+        then(postHashtags).should().remove(postHashtag2);
         assertThat(updateResult.getId()).isEqualTo(1L);
     }
 
@@ -183,31 +198,47 @@ class PostServiceTest {
         Restaurant postRestaurant = mock(Restaurant.class);
         given(postRestaurant.getId()).willReturn(2L);
 
-        Post post = Post.builder()
-                .id(1L)
-                .restaurant(postRestaurant)
-                .content("post-content")
-                .build();
-        post.addHashtag(Hashtag.STRONG_TASTE);
-        post.addHashtag(Hashtag.DATE);
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(1L);
+        given(post.getRestaurant()).willReturn(postRestaurant);
+        given(post.getUseYn()).willReturn(true);
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
+        PostEditor.PostEditorBuilder editorBuilder = mock(PostEditor.PostEditorBuilder.class);
+        given(post.toEditor()).willReturn(editorBuilder);
+        given(editorBuilder.content("edited-content")).willReturn(editorBuilder);
+
+        PostEditor editor = mock(PostEditor.class);
+        given(editorBuilder.build()).willReturn(editor);
+
+        given(post.getHashtags()).willReturn(List.of(Hashtag.STRONG_TASTE, Hashtag.COST_EFFECTIVENESS));
+
+        PostHashtag postHashtag1 = mock(PostHashtag.class);
+        given(postHashtag1.getHashtag()).willReturn(Hashtag.STRONG_TASTE);
+        PostHashtag postHashtag2 = mock(PostHashtag.class);
+        given(postHashtag2.getHashtag()).willReturn(Hashtag.COST_EFFECTIVENESS);
+        PostHashtag postHashtag3 = mock(PostHashtag.class);
+        given(postHashtag3.getHashtag()).willReturn(Hashtag.CLEANLINESS);
+
+        Set<PostHashtag> postHashtags = mock(Set.class);
+        given(postHashtags.stream()).willReturn(Stream.of(postHashtag1, postHashtag2, postHashtag3));
+        given(post.getPostHashtags())
+                .willReturn(postHashtags);
+
+        // when
         PostEdit postEdit = PostEdit.builder()
                 .restaurantId(2L)
                 .hashtags(Set.of(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS))
                 .content("edited-content")
                 .build();
-
-        given(postRepository.findById(1L)).willReturn(Optional.of(post));
-
-        // when
         UpdateResult<Long> updateResult = postService.edit(postEdit, 1L);
 
         // then
-        assertThat(post.getRestaurant().getId()).isEqualTo(2L);
-        assertThat(post.getHashtags()).containsOnly(Hashtag.STRONG_TASTE, Hashtag.CLEANLINESS);
-        assertThat(post.getContent()).isEqualTo("edited-content");
+        then(editorBuilder).should(never()).restaurant(any());
+        then(post).should().edit(editor);
+        then(post).should().addHashtag(Hashtag.CLEANLINESS);
+        then(postHashtags).should().remove(postHashtag2);
         assertThat(updateResult.getId()).isEqualTo(1L);
-        then(restaurantRepository).should(never()).findById(any());
     }
 
     @Test

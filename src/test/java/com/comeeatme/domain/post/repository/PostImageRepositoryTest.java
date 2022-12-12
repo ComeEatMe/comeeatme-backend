@@ -3,11 +3,9 @@ package com.comeeatme.domain.post.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
-import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -55,12 +52,12 @@ class PostImageRepositoryTest {
     void findAllWithImagesByPostIn() {
         // given
         Post post1 = postRepository.save(Post.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-1")
                 .build());
         Image image1 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-1")
                 .storedName("stored-name-1")
                 .url("image-url-1")
@@ -71,12 +68,12 @@ class PostImageRepositoryTest {
                 .build());
 
         Post post2 = postRepository.save(Post.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-2")
                 .build());
         Image image2_1 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-2-1")
                 .storedName("stored-name-2-1")
                 .url("image-url-2-1")
@@ -86,7 +83,7 @@ class PostImageRepositoryTest {
                 .image(image2_1)
                 .build());
         Image image2_2 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-2-2")
                 .storedName("stored-name-2-2")
                 .url("image-url-2-2")
@@ -97,12 +94,12 @@ class PostImageRepositoryTest {
                 .build());
 
         Post post3 = postRepository.save(Post.builder()
-                .member(Member.builder().id(1L).build())
-                .restaurant(Restaurant.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(1L))
+                .restaurant(restaurantRepository.getReferenceById(2L))
                 .content("test-content-3")
                 .build());
         Image image3 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-3")
                 .storedName("stored-name-3")
                 .url("image-url-3")
@@ -132,24 +129,24 @@ class PostImageRepositoryTest {
     void findAllWithImageByPost() {
         // given
         Image image1 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-1")
                 .storedName("stored-name-1")
                 .url("image-url-1")
                 .build());
         PostImage postImage1 = postImageRepository.save(PostImage.builder()
-                .post(Post.builder().id(2L).build())
+                .post(postRepository.getReferenceById(2L))
                 .image(image1)
                 .build());
 
         Image image2 = imageRepository.save(Image.builder()
-                .member(Member.builder().id(1L).build())
+                .member(memberRepository.getReferenceById(1L))
                 .originName("origin-name-1")
                 .storedName("stored-name-1")
                 .url("image-url-1")
                 .build());
         PostImage postImage2 = postImageRepository.save(PostImage.builder()
-                .post(Post.builder().id(3L).build())
+                .post(postRepository.getReferenceById(3L))
                 .image(image2)
                 .build());
 
@@ -157,7 +154,7 @@ class PostImageRepositoryTest {
         em.clear();
 
         // when
-        List<PostImage> result = postImageRepository.findAllWithImageByPost(Post.builder().id(2L).build());
+        List<PostImage> result = postImageRepository.findAllWithImageByPost(postRepository.getReferenceById(2L));
 
         // then
         PersistenceUnitUtil unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();

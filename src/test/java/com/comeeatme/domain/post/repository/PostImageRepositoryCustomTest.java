@@ -3,11 +3,12 @@ package com.comeeatme.domain.post.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
-import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.PostImage;
 import com.comeeatme.domain.post.response.RestaurantPostImage;
 import com.comeeatme.domain.restaurant.Restaurant;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -39,20 +40,24 @@ class PostImageRepositoryCustomTest {
 
     @Autowired
     private EntityManagerFactory emf;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Test
     void findSliceWithImageByRestaurant() {
         // given
         Post post = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(1L))
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -60,7 +65,7 @@ class PostImageRepositoryCustomTest {
                 .build());
 
         // when
-        Restaurant restaurant = Restaurant.builder().id(1L).build();
+        Restaurant restaurant = restaurantRepository.getReferenceById(1L);
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<PostImage> result = postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageRequest);
 
@@ -77,15 +82,15 @@ class PostImageRepositoryCustomTest {
     void findSliceWithImageByRestaurant_Deleted() {
         // given
         Post post = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(1L))
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -94,7 +99,7 @@ class PostImageRepositoryCustomTest {
         image.delete();
 
         // when
-        Restaurant restaurant = Restaurant.builder().id(1L).build();
+        Restaurant restaurant = restaurantRepository.getReferenceById(1L);
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<PostImage> result = postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageRequest);
 
@@ -107,15 +112,15 @@ class PostImageRepositoryCustomTest {
     void findSliceWithImageByRestaurant_RestaurantNotEqual() {
         // given
         Post post = postRepository.save(Post.builder()
-                .restaurant(Restaurant.builder().id(1L).build())
-                .member(Member.builder().id(2L).build())
+                .restaurant(restaurantRepository.getReferenceById(1L))
+                .member(memberRepository.getReferenceById(2L))
                 .content("content")
                 .build());
         Image image = imageRepository.save(Image.builder()
                 .storedName("storedName")
                 .originName("originName")
                 .url("url")
-                .member(Member.builder().id(2L).build())
+                .member(memberRepository.getReferenceById(2L))
                 .build());
         PostImage postImage = postImageRepository.save(PostImage.builder()
                 .post(post)
@@ -123,7 +128,7 @@ class PostImageRepositoryCustomTest {
                 .build());
 
         // when
-        Restaurant restaurant = Restaurant.builder().id(2L).build();
+        Restaurant restaurant = restaurantRepository.getReferenceById(2L);
         PageRequest pageRequest = PageRequest.of(0, 10);
         Slice<PostImage> result = postImageRepository.findSliceWithImageByRestaurantAndUseYnIsTrue(restaurant, pageRequest);
 
@@ -137,41 +142,41 @@ class PostImageRepositoryCustomTest {
         // given
         List<Post> posts = postRepository.saveAll(List.of(
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
-                        .restaurant(Restaurant.builder().id(20L).build())
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(20L))
                         .content("content-1")
                         .build(),
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
-                        .restaurant(Restaurant.builder().id(21L).build())
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(21L))
                         .content("content-2")
                         .build(),
                 Post.builder()
-                        .member(Member.builder().id(10L).build())
-                        .restaurant(Restaurant.builder().id(21L).build())
+                        .member(memberRepository.getReferenceById(10L))
+                        .restaurant(restaurantRepository.getReferenceById(21L))
                         .content("content-3")
                         .build()
         ));
 
         List<PostImage> postImages = postImageRepository.saveAll(List.of(
                 PostImage.builder()
-                        .image(Image.builder().id(30L).build())
+                        .image(imageRepository.getReferenceById(30L))
                         .post(posts.get(0))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(31L).build())
+                        .image(imageRepository.getReferenceById(31L))
                         .post(posts.get(0))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(32L).build())
+                        .image(imageRepository.getReferenceById(32L))
                         .post(posts.get(1))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(33L).build())
+                        .image(imageRepository.getReferenceById(33L))
                         .post(posts.get(1))
                         .build(),
                 PostImage.builder()
-                        .image(Image.builder().id(34L).build())
+                        .image(imageRepository.getReferenceById(34L))
                         .post(posts.get(1))
                         .build()
         ));
@@ -179,7 +184,7 @@ class PostImageRepositoryCustomTest {
 
         // when
         List<RestaurantPostImage> result = postImageRepository.findImagesByRestaurantsAndPostUseYnIsTrue(
-                List.of(Restaurant.builder().id(20L).build(), Restaurant.builder().id(21L).build()), 2);
+                List.of(restaurantRepository.getReferenceById(20L), restaurantRepository.getReferenceById(21L)), 2);
 
         // then
         Map<Long, List<Long>> restaurantIdToImageIds = result.stream()

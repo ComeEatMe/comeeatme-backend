@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -41,8 +40,7 @@ public class Favorite extends BaseCreatedAtEntity {
     private Restaurant restaurant;
 
     @Builder
-    private Favorite(@Nullable Long id, Member member, Restaurant restaurant) {
-        this.id = id;
+    private Favorite(Member member, Restaurant restaurant) {
         this.member = member;
         this.restaurant = restaurant;
     }

@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -35,8 +34,7 @@ public class Report extends BaseTimeEntity {
     private ReportReason reason;
 
     @Builder
-    private Report(@Nullable Long id, Member member, Post post, ReportReason reason) {
-        this.id = id;
+    private Report(Member member, Post post, ReportReason reason) {
         this.member = member;
         this.post = post;
         this.reason = reason;

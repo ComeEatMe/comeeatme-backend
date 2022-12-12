@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -41,8 +40,7 @@ public class Bookmark extends BaseCreatedAtEntity {
     private Post post;
 
     @Builder
-    private Bookmark(@Nullable Long id, Member member, Post post) {
-        this.id = id;
+    private Bookmark(Member member, Post post) {
         this.member = member;
         this.post = post;
     }

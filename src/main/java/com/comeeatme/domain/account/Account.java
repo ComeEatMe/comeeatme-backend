@@ -44,11 +44,9 @@ public class Account extends BaseTimeEntity {
 
     @Builder
     private Account(
-            @Nullable Long id,
             String username,
             @Nullable String password,
             Member member) {
-        this.id = id;
         this.username = username;
         this.password = password;
         this.member = member;

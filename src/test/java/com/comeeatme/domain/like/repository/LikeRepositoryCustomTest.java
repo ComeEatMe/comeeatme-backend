@@ -3,9 +3,8 @@ package com.comeeatme.domain.like.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.like.Like;
-import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
-import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -29,55 +28,29 @@ class LikeRepositoryCustomTest {
 
     @Autowired
     private MemberRepository memberRepository;
-
-    @Test
-    void findByMemberIdAndPostIds() {
-        // given
-        List<Like> likes = likeRepository.saveAll(List.of(
-                Like.builder()
-                        .member(Member.builder().id(10L).build())
-                        .post(Post.builder().id(1L).build())
-                        .build(),
-                Like.builder()
-                        .member(Member.builder().id(10L).build())
-                        .post(Post.builder().id(2L).build())
-                        .build(),
-                Like.builder()
-                        .member(Member.builder().id(11L).build())
-                        .post(Post.builder().id(3L).build())
-                        .build()
-        ));
-
-        // when
-        List<Like> result = likeRepository.findByMemberIdAndPostIds(10L, List.of(1L, 2L, 3L));
-
-        // then
-        result.sort((o1, o2) -> (int) (o1.getPost().getId() - o2.getPost().getId()));
-        assertThat(result)
-                .hasSize(2)
-                .extracting("id").containsExactly(likes.get(0).getId(), likes.get(1).getId());
-    }
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     void deleteAllByPost() {
         // given
         List<Like> likes = likeRepository.saveAll(List.of(
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
-                        .post(Post.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(1L))
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(10L).build())
-                        .post(Post.builder().id(2L).build())
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(2L))
                         .build(),
                 Like.builder()
-                        .member(Member.builder().id(11L).build())
-                        .post(Post.builder().id(1L).build())
+                        .member(memberRepository.getReferenceById(11L))
+                        .post(postRepository.getReferenceById(1L))
                         .build()
         ));
 
         // when
-        likeRepository.deleteAllByPost(Post.builder().id(1L).build());
+        likeRepository.deleteAllByPost(postRepository.getReferenceById(1L));
 
         // then
         List<Like> foundLikes = likeRepository.findAll();

@@ -45,12 +45,10 @@ public class Comment extends BaseTimeEntity {
 
     @Builder
     private Comment(
-            @Nullable Long id,
             Member member,
             Post post,
             @Nullable Comment parent,
             String content) {
-        this.id = id;
         this.member = member;
         this.post = post;
         this.parent = parent;
