@@ -87,6 +87,7 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional
     public CreateResult<Long> create(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new AlreadyNicknameExistsException("nickname=" + nickname);
