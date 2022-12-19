@@ -3,13 +3,19 @@ package com.comeeatme.domain.comment.repository;
 import com.comeeatme.common.TestJpaConfig;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.repository.MemberRepository;
+import com.comeeatme.domain.post.Post;
 import com.comeeatme.domain.post.repository.PostRepository;
+import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,11 +27,14 @@ class CommentRepositoryTest {
 
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private MemberRepository memberRepository;
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+    @Autowired
+    private EntityManagerFactory emf;
 
     @Test
     void existsByIdAndPostAndUseYnIsTrue_True() {
@@ -188,6 +197,57 @@ class CommentRepositoryTest {
                 .hasSize(3)
                 .extracting("id").containsOnly(
                         comments.get(0).getId(), comments.get(1).getId(), comments.get(2).getId());
+    }
+
+    @Test
+    void findSliceWithPostByMemberAndUseYnIsTrue() {
+        // given
+        Post post = postRepository.save(
+                Post.builder()
+                        .restaurant(restaurantRepository.getReferenceById(10L))
+                        .member(memberRepository.getReferenceById(20L))
+                        .content("post-content")
+                        .build()
+        );
+
+        List<Comment> comments = commentRepository.saveAll(List.of(
+                Comment.builder()
+                        .member(memberRepository.getReferenceById(21L))
+                        .post(post)
+                        .content("content-1")
+                        .build(),
+                Comment.builder()   // postId different
+                        .member(memberRepository.getReferenceById(21L))
+                        .post(postRepository.getReferenceById(post.getId() + 1))
+                        .content("content-2")
+                        .build(),
+                Comment.builder()   // memberId different
+                        .member(memberRepository.getReferenceById(22L))
+                        .post(post)
+                        .content("content-3")
+                        .build(),
+                Comment.builder()   // deleted
+                        .member(memberRepository.getReferenceById(21L))
+                        .post(post)
+                        .content("content-4")
+                        .build()
+        ));
+        comments.get(3).delete();
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<Comment> result = commentRepository.findSliceWithPostByMemberAndUseYnIsTrue(
+                pageRequest, memberRepository.getReferenceById(21L)
+        );
+
+        // then
+        List<Comment> content = result.getContent();
+        assertThat(content)
+                .hasSize(2)
+                .extracting("id").containsOnly(comments.get(0).getId(), comments.get(1).getId());
+
+        PersistenceUnitUtil persistenceUnitUtil = emf.getPersistenceUnitUtil();
+        assertThat(persistenceUnitUtil.isLoaded(content.get(0).getPost())).isTrue();
     }
 
 }

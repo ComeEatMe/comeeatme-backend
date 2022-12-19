@@ -5,6 +5,7 @@ import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.comment.response.MemberCommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
@@ -341,6 +342,50 @@ class CommentControllerTest {
                                 fieldWithPath("member.imageUrl").optional()
                                         .description("댓글 작성자 회원 프로필 이미지 URL. " +
                                                 "프로필 이미지가 없는 경우 혹은 댓글이 삭제된 경우 null")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 댓글 리스트 조회 - DOCS")
+    void getMemberComments_Docs() throws Exception {
+        // given
+        MemberCommentDto comment = MemberCommentDto.builder()
+                .id(10L)
+                .content("comment-content")
+                .createdAt(LocalDateTime.of(2022, 12, 19, 23, 56))
+                .postId(20L)
+                .content("post-content")
+                .postImageUrl("post-image-url")
+                .build();
+        given(commentService.getListOfMember(any(Pageable.class), eq(1L)))
+                .willReturn(new SliceImpl<>(List.of(comment)));
+
+
+        // expected
+        mockMvc.perform(get("/v1/members/{memberId}/comments", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-comment-get-member-comment-list",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        pathParameters(
+                                parameterWithName("memberId").description("댓글의 회원 ID")
+                        ),
+                        responseFields(
+                                beneathPath("data.content[]").withSubsectionId("content"),
+                                fieldWithPath("id").type(Long.class.getSimpleName()).description("댓글 ID"),
+                                fieldWithPath("content").description("댓글 내용."),
+                                fieldWithPath("createdAt").description("댓글 생성 시점."),
+                                fieldWithPath("post.id").type(Long.class.getSimpleName()).description("댓글 게시물 ID."),
+                                fieldWithPath("post.content").description("댓글 게시물 내용."),
+                                fieldWithPath("post.imageUrl").description("댓글 게시물 이미지 URL.")
                         )
                 ))
         ;
