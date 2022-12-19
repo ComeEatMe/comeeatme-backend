@@ -948,8 +948,9 @@ class PostServiceTest {
         given(post2.getRestaurant()).willReturn(restaurant1);
         Post post3 = mock(Post.class);
         given(post3.getRestaurant()).willReturn(restaurant2);
+        List<Post> posts = List.of(post1, post2, post3);
         given(postRepository.findAllByMemberAndUseYnIsTrue(member))
-                .willReturn(List.of(post1, post2, post3));
+                .willReturn(posts);
 
         Restaurant lockedRestaurant1 = mock(Restaurant.class);
         given(lockedRestaurant1.getId()).willReturn(10L);
@@ -962,7 +963,9 @@ class PostServiceTest {
         postService.deleteAllOfMember(1L);
 
         // then
+        then(commentRepository).should().updateUseYnFalseByPostIn(posts);
         then(post1).should().delete();
+        then(post2).should().delete();
         then(post3).should().delete();
 
         then(lockedRestaurant1).should(times(2)).decreasePostCount();

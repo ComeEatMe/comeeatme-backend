@@ -41,4 +41,13 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    @Override
+    public void updateUseYnFalseByPostIn(List<Post> posts) {
+        query
+                .update(comment)
+                .set(comment.useYn, false)
+                .where(comment.post.in(posts))
+                .execute();
+    }
+
 }

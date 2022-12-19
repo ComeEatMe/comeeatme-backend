@@ -214,6 +214,7 @@ public class PostService {
     public void deleteAllOfMember(Long memberId) {
         Member member = getMemberById(memberId);
         List<Post> posts = postRepository.findAllByMemberAndUseYnIsTrue(member);
+        commentRepository.updateUseYnFalseByPostIn(posts);
         posts.forEach(Post::delete);
         Map<Long, Long> restaurantIdToCount = posts.stream()
                 .map(post -> post.getRestaurant().getId())
