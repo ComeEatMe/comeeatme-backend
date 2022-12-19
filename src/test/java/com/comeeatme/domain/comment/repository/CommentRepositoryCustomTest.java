@@ -1,7 +1,6 @@
 package com.comeeatme.domain.comment.repository;
 
 import com.comeeatme.common.TestJpaConfig;
-import com.comeeatme.domain.account.repository.AccountRepository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
@@ -16,6 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -28,15 +31,15 @@ class CommentRepositoryCustomTest {
     private CommentRepository commentRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
     private PostRepository postRepository;
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private EntityManager em;
 
     @Test
     void findSliceByPostWithMemberAndImage() {
@@ -89,6 +92,50 @@ class CommentRepositoryCustomTest {
                 .hasSize(3)
                 .extracting("id").containsExactly(comment1.getId(), comment3.getId(), comment2.getId())
         ;
+    }
+
+    @Test
+    void updateUseYnFalseByPostIn() {
+        // given
+        commentRepository.saveAll(List.of(
+                Comment.builder()
+                        .content("content-1")
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(20L))
+                        .build(),
+                Comment.builder()   // memberId different
+                        .content("content-2")
+                        .member(memberRepository.getReferenceById(11L))
+                        .post(postRepository.getReferenceById(20L))
+                        .build(),
+                Comment.builder()   // postId different
+                        .content("content-3")
+                        .member(memberRepository.getReferenceById(10L))
+                        .post(postRepository.getReferenceById(21L))
+                        .build()
+        ));
+        em.flush();
+        em.clear();
+
+        // when
+        commentRepository.updateUseYnFalseByPostIn(List.of(postRepository.getReferenceById(20L)));
+
+        // then
+        List<Comment> comments = commentRepository.findAll();
+
+        List<Comment> postId20Comments = comments.stream()
+                .filter(comment -> comment.getPost().getId() == 20L)
+                .collect(Collectors.toList());
+        assertThat(postId20Comments)
+                .hasSize(2)
+                .extracting("useYn").containsOnly(false);
+
+        List<Comment> postId21Comments = comments.stream()
+                .filter(comment -> comment.getPost().getId() == 21L)
+                .collect(Collectors.toList());
+        assertThat(postId21Comments)
+                .hasSize(1)
+                .extracting("useYn").containsOnly(true);
     }
 
 }
