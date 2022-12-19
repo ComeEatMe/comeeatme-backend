@@ -5,6 +5,7 @@ import com.comeeatme.domain.account.service.AccountService;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.comment.response.MemberCommentDto;
 import com.comeeatme.domain.comment.service.CommentService;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
@@ -74,6 +75,13 @@ public class CommentController {
     public ResponseEntity<ApiResult<Slice<CommentDto>>> get(@PathVariable Long postId, Pageable pageable) {
         Slice<CommentDto> commentDtos = commentService.getListOfPost(pageable, postId);
         ApiResult<Slice<CommentDto>> result = ApiResult.success(commentDtos);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/members/{memberId}/comments")
+    public ResponseEntity<ApiResult<Slice<MemberCommentDto>>> getMemberCommentList(@PathVariable Long memberId, Pageable pageable) {
+        Slice<MemberCommentDto> comments = commentService.getListOfMember(pageable, memberId);
+        ApiResult<Slice<MemberCommentDto>> result = ApiResult.success(comments);
         return ResponseEntity.ok(result);
     }
 }

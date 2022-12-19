@@ -6,6 +6,7 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.comment.response.MemberCommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
@@ -13,6 +14,8 @@ import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
@@ -42,15 +46,14 @@ class CommentServiceTest {
 
     @InjectMocks
     private CommentService commentService;
-
     @Mock
     private CommentRepository commentRepository;
-
     @Mock
     private MemberRepository memberRepository;
-
     @Mock
     private PostRepository postRepository;
+    @Mock
+    private PostImageRepository postImageRepository;
 
     @Test
     void create() {
@@ -232,6 +235,56 @@ class CommentServiceTest {
         assertThat(content).extracting("member").extracting("nickname")
                 .containsExactly("nickname-1", "nickname-2", null);
         assertThat(content).extracting("member").extracting("imageUrl").containsExactly("image-url-1", null, null);
+    }
+
+    @Test
+    void getListOfMember() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        Post post = mock(Post.class);
+        given(post.getId()).willReturn(30L);
+        given(post.getContent()).willReturn("post-content");
+        Comment comment = mock(Comment.class);
+        given(comment.getId()).willReturn(10L);
+        given(comment.getContent()).willReturn("comment-content");
+        given(comment.getCreatedAt()).willReturn(LocalDateTime.of(2022, 12, 19, 23, 18));
+        given(comment.getPost()).willReturn(post);
+        given(commentRepository.findSliceWithPostByMemberAndUseYnIsTrue(any(Pageable.class), eq(member)))
+                .willReturn(new SliceImpl<>(List.of(comment)));
+
+        Image image1 = mock(Image.class);
+        given(image1.getUseYn()).willReturn(false); // deleted
+        PostImage postImage1 = mock(PostImage.class);
+        given(postImage1.getImage()).willReturn(image1);
+        Image image2 = mock(Image.class);
+        given(image2.getUseYn()).willReturn(true);
+        given(image2.getUrl()).willReturn("image-url-2");
+        PostImage postImage2 = mock(PostImage.class);
+        given(postImage2.getImage()).willReturn(image2);
+        given(postImage2.getPost()).willReturn(post);
+        Image image3 = mock(Image.class);
+        given(image3.getUseYn()).willReturn(true);
+        PostImage postImage3 = mock(PostImage.class);
+        given(postImage3.getImage()).willReturn(image3);
+        given(postImage3.getPost()).willReturn(post);
+        given(postImageRepository.findAllWithImageByPostIn(List.of(post)))
+                .willReturn(List.of(postImage1, postImage2, postImage3));
+
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Slice<MemberCommentDto> result = commentService.getListOfMember(pageRequest, 1L);
+
+        // then
+        MemberCommentDto memberCommentDto = result.getContent().get(0);
+        assertThat(memberCommentDto.getId()).isEqualTo(10L);
+        assertThat(memberCommentDto.getContent()).isEqualTo("comment-content");
+        assertThat(memberCommentDto.getCreatedAt()).isEqualTo(LocalDateTime.of(2022, 12, 19, 23, 18));
+        assertThat(memberCommentDto.getPost().getId()).isEqualTo(30L);
+        assertThat(memberCommentDto.getPost().getContent()).isEqualTo("post-content");
+        assertThat(memberCommentDto.getPost().getImageUrl()).isEqualTo("image-url-2");
     }
 
     @Test
