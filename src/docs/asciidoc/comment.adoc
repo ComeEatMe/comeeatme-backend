@@ -36,3 +36,12 @@ Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
 operation::v1-comment-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+
+
+[[v1-comment-get-member-comment-list]]
+== 회원 댓글 리스트 조회
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-comment-get-member-comment-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
