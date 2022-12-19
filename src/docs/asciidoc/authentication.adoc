@@ -44,3 +44,11 @@ Request Body
 - method: POST
 - path: /login/reissue
 - Authorization: Bearer +{REFRESH_TOKEN}+
+
+
+[[logout]]
+== 로그아웃
+
+- method: POST
+- path: /logout
+- Authorization: Bearer +{ACCESS_TOKEN}+
