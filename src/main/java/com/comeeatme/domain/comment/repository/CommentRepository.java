@@ -3,6 +3,8 @@ package com.comeeatme.domain.comment.repository;
 import com.comeeatme.domain.comment.Comment;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.post.Post;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,5 +18,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     boolean existsByIdAndMember(Long id, Member member);
 
     List<Comment> findAllByMemberAndUseYnIsTrue(Member member);
+
+    Slice<Comment> findSliceWithPostByMemberAndUseYnIsTrue(Pageable pageable, Member member);
 
 }

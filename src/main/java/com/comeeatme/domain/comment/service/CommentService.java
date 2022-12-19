@@ -6,12 +6,16 @@ import com.comeeatme.domain.comment.repository.CommentRepository;
 import com.comeeatme.domain.comment.request.CommentCreate;
 import com.comeeatme.domain.comment.request.CommentEdit;
 import com.comeeatme.domain.comment.response.CommentDto;
+import com.comeeatme.domain.comment.response.MemberCommentDto;
 import com.comeeatme.domain.common.response.CreateResult;
 import com.comeeatme.domain.common.response.DeleteResult;
 import com.comeeatme.domain.common.response.UpdateResult;
+import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.Post;
+import com.comeeatme.domain.post.PostImage;
+import com.comeeatme.domain.post.repository.PostImageRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.error.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +40,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
 
     @Transactional
     public CreateResult<Long> create(CommentCreate commentCreate, Long memberId, Long postId) {
@@ -87,6 +92,31 @@ public class CommentService {
         Post post = getPostById(postId);
         return commentRepository.findSliceByPostWithMemberAndImage(pageable, post)
                 .map(CommentDto::of);
+    }
+
+    public Slice<MemberCommentDto> getListOfMember(Pageable pageable, Long memberId) {
+        Member member = getMemberById(memberId);
+        Slice<Comment> comments = commentRepository.findSliceWithPostByMemberAndUseYnIsTrue(pageable, member);
+        List<Post> posts = comments.stream()
+                .map(Comment::getPost)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, List<Image>> postIdToImages = postImageRepository.findAllWithImageByPostIn(posts)
+                .stream()
+                .filter(postImage -> postImage.getImage().getUseYn())
+                .collect(Collectors.groupingBy(postImage -> postImage.getPost().getId(),
+                        Collectors.mapping(PostImage::getImage, Collectors.toList()))
+                );
+        return comments
+                .map(comment -> MemberCommentDto.builder()
+                        .id(comment.getId())
+                        .content(comment.getContent())
+                        .createdAt(comment.getCreatedAt())
+                        .postId(comment.getPost().getId())
+                        .postContent(comment.getPost().getContent())
+                        .postImageUrl(postIdToImages.get(comment.getPost().getId()).get(0).getUrl())
+                        .build()
+                );
     }
 
     @Transactional
