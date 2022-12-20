@@ -26,7 +26,7 @@ operation::v1-post-get-list[snippets='http-request,request-headers,request-param
 Page parameter
 include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
 
-operation::v1-post-get-list-of-member[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+operation::v1-post-get-list-of-member[snippets='http-request,request-headers,path-parameters,request-parameters,http-response,response-fields-content']
 
 
 [[v1-post-get-list-of-restaurant]]
