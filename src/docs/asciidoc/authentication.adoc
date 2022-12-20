@@ -52,3 +52,11 @@ Request Body
 - method: POST
 - path: /logout
 - Authorization: Bearer +{ACCESS_TOKEN}+
+
+Response
+[source]
+----
+{
+    "success": true
+}
+----

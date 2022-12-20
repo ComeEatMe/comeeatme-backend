@@ -396,7 +396,8 @@ class PostControllerTest {
         mockMvc.perform(get("/v1/members/{memberId}/posts", 10L)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("sort", "id,desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.content[0].liked").value(true))
@@ -407,6 +408,10 @@ class PostControllerTest {
                         ),
                         pathParameters(
                                 parameterWithName("memberId").description("회원 ID")
+                        ),
+                        requestParameters(
+                                parameterWithName("sort").optional()
+                                        .description("정렬 조건. id,desc: 최신순. likeCount,desc: 좋아요순")
                         ),
                         responseFields(
                                 beneathPath("data.content[]").withSubsectionId("content"),
