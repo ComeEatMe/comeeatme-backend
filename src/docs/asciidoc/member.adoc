@@ -58,6 +58,12 @@ operation::v1-member-get-agreements[snippets='http-request,request-headers,http-
 operation::v1-member-signup[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
 
 
+[[v1-member-post-delete-reason]]
+== 회원 탈퇴 사유 등록
+
+operation::v1-member-post-delete-reason[snippets='http-request,request-headers,request-fields,http-response']
+
+
 [[v1-member-delete]]
 == 회원 탈퇴
 
