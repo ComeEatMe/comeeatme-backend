@@ -12,10 +12,8 @@ import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.member.Agreement;
-import com.comeeatme.domain.member.request.MemberEdit;
-import com.comeeatme.domain.member.request.MemberImageEdit;
-import com.comeeatme.domain.member.request.MemberSearch;
-import com.comeeatme.domain.member.request.MemberSignup;
+import com.comeeatme.domain.member.MemberDeleteReason;
+import com.comeeatme.domain.member.request.*;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
 import com.comeeatme.domain.member.service.MemberNicknameCreator;
@@ -465,4 +463,35 @@ class MemberControllerTest {
         inOrder.verify(accountService).delete(anyString());
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴 사유 등록 - DOCS")
+    void postDeleteReason_Docs() throws Exception {
+        // given
+        given(accountService.getMemberId(anyString())).willReturn(1L);
+
+        MemberDelete memberDelete = MemberDelete.builder().reason(MemberDeleteReason.NO_INFORMATION).build();
+
+        // expected
+        mockMvc.perform(post("/v1/member/delete-reason").with(csrf())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer {ACCESS_TOKEN}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(memberDelete))
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(document("v1-member-post-delete-reason",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
+                        ),
+                        requestFields(
+                                fieldWithPath("reason").type(MemberDeleteReason.class.getSimpleName())
+                                        .description("회원 탈퇴 사유 코드")
+                        )
+                ))
+        ;
+        then(memberService).should().registerDeleteReason(1L, MemberDeleteReason.NO_INFORMATION);
+    }
 }
