@@ -24,4 +24,7 @@ operation::v1-like-unlike[snippets='http-request,request-headers,path-parameters
 [[v1-like-get-liked-list]]
 == 좋아요한 게시물 조회
 
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
 operation::v1-like-get-liked-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
