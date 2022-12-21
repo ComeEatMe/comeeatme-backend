@@ -7,6 +7,7 @@ import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.MemberDeleteReason;
 import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
@@ -104,6 +105,12 @@ public class MemberService {
         Member member = getMemberById(memberId);
         member.delete();
         return new DeleteResult<>(member.getId());
+    }
+
+    @Transactional
+    public void registerDeleteReason(Long memberId, MemberDeleteReason reason) {
+        Member member = getMemberById(memberId);
+        member.setDeleteReason(reason);
     }
 
     private Member getMemberById(Long id) {

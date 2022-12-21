@@ -12,10 +12,7 @@ import com.comeeatme.domain.favorite.service.FavoriteService;
 import com.comeeatme.domain.image.service.ImageService;
 import com.comeeatme.domain.like.service.LikeService;
 import com.comeeatme.domain.member.Agreement;
-import com.comeeatme.domain.member.request.MemberEdit;
-import com.comeeatme.domain.member.request.MemberImageEdit;
-import com.comeeatme.domain.member.request.MemberSearch;
-import com.comeeatme.domain.member.request.MemberSignup;
+import com.comeeatme.domain.member.request.*;
 import com.comeeatme.domain.member.response.MemberAgreements;
 import com.comeeatme.domain.member.response.MemberDetailDto;
 import com.comeeatme.domain.member.response.MemberSimpleDto;
@@ -158,4 +155,13 @@ public class MemberController {
         ApiResult<DeleteResult<Long>> apiResult = ApiResult.success(deleteResult);
         return ResponseEntity.ok(apiResult);
     }
+
+    @PostMapping("/member/delete-reason")
+    public ResponseEntity<ApiResult<Void>> postDeleteReason(
+            @LoginUsername String username, @RequestBody @Valid MemberDelete memberDelete) {
+        Long memberId = accountService.getMemberId(username);
+        memberService.registerDeleteReason(memberId, memberDelete.getReason());
+        return ResponseEntity.ok(ApiResult.success());
+    }
+
 }

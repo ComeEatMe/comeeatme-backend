@@ -1,0 +1,1 @@
+alter table member add column delete_reason varchar(65);
