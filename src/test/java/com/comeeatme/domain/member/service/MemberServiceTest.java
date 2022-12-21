@@ -7,6 +7,7 @@ import com.comeeatme.domain.common.response.UpdateResult;
 import com.comeeatme.domain.image.Image;
 import com.comeeatme.domain.image.repository.ImageRepository;
 import com.comeeatme.domain.member.Member;
+import com.comeeatme.domain.member.MemberDeleteReason;
 import com.comeeatme.domain.member.MemberEditor;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.member.request.MemberEdit;
@@ -226,5 +227,19 @@ class MemberServiceTest {
         // then
         assertThat(result.getId()).isEqualTo(1L);
         then(member).should().delete();
+    }
+
+    @Test
+    void registerDeleteReason() {
+        // given
+        Member member = mock(Member.class);
+        given(member.getUseYn()).willReturn(true);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
+
+        // when
+        memberService.registerDeleteReason(1L, MemberDeleteReason.NO_INFORMATION);
+
+        // then
+        then(member).should().setDeleteReason(MemberDeleteReason.NO_INFORMATION);
     }
 }

@@ -2,10 +2,7 @@ package com.comeeatme.domain.member;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
 import com.comeeatme.domain.image.Image;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -33,6 +30,11 @@ public class Member extends BaseTimeEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Image image;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delete_reason", length = 65)
+    @Setter
+    private MemberDeleteReason deleteReason;
 
     @Builder
     private Member(

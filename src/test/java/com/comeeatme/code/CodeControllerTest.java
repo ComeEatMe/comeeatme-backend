@@ -93,6 +93,8 @@ class CodeControllerTest {
                 //.andExpect(jsonPath("$.EnumCodeExample").isNotEmpty())  // 등록된 EnumMapperType
                 .andExpect(jsonPath("$.HashtagGroup").isNotEmpty())
                 .andExpect(jsonPath("$.Hashtag").isNotEmpty())
+                .andExpect(jsonPath("$.NoticeType").isNotEmpty())
+                .andExpect(jsonPath("$.MemberDeleteReason").isNotEmpty())
                 .andDo(document("code-api-get-all",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
@@ -100,7 +102,9 @@ class CodeControllerTest {
                                 //subsectionWithPath("FieldCategory").description("분야 카테고리")    // RestDocs 등록
                                 subsectionWithPath("HashtagGroup").description("해쉬태그 그룹"),
                                 subsectionWithPath("Hashtag").description("해쉬태그"),
-                                subsectionWithPath("ReportReason").description("신고사유")
+                                subsectionWithPath("ReportReason").description("신고사유"),
+                                subsectionWithPath("NoticeType").description("공지사항 종류"),
+                                subsectionWithPath("MemberDeleteReason").description("회원 탈퇴 사유")
                         )
                 ));
     }
