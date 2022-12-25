@@ -16,7 +16,7 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
 
     public Slice<NoticeDto> getList(Pageable pageable) {
-        return noticeRepository.findAll(pageable)
+        return noticeRepository.findSliceByUseYnIsTrue(pageable)
                 .map(notice -> NoticeDto.builder()
                         .type(notice.getType())
                         .title(notice.getTitle())
