@@ -155,10 +155,15 @@ class PostServiceTest {
         given(post.toEditor()).willReturn(editorBuilder);
         given(editorBuilder.content("edited-content")).willReturn(editorBuilder);
 
-        Restaurant editedRestaurant = mock(Restaurant.class);
-        given(editedRestaurant.getUseYn()).willReturn(true);
-        given(restaurantRepository.findById(3L)).willReturn(Optional.of(editedRestaurant));
-        given(editorBuilder.restaurant(editedRestaurant)).willReturn(editorBuilder);
+        Restaurant lockRestaurant = mock(Restaurant.class);
+        given(lockRestaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findWithPessimisticLockById(postRestaurant.getId()))
+                .willReturn(Optional.of(lockRestaurant));
+
+        Restaurant editedLockRestaurant = mock(Restaurant.class);
+        given(editedLockRestaurant.getUseYn()).willReturn(true);
+        given(restaurantRepository.findWithPessimisticLockById(3L)).willReturn(Optional.of(editedLockRestaurant));
+        given(editorBuilder.restaurant(editedLockRestaurant)).willReturn(editorBuilder);
 
         PostEditor editor = mock(PostEditor.class);
         given(editorBuilder.build()).willReturn(editor);
@@ -186,6 +191,8 @@ class PostServiceTest {
         UpdateResult<Long> updateResult = postService.edit(postEdit, 1L);
 
         // then
+        then(lockRestaurant).should(times(1)).decreasePostCount();
+        then(editedLockRestaurant).should(times(1)).increasePostCount();
         then(post).should().edit(editor);
         then(post).should().addHashtag(Hashtag.CLEANLINESS);
         then(postHashtags).should().remove(postHashtag2);
