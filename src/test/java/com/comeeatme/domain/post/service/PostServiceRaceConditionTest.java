@@ -7,6 +7,7 @@ import com.comeeatme.domain.member.Member;
 import com.comeeatme.domain.member.repository.MemberRepository;
 import com.comeeatme.domain.post.repository.PostRepository;
 import com.comeeatme.domain.post.request.PostCreate;
+import com.comeeatme.domain.post.request.PostEdit;
 import com.comeeatme.domain.restaurant.Restaurant;
 import com.comeeatme.domain.restaurant.repository.RestaurantRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -249,6 +250,92 @@ class PostServiceRaceConditionTest {
         for (Restaurant foundRestaurant : foundRestaurants) {
             assertThat(foundRestaurant.getPostCount()).isZero();
         }
+    }
+
+    @Test
+    void edit() throws InterruptedException {
+        // given
+        Member member = memberRepository.save(
+                Member.builder()
+                        .nickname("떡볶이")
+                        .introduction("")
+                        .build()
+        );
+        AddressCode addressCode = addressCodeRepository.save(
+                AddressCode.builder()
+                        .code("1121510700")
+                        .name("경기도 성남시 분당구 야탑동")
+                        .fullName("야탑동")
+                        .depth(3)
+                        .terminal(true)
+                        .build()
+        );
+        Restaurant restaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("모노끼 야탑점")
+                        .phone("")
+                        .address(Address.builder()
+                                .name("경기 성남시 분당구 야탑동 353-4")
+                                .roadName("경기 성남시 분당구 야탑로69번길 24-6")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        Restaurant editedRestaurant = restaurantRepository.save(
+                Restaurant.builder()
+                        .name("edited-restaurant")
+                        .phone("")
+                        .address(Address.builder()
+                                .name("야탑동")
+                                .roadName("야탑로69번길")
+                                .addressCode(addressCode)
+                                .build())
+                        .build()
+        );
+
+        int postCount = 200;
+        List<Long> postIds = new ArrayList<>();
+        for (int i = 0; i < postCount; i++) {
+            PostCreate postCreate = PostCreate.builder()
+                    .restaurantId(restaurant.getId())
+                    .hashtags(Collections.emptySet())
+                    .imageIds(Collections.emptyList())
+                    .content("content")
+                    .build();
+            Long postId = postService.create(postCreate, member.getId()).getId();
+            postIds.add(postId);
+        }
+
+        // when
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            Long postId = postIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    PostEdit postEdit = PostEdit.builder()
+                            .restaurantId(editedRestaurant.getId())
+                            .content("edited-content")
+                            .hashtags(Collections.emptySet())
+                            .build();
+                    postService.edit(postEdit, postId);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        // then
+        Restaurant preEditRestaurant = restaurantRepository.findById(restaurant.getId()).orElseThrow();
+        assertThat(preEditRestaurant.getPostCount()).isEqualTo(100);
+
+        Restaurant postEditRestaurant = restaurantRepository.findById(editedRestaurant.getId()).orElseThrow();
+        assertThat(postEditRestaurant.getPostCount()).isEqualTo(100);
     }
 
 }
