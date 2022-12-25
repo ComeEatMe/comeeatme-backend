@@ -39,7 +39,7 @@ class NoticeServiceTest {
         given(notice.getTitle()).willReturn("title");
         given(notice.getContent()).willReturn("content");
         given(notice.getCreatedAt()).willReturn(LocalDateTime.of(2022, 12, 22, 2, 21));
-        given(noticeRepository.findAll(any(Pageable.class))).willReturn(new PageImpl<>(List.of(notice)));
+        given(noticeRepository.findSliceByUseYnIsTrue(any(Pageable.class))).willReturn(new PageImpl<>(List.of(notice)));
 
         // when
         PageRequest pageRequest = PageRequest.of(0, 10);

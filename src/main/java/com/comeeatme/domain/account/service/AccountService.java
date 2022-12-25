@@ -40,7 +40,7 @@ public class AccountService {
     }
 
     private Account getOrCreate(String username) {
-        Optional<Account> accountOptional = accountRepository.findByUsername(username);
+        Optional<Account> accountOptional = accountRepository.findByUsernameAndUseYnIsTrue(username);
         if (accountOptional.isEmpty()) {
             Account account = accountRepository.save(Account.builder()
                     .username(username)
@@ -72,8 +72,7 @@ public class AccountService {
     }
 
     private Account getAccountByUsername(String username) {
-        return accountRepository.findByUsername(username)
-                .filter(Account::getUseYn)
+        return accountRepository.findByUsernameAndUseYnIsTrue(username)
                 .orElseThrow(() -> new EntityNotFoundException("Account.username=" + username));
     }
 

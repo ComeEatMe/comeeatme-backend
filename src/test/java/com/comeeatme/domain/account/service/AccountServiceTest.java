@@ -38,10 +38,9 @@ class AccountServiceTest {
         given(member.getId()).willReturn(1L);
 
         Account account = mock(Account.class);
-        given(account.getUseYn()).willReturn(true);
         given(account.getMember()).willReturn(member);
 
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         // when
         Long result = accountService.getMemberId("username");
@@ -55,7 +54,7 @@ class AccountServiceTest {
         // given
         Account account = mock(Account.class);
         given(account.getUseYn()).willReturn(true);
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         // when
         Account result = accountService.login("username", "refresh-token", LocalDateTime.of(2022, 12, 9, 17, 23));
@@ -68,7 +67,7 @@ class AccountServiceTest {
     @Test
     void login_AccountNotExists() {
         // given
-        given(accountRepository.findByUsername("username")).willReturn(Optional.empty());
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.empty());
 
         Account account = mock(Account.class);
         given(account.getUseYn()).willReturn(true);
@@ -88,8 +87,7 @@ class AccountServiceTest {
     void logout() {
         // given
         Account account = mock(Account.class);
-        given(account.getUseYn()).willReturn(true);
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         // when
         accountService.logout("username");
@@ -102,8 +100,7 @@ class AccountServiceTest {
     void get() {
         // given
         Account account = mock(Account.class);
-        given(account.getUseYn()).willReturn(true);
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         // when
         Account result = accountService.get("username");
@@ -116,8 +113,7 @@ class AccountServiceTest {
     void signupMember() {
         // given
         Account account = mock(Account.class);
-        given(account.getUseYn()).willReturn(true);
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         Member member = mock(Member.class);
         given(member.getUseYn()).willReturn(true);
@@ -134,8 +130,7 @@ class AccountServiceTest {
     void delete() {
         // given
         Account account = mock(Account.class);
-        given(account.getUseYn()).willReturn(true);
-        given(accountRepository.findByUsername("username")).willReturn(Optional.of(account));
+        given(accountRepository.findByUsernameAndUseYnIsTrue("username")).willReturn(Optional.of(account));
 
         // when
         accountService.delete("username");

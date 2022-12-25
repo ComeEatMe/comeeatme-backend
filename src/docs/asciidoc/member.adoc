@@ -37,6 +37,9 @@ operation::v1-member-delete-image[snippets='http-request,request-headers,http-re
 [[v1-member-get-list]]
 == 회원 리스트 조회
 
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
 operation::v1-member-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
 
 

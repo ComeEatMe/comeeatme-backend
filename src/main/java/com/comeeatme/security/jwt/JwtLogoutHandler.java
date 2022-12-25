@@ -1,10 +1,8 @@
 package com.comeeatme.security.jwt;
 
-import com.comeeatme.domain.account.Account;
-import com.comeeatme.domain.account.repository.AccountRepository;
+import com.comeeatme.domain.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.StringUtils;
 
@@ -16,17 +14,14 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String token = jwtTokenProvider.resolveToken(request);
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getSubject(token);
-            Account account = accountRepository.findByUsername(username)
-                    .filter(Account::getUseYn)
-                    .orElseThrow(() -> new UsernameNotFoundException("username = " + username));
-            accountRepository.saveAndFlush(account);
+            accountService.logout(username);
         }
     }
 }

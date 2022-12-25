@@ -71,8 +71,11 @@ public class PostService {
                 .content(postEdit.getContent());
 
         if (!Objects.equals(post.getRestaurant().getId(), postEdit.getRestaurantId())) {
-            Restaurant restaurant = getRestaurantById(postEdit.getRestaurantId());
-            editorBuilder.restaurant(restaurant);
+            getRestaurantWithPessimisticLockById(post.getRestaurant().getId()).decreasePostCount();
+
+            Restaurant editedRestaurant = getRestaurantWithPessimisticLockById(postEdit.getRestaurantId());
+            editedRestaurant.increasePostCount();
+            editorBuilder.restaurant(editedRestaurant);
         }
 
         PostEditor editor = editorBuilder.build();
