@@ -352,7 +352,6 @@ class MemberControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.agreements[0].code").value(Agreement.TERMS_OF_SERVICE.name()))
-                .andExpect(jsonPath("$.data.agreements[1].code").value(Agreement.PERSONAL_INFORMATION.name()))
                 .andDo(document("v1-member-get-agreements",
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("인증 필요")
