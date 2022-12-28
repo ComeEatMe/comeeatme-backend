@@ -15,7 +15,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, R
 
     Slice<Restaurant> findSliceByNameStartingWithAndUseYnIsTrue(Pageable pageable, String name);
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Restaurant> findWithPessimisticLockById(Long id);
 
     Slice<Restaurant> findSliceByPostCountGreaterThanAndUseYnIsTrue(Pageable pageable, int postCount);
@@ -23,7 +23,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long>, R
     Slice<Restaurant> findSliceByAddressAddressCodeCodeStartingWithAndPostCountGreaterThanAndUseYnIsTrue(
             Pageable pageable, String addressCode, int postCount);
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Restaurant> findAllWithPessimisticLockByIdIn(Collection<Long> id);
 
 }

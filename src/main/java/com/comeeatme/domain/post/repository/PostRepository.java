@@ -22,14 +22,14 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @EntityGraph(attributePaths = {"member", "member.image"})
     Slice<Post> findSliceWithMemberByRestaurantAndUseYnIsTrue(Pageable pageable, Restaurant restaurant);
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Post> findWithPessimisticLockById(Long id);
 
     boolean existsByIdAndMember(Long id, Member member);
 
     List<Post> findAllByMemberAndUseYnIsTrue(Member member);
 
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Post> findAllWithPessimisticLockByIdIn(Collection<Long> id);
 
 }
