@@ -1,0 +1,49 @@
+= Restaurant
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-restaurant-search-simple]]
+== 음식점 제목 및 주소 검색
+
+Page parameter
+
+sort 불가능
+
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-restaurant-search-simple[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
+[[v1-restaurant-search]]
+== 음식점 검색
+
+Page parameter
+
+sort 사용 불가능
+
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-restaurant-search[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
+[[v1-restaurant-get-ranked-list]]
+== 음식점 정렬된 리스트 조회 (랭킹) - DOCS
+
+Page parameter
+
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-restaurant-get-ranked-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
+[[v1-restaurant-get]]
+== 음식점 상세 조회
+
+operation::v1-restaurant-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

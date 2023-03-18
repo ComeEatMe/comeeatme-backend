@@ -1,0 +1,33 @@
+= Favorite
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-favorite-put]]
+== 음식점 맛집 즐겨찾기
+
+operation::v1-favorite-put[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
+
+
+[[v1-favorite-delete]]
+== 음식점 맛집 즐겨찾기 취소
+
+operation::v1-favorite-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields']
+
+
+[[v1-favorite-get-favorite-list]]
+== 즐겨찾기된 음식점 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-favorite-get-favorite-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+

@@ -1,0 +1,47 @@
+= Comment
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-comments-post]]
+== 댓글 작성
+
+operation::v1-comment-post[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
+
+
+[[v1-comments-patch]]
+== 댓글 수정
+
+operation::v1-comment-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
+
+
+[[v1-comments-delete]]
+== 댓글 삭제
+
+operation::v1-comment-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-comments-get]]
+== 댓글 리스트 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-comment-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+
+
+[[v1-comment-get-member-comment-list]]
+== 회원 댓글 리스트 조회
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-comment-get-member-comment-list[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']

@@ -1,0 +1,62 @@
+= Post
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-post-get-list]]
+== 게시물 리스트 조회
+
+sort 파라미터 사용 불가능
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-post-get-list[snippets='http-request,request-headers,request-parameters,http-response,response-fields-content']
+
+
+[[v1-post-get-list-of-member]]
+== 회원 게시물 리스트 조회
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-post-get-list-of-member[snippets='http-request,request-headers,path-parameters,request-parameters,http-response,response-fields-content']
+
+
+[[v1-post-get-list-of-restaurant]]
+== 음식점 게시물 리스트 조회
+
+Page parameter
+include::{snippets}/common-ApiResult-slice/request-parameters.adoc[]
+
+operation::v1-post-get-list-of-restaurant[snippets='http-request,request-headers,path-parameters,http-response,response-fields-content']
+
+
+[[v1-post-get]]
+== 게시물 상세 조회
+
+operation::v1-post-get[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']
+
+
+[[v1-post-post]]
+== 게시물 작성
+
+operation::v1-post-post[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+
+
+[[v1-post-patch]]
+== 게시물 수정
+
+operation::v1-post-patch[snippets='http-request,request-headers,path-parameters,request-fields,http-response,response-fields-data']
+
+
+[[v1-post-delete]]
+== 게시물 삭제
+
+operation::v1-post-delete[snippets='http-request,request-headers,path-parameters,http-response,response-fields-data']

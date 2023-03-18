@@ -1,0 +1,16 @@
+= Report
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:operation-http-request-title: Example request
+:operation-http-response-title: Example response
+
+
+[[v1-report-post]]
+== 신고하기
+
+operation::v1-report-post[snippets='http-request,request-headers,request-fields,http-response,response-fields-data']
+
