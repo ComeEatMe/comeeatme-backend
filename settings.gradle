@@ -1,1 +1,5 @@
 rootProject.name = 'comeeatme-backend'
+
+include 'domain'
+include 'api'
+include 'web'
