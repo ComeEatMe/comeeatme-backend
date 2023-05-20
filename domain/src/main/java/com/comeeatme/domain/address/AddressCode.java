@@ -44,8 +44,7 @@ public class AddressCode extends BaseTimeEntity implements Persistable<String> {
     private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_code", updatable = false,
-            foreignKey = @ForeignKey(name = "FK_address_code_parent_code"))
+    @JoinColumn(name = "parent_code", updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private AddressCode parentCode;
 
     @Column(name = "name", length = 15, nullable = false, updatable = false)

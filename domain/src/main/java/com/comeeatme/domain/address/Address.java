@@ -19,7 +19,7 @@ public class Address {
     private String roadName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "address_code")
+    @JoinColumn(name = "address_code", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private AddressCode addressCode;
 
     @Builder
