@@ -1,6 +1,5 @@
 package com.comeeatme.batch.job.address;
 
-import com.comeeatme.batch.property.FileProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -32,7 +31,7 @@ public class AddressCodeFileDownloadJobConfig {
 
     private final StepBuilderFactory stepBuilderFactory;
 
-    private final FileProperty fileProperty;
+    private final AddressCodeFileConstant fileConstant;
 
     @Bean
     public Job addressCodeFileDownloadJob() {
@@ -48,15 +47,15 @@ public class AddressCodeFileDownloadJobConfig {
         return stepBuilderFactory.get(STEP_NAME)
                 .tasklet((contribution, chunkContext) -> {
                     String downloadUrl = "https://www.code.go.kr/etc/codeFullDown.do?codeseId=법정동코드";
-                    String zipName = "address_code.zip";
-                    Path zipPath = new File(fileProperty.getAddressCodeDir(), zipName).toPath();
+                    String zipName = fileConstant.getZipName();
+                    Path zipPath = new File(fileConstant.getDir(), zipName).toPath();
 
-                    log.info("법정동 코드 데이터 zip 파일 다운로드 시작 name={}, path={}, downloadUrl={}",
-                            zipName, zipPath, downloadUrl);
+                    log.info("법정동 코드 데이터 zip 파일 다운로드 시작 path={}, downloadUrl={}",
+                            zipPath, downloadUrl);
                     try (InputStream in = new URL(downloadUrl).openStream()) {
                         Files.copy(in, zipPath);
                     }
-                    log.info("법정동 코드 데이터 zip 파일 다운로드 완료");
+                    log.info("법정동 코드 데이터 zip 파일 다운로드 완료 path={}", zipPath);
 
                     return RepeatStatus.FINISHED;
                 }).build();
