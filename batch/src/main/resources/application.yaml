@@ -21,7 +21,7 @@ spring:
   batch:
     job:
       enabled: true
-      names: 'AddressCodeFileDownloadJob'
+      names: ${job.name:NONE}
     jdbc:
       initialize-schema: never
       isolation-level-for-create: default
