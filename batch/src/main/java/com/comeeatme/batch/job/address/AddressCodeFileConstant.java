@@ -12,6 +12,8 @@ public class AddressCodeFileConstant extends AbstractFileConstant {
 
     private final File dir;
 
+    private final String txtName = "법정동코드 전체자료.txt";
+
     private final String zipName = "address_code.zip";
 
     public AddressCodeFileConstant() {
