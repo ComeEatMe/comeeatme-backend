@@ -25,7 +25,7 @@ public class LocalData extends BaseTimeEntity implements Persistable<String>  {
     @Column(name = "management_num", length = 45, nullable = false, updatable = false)
     private String managementNum;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "restaurant_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT), updatable = false)
     private Restaurant restaurant;
 

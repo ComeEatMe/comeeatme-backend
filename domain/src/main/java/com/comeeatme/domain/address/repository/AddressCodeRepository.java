@@ -19,4 +19,6 @@ public interface AddressCodeRepository extends JpaRepository<AddressCode, String
 
     List<AddressCode> findAllByParentCodeAndUseYnIsTrue(AddressCode parentCode);
 
+    List<AddressCode> findAllByTerminalIsTrueAndUseYnIsTrue();
+
 }

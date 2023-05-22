@@ -251,4 +251,50 @@ class AddressCodeRepositoryTest {
                 .extracting("code").containsOnly("4113510700", "4113510300");
     }
 
+    @Test
+    void findAllByTerminalIsTrueAndUseYnIsTrue() {
+        // given
+        List<AddressCode> addressCodes = List.of(
+                AddressCode.builder()
+                        .code("0")
+                        .name("0")
+                        .fullName("0")
+                        .depth(1)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()
+                        .code("1")
+                        .name("1")
+                        .fullName("1")
+                        .depth(2)
+                        .terminal(true)
+                        .build(),
+                AddressCode.builder()   // terminal = false, useYn = true
+                        .code("2")
+                        .name("2")
+                        .fullName("2")
+                        .depth(4)
+                        .terminal(false)
+                        .build(),
+                AddressCode.builder()   // terminal = true, useYn = false
+                        .code("3")
+                        .name("3")
+                        .fullName("3")
+                        .depth(1)
+                        .terminal(true)
+                        .build()
+        );
+        addressCodes.get(addressCodes.size() - 1).delete();
+        addressCodeRepository.saveAll(addressCodes);
+
+        // when
+        List<AddressCode> result = addressCodeRepository.findAllByTerminalIsTrueAndUseYnIsTrue();
+
+        // then
+        assertThat(result)
+                .hasSize(2)
+                .extracting("code")
+                .containsOnly(addressCodes.get(0).getCode(), addressCodes.get(1).getCode());
+    }
+
 }
