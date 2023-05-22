@@ -24,7 +24,7 @@ public class RestaurantInitCsvFieldSetMapper implements FieldSetMapper<LocalData
                 .rdnWhlAddr(fieldSet.readString("도로명전체주소"))
                 .siteArea(fieldSet.readString("소재지면적"))
                 .apvPermYmd(fieldSet.readString("인허가일자"))
-                .dcbYmd(fieldSet.readString("인허가취소일자"))
+                .apvCancelYmd(fieldSet.readString("인허가취소일자"))
                 .dtlStateGbn(fieldSet.readString("상세영업상태코드"))
                 .dtlStateNm(fieldSet.readString("상세영업상태명"))
                 .x(fieldSet.readString("좌표정보(x)"))
