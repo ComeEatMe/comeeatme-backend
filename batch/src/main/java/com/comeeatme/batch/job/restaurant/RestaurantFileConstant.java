@@ -28,4 +28,14 @@ public class RestaurantFileConstant extends AbstractFileConstant {
     public String getInitZipName(String serviceId) {
         return "init-" + serviceId + ".zip";
     }
+
+    public String getInitFileName(String serviceId) {
+        if ("07_24_04_P".equals(serviceId)) {
+            return "fulldata_07_24_04_P_일반음식점.csv";
+        } else if ("07_24_05_P".equals(serviceId)) {
+            return "fulldata_07_24_05_P_휴게음식점.csv";
+        }
+
+        throw new IllegalArgumentException(serviceId + "는 지원하지 않는 지역데이터 서비스 아이디 입니다.");
+    }
 }
