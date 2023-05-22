@@ -32,9 +32,6 @@ open-api:
     road-address:
       path: /addrlink/addrLinkApi.do
       key: ${BUSINESS_JUSO_ROAD_ADDRESS_KEY}
-    coord:
-      path: /addrlink/addrCoordApi.do
-      key: ${BUSINESS_JUSO_COORD_KEY}
   local-data:
     base-url: http://www.localdata.go.kr
     path: /platform/rest/TO0/openDataApi
