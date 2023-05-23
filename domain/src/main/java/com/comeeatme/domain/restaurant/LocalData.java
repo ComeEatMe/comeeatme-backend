@@ -1,10 +1,7 @@
 package com.comeeatme.domain.restaurant;
 
 import com.comeeatme.domain.common.core.BaseTimeEntity;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
@@ -47,6 +44,7 @@ public class LocalData extends BaseTimeEntity implements Persistable<String>  {
 
     // 폐업 일자
     @Column(name = "closed_date", length = 25, nullable = false, updatable = false)
+    @Setter
     private String closedDate;
 
     @Column(name = "update_at", nullable = false, updatable = false)

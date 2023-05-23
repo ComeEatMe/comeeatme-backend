@@ -37,7 +37,7 @@ public class LocalDataRestaurantEntityBuildProcessor implements ItemProcessor<Lo
                 .phone(item.getSiteTel())
                 .address(address)
                 .build();
-        return LocalData.builder()
+        LocalData localData = LocalData.builder()
                 .managementNum(item.getMgtNo())
                 .restaurant(restaurant)
                 .serviceId(item.getOpnSvcId())
@@ -47,6 +47,12 @@ public class LocalDataRestaurantEntityBuildProcessor implements ItemProcessor<Lo
                 .closedDate(Optional.ofNullable(item.getDcbYmd()).orElse(""))
                 .updateAt(LocalDateTime.parse(item.getUpdateDt(), updateDtFormatter))
                 .build();
+        if ("폐업".equals(item.getDtlStateNm())) {
+            restaurant.delete();
+            localData.delete();
+            localData.setClosedDate(item.getDcbYmd());
+        }
+        return localData;
     }
 
 }
