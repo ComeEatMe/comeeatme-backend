@@ -1,0 +1,18 @@
+dependencies {
+    implementation project(':domain')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    implementation 'net.lingala.zip4j:zip4j:2.11.4'
+
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    implementation 'org.modelmapper:modelmapper:3.1.0'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+
+    testImplementation 'com.squareup.okhttp3:okhttp'
+    testImplementation 'com.squareup.okhttp3:mockwebserver'
+}

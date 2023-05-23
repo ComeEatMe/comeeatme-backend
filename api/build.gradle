@@ -1,0 +1,21 @@
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+    api project(':domain')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testRuntimeOnly 'com.h2database:h2'
+
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
