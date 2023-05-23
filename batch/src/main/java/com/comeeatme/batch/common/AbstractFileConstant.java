@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job;
+package com.comeeatme.batch.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;

@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job.address;
+package com.comeeatme.batch.address;
 
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;

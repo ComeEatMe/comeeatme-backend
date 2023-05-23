@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant;
 
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
+import com.comeeatme.batch.restaurant.LocalDataRestaurantDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
 

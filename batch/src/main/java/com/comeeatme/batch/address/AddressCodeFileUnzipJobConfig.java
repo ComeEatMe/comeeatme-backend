@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job.address;
+package com.comeeatme.batch.address;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

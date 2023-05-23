@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job.restaurant;
+package com.comeeatme.batch.restaurant;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,7 +1,7 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant;
 
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
-import com.comeeatme.batch.job.restaurant.exception.NoAddressException;
+import com.comeeatme.batch.restaurant.LocalDataRestaurantDto;
+import com.comeeatme.batch.restaurant.exception.NoAddressException;
 import com.comeeatme.batch.service.juso.JusoService;
 import com.comeeatme.batch.service.juso.dto.JusoAddressDto;
 import lombok.RequiredArgsConstructor;

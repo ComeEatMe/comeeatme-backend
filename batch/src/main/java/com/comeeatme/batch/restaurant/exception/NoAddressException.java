@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.restaurant.exception;
+package com.comeeatme.batch.restaurant.exception;
 
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
+import com.comeeatme.batch.restaurant.LocalDataRestaurantDto;
 
 public class NoAddressException extends RuntimeException {
 

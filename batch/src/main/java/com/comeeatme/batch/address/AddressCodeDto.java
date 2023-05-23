@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job.address;
+package com.comeeatme.batch.address;
 
 import lombok.Value;
 

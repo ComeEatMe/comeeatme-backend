@@ -1,11 +1,9 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant.init;
 
 
-import com.comeeatme.batch.job.restaurant.AddressCodeFinder;
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
-import com.comeeatme.batch.job.restaurant.RestaurantFileConstant;
-import com.comeeatme.batch.job.restaurant.exception.NoAddressException;
-import com.comeeatme.batch.job.restaurant.exception.NotFoundAddressCodeException;
+import com.comeeatme.batch.restaurant.*;
+import com.comeeatme.batch.restaurant.exception.NoAddressException;
+import com.comeeatme.batch.restaurant.exception.NotFoundAddressCodeException;
 import com.comeeatme.batch.service.exception.RequestFrequentInShortException;
 import com.comeeatme.batch.service.juso.JusoService;
 import com.comeeatme.domain.restaurant.LocalData;
@@ -104,7 +102,7 @@ public class RestaurantInitJobConfig {
                 .backOffPolicy(fixedBackOffPolicy)
                 .retryLimit(100)
 
-                .listener(new RestaurantInitSkipListener())
+                .listener(new RestaurantSkipListener())
                 .build();
     }
 

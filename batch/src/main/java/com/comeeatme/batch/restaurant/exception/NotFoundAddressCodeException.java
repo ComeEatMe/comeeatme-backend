@@ -1,4 +1,4 @@
-package com.comeeatme.batch.job.restaurant.exception;
+package com.comeeatme.batch.restaurant.exception;
 
 public class NotFoundAddressCodeException extends RuntimeException {
 

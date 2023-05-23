@@ -1,12 +1,11 @@
-package com.comeeatme.batch.job.restaurant.update;
+package com.comeeatme.batch.restaurant.update;
 
 
-import com.comeeatme.batch.job.restaurant.AddressCodeFinder;
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
-import com.comeeatme.batch.job.restaurant.RestaurantFileConstant;
-import com.comeeatme.batch.job.restaurant.exception.NoAddressException;
-import com.comeeatme.batch.job.restaurant.exception.NotFoundAddressCodeException;
-import com.comeeatme.batch.job.restaurant.init.*;
+import com.comeeatme.batch.restaurant.*;
+import com.comeeatme.batch.restaurant.exception.NoAddressException;
+import com.comeeatme.batch.restaurant.exception.NotFoundAddressCodeException;
+import com.comeeatme.batch.restaurant.init.LocalDataRestaurantEntityBuildProcessor;
+import com.comeeatme.batch.restaurant.RestaurantSkipListener;
 import com.comeeatme.batch.service.exception.RequestFrequentInShortException;
 import com.comeeatme.batch.service.juso.JusoService;
 import com.comeeatme.domain.restaurant.LocalData;
@@ -103,7 +102,7 @@ public class RestaurantUpdateJobConfig {
                 .backOffPolicy(fixedBackOffPolicy)
                 .retryLimit(100)
 
-                .listener(new RestaurantInitSkipListener())
+                .listener(new RestaurantSkipListener())
                 .build();
     }
 

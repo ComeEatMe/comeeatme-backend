@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant.init;
 
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
+import com.comeeatme.batch.restaurant.LocalDataRestaurantDto;
 import org.springframework.batch.item.ItemProcessor;
 
 public class RestaurantSkipClosedProcessor implements ItemProcessor<LocalDataRestaurantDto, LocalDataRestaurantDto> {

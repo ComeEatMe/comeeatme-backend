@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.restaurant;
+package com.comeeatme.batch.restaurant;
 
-import com.comeeatme.batch.job.AbstractFileConstant;
+import com.comeeatme.batch.common.AbstractFileConstant;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

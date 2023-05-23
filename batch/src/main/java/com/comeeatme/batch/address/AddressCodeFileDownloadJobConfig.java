@@ -1,7 +1,5 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.address;
 
-
-import com.comeeatme.batch.job.restaurant.RestaurantFileConstant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -9,10 +7,8 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,48 +18,44 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@RequiredArgsConstructor
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
-public class RestaurantInitFileDownloadJobConfig {
+public class AddressCodeFileDownloadJobConfig {
 
-    private static final String JOB_NAME = "RestaurantInitFileDownloadJob";
+    private static final String JOB_NAME = "AddressCodeFileDownloadJob";
 
-    private static final String STEP_NAME = "RestaurantInitFileDownloadStep";
+    private static final String STEP_NAME = "AddressCodeFileDownloadStep";
 
     private final JobBuilderFactory jobBuilderFactory;
 
     private final StepBuilderFactory stepBuilderFactory;
 
-    private final RestaurantFileConstant fileConstant;
+    private final AddressCodeFileConstant fileConstant;
 
     @Bean
-    public Job restaurantInitFileDownloadJob() {
+    public Job addressCodeFileDownloadJob() {
         return jobBuilderFactory.get(JOB_NAME)
-                .start(restaurantInitFileDownloadStep(null))
+                .start(addressCodeFileDownloadStep())
                 .incrementer(new RunIdIncrementer())
-                .validator(new DefaultJobParametersValidator(
-                        new String[] {"serviceId"},
-                        new String[] {}
-                ))
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step restaurantInitFileDownloadStep(@Value("#{jobParameters[serviceId]}") String serviceId) {
+    public Step addressCodeFileDownloadStep() {
         return stepBuilderFactory.get(STEP_NAME)
                 .tasklet((contribution, chunkContext) -> {
-                    String downloadUrl = "https://www.localdata.go.kr/datafile/each/" + serviceId + "_CSV.zip";
-                    String zipName = fileConstant.getInitZipName(serviceId);
-                    Path zipPath = new File(fileConstant.getInitDir(), zipName).toPath();
+                    String downloadUrl = "https://www.code.go.kr/etc/codeFullDown.do?codeseId=법정동코드";
+                    String zipName = fileConstant.getZipName();
+                    Path zipPath = new File(fileConstant.getDir(), zipName).toPath();
 
-                    log.info("음식점(" + serviceId + ") 초기화 데이터 zip 파일 다운로드 시작 path={}, downloadUrl={}",
+                    log.info("법정동 코드 데이터 zip 파일 다운로드 시작 path={}, downloadUrl={}",
                             zipPath, downloadUrl);
                     try (InputStream in = new URL(downloadUrl).openStream()) {
                         Files.copy(in, zipPath);
                     }
-                    log.info("음식점(" + serviceId + ") 초기화 데이터 zip 파일 다운로드 완료 path={}", zipPath);
+                    log.info("법정동 코드 데이터 zip 파일 다운로드 완료 path={}", zipPath);
 
                     return RepeatStatus.FINISHED;
                 }).build();

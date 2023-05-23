@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.restaurant;
+package com.comeeatme.batch.restaurant;
 
-import com.comeeatme.batch.job.restaurant.exception.NotFoundAddressCodeException;
+import com.comeeatme.batch.restaurant.exception.NotFoundAddressCodeException;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.address.repository.AddressCodeRepository;
 import org.springframework.batch.core.configuration.annotation.StepScope;

@@ -1,7 +1,7 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant.init;
 
-import com.comeeatme.batch.job.restaurant.AddressCodeFinder;
-import com.comeeatme.batch.job.restaurant.LocalDataRestaurantDto;
+import com.comeeatme.batch.restaurant.AddressCodeFinder;
+import com.comeeatme.batch.restaurant.LocalDataRestaurantDto;
 import com.comeeatme.domain.address.Address;
 import com.comeeatme.domain.address.AddressCode;
 import com.comeeatme.domain.restaurant.LocalData;

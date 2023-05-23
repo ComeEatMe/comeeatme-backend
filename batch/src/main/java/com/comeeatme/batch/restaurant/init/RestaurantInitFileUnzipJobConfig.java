@@ -1,7 +1,7 @@
-package com.comeeatme.batch.job.restaurant.init;
+package com.comeeatme.batch.restaurant.init;
 
 
-import com.comeeatme.batch.job.restaurant.RestaurantFileConstant;
+import com.comeeatme.batch.restaurant.RestaurantFileConstant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.ZipFile;

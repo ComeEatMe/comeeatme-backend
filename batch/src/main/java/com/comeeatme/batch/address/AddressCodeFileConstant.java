@@ -1,6 +1,6 @@
-package com.comeeatme.batch.job.address;
+package com.comeeatme.batch.address;
 
-import com.comeeatme.batch.job.AbstractFileConstant;
+import com.comeeatme.batch.common.AbstractFileConstant;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
