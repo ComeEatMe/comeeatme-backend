@@ -100,7 +100,7 @@ public class RestaurantInitJobConfig {
 
                 .retry(RequestFrequentInShortException.class)
                 .backOffPolicy(fixedBackOffPolicy)
-                .retryLimit(100)
+                .retryLimit(1000)
 
                 .listener(new RestaurantSkipListener())
                 .build();
