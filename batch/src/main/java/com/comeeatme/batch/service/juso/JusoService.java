@@ -7,6 +7,7 @@ import com.comeeatme.batch.service.juso.dto.JusoAddressDto;
 import com.comeeatme.batch.service.juso.dto.JusoCommonDto;
 import com.comeeatme.batch.service.juso.dto.JusoResultDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import static java.util.Objects.isNull;
 
 @Service
 @ClientLog
+@Slf4j
 public class JusoService {
 
     private final String baseUrl;
@@ -74,6 +76,7 @@ public class JusoService {
         if (isNull(jusoCommon)) {
             throw new RequestErrorException("응답에 문제가 있습니다.");
         } else if (Objects.equals("E007", jusoCommon.getErrorCode())) {
+            log.warn("짧은 시간 내에 API가 너무 많이 호출되었습니다.");
             throw new RequestFrequentInShortException(jusoCommon.getErrorMessage());
         } else if (!Objects.equals("0", jusoCommon.getErrorCode())) {
             throw new RequestErrorException(
